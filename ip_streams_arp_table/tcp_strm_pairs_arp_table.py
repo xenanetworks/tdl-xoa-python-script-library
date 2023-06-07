@@ -93,7 +93,7 @@ for i in range(IP_PAIRS):
     mac = "{:012X}".format(int(PORT_B_MAC_BASE, 16) + i)
     mac_string = ''.join(mac[j]+mac[j+1] for j in range(0, len(mac), 2))
     mac_list_b.append(mac_string)
-for i in range(256):
+for i in range(IP_PAIRS):
     temp = ArpChunk(
         ipv4_address=ipaddress.IPv4Address(PORT_B_IP_BASE) + i,
         prefix=32,
