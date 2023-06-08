@@ -12,7 +12,10 @@ from xoa_driver.hlfuncs import mgmt
 from xoa_driver.misc import ArpChunk, NdpChunk, Hex
 import ipaddress
 from binascii import hexlify
+from typing import Union
 
+FreyaPort = Union[ports.PThor100G5S4P, ports.PThor400G7S1P, ports.PThor400G7S1P_b, ports.PThor400G7S1P_c, ports.PThor400G7S1P_d]
+FreyaModule = Union[modules.MThor100G5S4P, modules.MThor400G7S1P, modules.MThor400G7S1P_b, modules.MThor400G7S1P_c, modules.MThor400G7S1P_d]
 
 #---------------------------
 # GLOBAL PARAMS
@@ -20,7 +23,7 @@ from binascii import hexlify
 CHASSIS_IP = "10.20.1.166"
 USERNAME = "XOA"
 MODULE_IDXS = [4,8]
-PORT_IDX = 0
+PORT_IDXS = [0]
 
 #---------------------------
 # MODULE MEDIA
@@ -108,7 +111,7 @@ async def thor_module_streams(stop_event: asyncio.Event):
             # access module on the tester
             module = tester.modules.obtain(mid)
 
-            if not isinstance(module, modules.MThor400G7S1P): #!Make sure this is your module!#
+            if not isinstance(module, FreyaModule): #!Make sure this is your module!#
                 return None # commands which used in this example are not supported by Chimera Module
 
             # reserve module
@@ -141,77 +144,83 @@ async def thor_module_streams(stop_event: asyncio.Event):
             module = tester.modules.obtain(mid)
             _modules.append(module)
 
-            if not isinstance(module, modules.MThor400G7S1P): #!Make sure this is your module!#
+            if not isinstance(module, FreyaModule): #!Make sure this is your module!#
                 return None # commands which used in this example are not supported by Chimera Module
 
             # reserve module
             await mgmt.reserve_module(module=module, force=True)
 
-            # access port on the module
-            port = module.ports.obtain(PORT_IDX)
-            await mgmt.reserve_port(port, force=True)
+            for pid in PORT_IDXS:
+                # access port on the module
+                port = module.ports.obtain(pid)
+                
+                await mgmt.reserve_port(port, force=True)
 
-            print(f"Set port {mid}/{PORT_IDX} to RS-FEC")
-            # fec mode = rs-fec
-            await port.fec_mode.set_rs_fec()
+                print(f"Set port {mid}/{pid} to RS-FEC")
+                # fec mode = rs-fec
+                await port.fec_mode.set_rs_fec()
+                # loopback mode
+                await port.loop_back.set_none()
+                
+                # Create the stream on the port
+                print(f"Create a stream on port {mid}/{pid}")
+                stream = await port.streams.create()
 
-            # Create the stream on the port
-            print(f"Create a stream on port {mid}/{PORT_IDX}")
-            stream = await port.streams.create()
+                print(f"{'Stream DMAC:':<20}{DST_MAC}")
+                print(f"{'Stream SMAC:':<20}{SRC_MAC}")
+                print(f"{'Stream SRC IPv4:':<20}{SRC_IPV4}")
+                print(f"{'Stream DST IPv4:':<20}{DST_IPV4}")
+                src_ip = ipaddress.IPv4Address(SRC_IPV4)
+                hexlify(src_ip.packed).decode()
+                dst_ip = ipaddress.IPv4Address(DST_IPV4)
+                hexlify(dst_ip.packed).decode()
+                HEADER = f'{DST_MAC}{SRC_MAC}{ETHERNET_TYPE}{VERSION}{HEADER_LENGTH}{DSCP_ECN}{TOTAL_LENGTH}{IDENTIFICATION}{FLAGS_OFFSET}{TTL}11{HEADER_CHECKSUM}{hexlify(src_ip.packed).decode()}{hexlify(dst_ip.packed).decode()}'
 
-            print(f"{'Stream DMAC:':<20}{DST_MAC}")
-            print(f"{'Stream SMAC:':<20}{SRC_MAC}")
-            print(f"{'Stream SRC IPv4:':<20}{SRC_IPV4}")
-            print(f"{'Stream DST IPv4:':<20}{DST_IPV4}")
-            src_ip = ipaddress.IPv4Address(SRC_IPV4)
-            hexlify(src_ip.packed).decode()
-            dst_ip = ipaddress.IPv4Address(DST_IPV4)
-            hexlify(dst_ip.packed).decode()
-            HEADER = f'{DST_MAC}{SRC_MAC}{ETHERNET_TYPE}{VERSION}{HEADER_LENGTH}{DSCP_ECN}{TOTAL_LENGTH}{IDENTIFICATION}{FLAGS_OFFSET}{TTL}11{HEADER_CHECKSUM}{hexlify(src_ip.packed).decode()}{hexlify(dst_ip.packed).decode()}'
-
-            print(f"{'Stream Rate:':<20}{STREAM_RATE}%")
-            print(f"{'Stream Frame Size:':<20}{FRAME_SIZE_BYTES} bytes")
-            print(f"{'Traffic Duration:':<20}{TRAFFIC_DURATION} seconds")
-            await utils.apply(
-                stream.enable.set_on(),
-                stream.packet.limit.set(packet_count=-1),
-                stream.comment.set(f"Test stream"),
-                stream.rate.fraction.set(stream_rate_ppm=int(1000000*(STREAM_RATE/100))),            
-                stream.packet.header.protocol.set(segments=[
-                    enums.ProtocolOption.ETHERNET,
-                    enums.ProtocolOption.IP]),
-                stream.packet.header.data.set(hex_data=Hex(HEADER)),
-                stream.packet.length.set(length_type=enums.LengthType.FIXED, min_val=FRAME_SIZE_BYTES, max_val=FRAME_SIZE_BYTES),
-                stream.payload.content.set(payload_type=enums.PayloadType.PATTERN, hex_data=Hex(PAYLOAD_PATTERN)),
-                stream.tpld_id.set(test_payload_identifier = mid),
-                stream.insert_packets_checksum.set_on(),
-            )
-            _ports.append(port)
+                print(f"{'Stream Rate:':<20}{STREAM_RATE}%")
+                print(f"{'Stream Frame Size:':<20}{FRAME_SIZE_BYTES} bytes")
+                print(f"{'Traffic Duration:':<20}{TRAFFIC_DURATION} seconds")
+                await utils.apply(
+                    stream.enable.set_on(),
+                    stream.packet.limit.set(packet_count=-1),
+                    stream.comment.set(f"Test stream"),
+                    stream.rate.fraction.set(stream_rate_ppm=int(1000000*(STREAM_RATE/100))),            
+                    stream.packet.header.protocol.set(segments=[
+                        enums.ProtocolOption.ETHERNET,
+                        enums.ProtocolOption.IP]),
+                    stream.packet.header.data.set(hex_data=Hex(HEADER)),
+                    stream.packet.length.set(length_type=enums.LengthType.FIXED, min_val=FRAME_SIZE_BYTES, max_val=FRAME_SIZE_BYTES),
+                    stream.payload.content.set(payload_type=enums.PayloadType.PATTERN, hex_data=Hex(PAYLOAD_PATTERN)),
+                    stream.tpld_id.set(test_payload_identifier = mid),
+                    stream.insert_packets_checksum.set_on(),
+                )
+                _ports.append(port)
 
         print(f"============================")
         print(f"{'TRAFFIC CONTROL'}")
         print(f"============================")
-        print(f"Clear port's RX & TX counters")
         for port in _ports:
+            print(f"Clear port {port.kind.module_id}/{port.kind.port_id} RX & TX counters")
             await utils.apply(
                 port.statistics.rx.clear.set(),
                 port.statistics.tx.clear.set()
             )
 
-        print(f"Start traffic")
+        
         for port in _ports:
+            print(f"Start traffic on port {port.kind.module_id}/{port.kind.port_id}")
             await port.traffic.state.set_start()
         
         await asyncio.sleep(TRAFFIC_DURATION)
-        print(f"Stop traffic")
+
         for port in _ports:
+            print(f"Stop traffic on port {port.kind.module_id}/{port.kind.port_id}")
             await port.traffic.state.set_stop()
 
         # read the TX/RX packets and TX/RX bytes
         await asyncio.sleep(2)
-        print(f"Read port's RX & TX counters")
 
         for port in _ports:
+            print(f"Read port {port.kind.module_id}/{port.kind.port_id} RX & TX counters")
             _tx, _rx = await utils.apply(
                 port.statistics.tx.total.get(),
                 port.statistics.rx.total.get(),
@@ -226,6 +235,10 @@ async def thor_module_streams(stop_event: asyncio.Event):
 
         for module in _modules:
             await mgmt.free_module(module=module, should_free_ports=True)
+        
+        print(f"============================")
+        print(f"{'DONE'}")
+        print(f"============================")
 
 
 
