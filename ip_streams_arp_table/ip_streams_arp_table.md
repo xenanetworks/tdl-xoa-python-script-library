@@ -163,7 +163,7 @@ For example, Line 198-200. This code snippet obtains a modifier object, places i
 
 The other modifier code snippets work in the same way: placing a modifier at a position of the packet header, increment the value from min to min in step of 1.
 
-### Run and Verify
+## Run and Verify
 Simply `python <script_name.py>` to run the script. You should then see the below in your console. (For Linux and macOS users, use `python3 <script_name.py>`)
 ```
 Making 1500 TCP stream pairs
