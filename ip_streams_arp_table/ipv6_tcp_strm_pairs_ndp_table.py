@@ -18,16 +18,16 @@ from binascii import hexlify
 #---------------------------
 CHASSIS_IP = "10.20.1.166"
 USERNAME = "XOA"
-MODULE_INDEX = 0
+MODULE_INDEX = 8
 PORT_INDEX_A = 0
-PORT_INDEX_B = 4
+PORT_INDEX_B = 1
 
 #---------------------------
 # STREAM ADDR
 #---------------------------
-PORT_A_IP_BASE = "10.0.0.2"
+PORT_A_IP_BASE = "fe80::10ba:9aa9:0002"
 PORT_A_MAC_BASE = "AAAAAAAAAA00"
-PORT_B_IP_BASE = "10.1.0.2"
+PORT_B_IP_BASE = "fe80::10bb:9aa9:0002"
 PORT_B_MAC_BASE = "BBBBBBBBBB00"
 
 #---------------------------
@@ -42,72 +42,68 @@ TX_PKT_LIMIT = 1000
 # STREAM HEADER
 #---------------------------
 # ETHERNET HEADER
-ETHERNET_TYPE =     "0800"
+ETHERNET_TYPE =     "86DD"
 
-# IPV4
-VERSION = "4"
-HEADER_LENGTH = "5"
-DSCP_ECN = "00"
-TOTAL_LENGTH = '{:04X}'.format(FRAME_SIZE_BYTES - 14 - 4)
-IDENTIFICATION = "0000"
-FLAGS_OFFSET = "0000"
-TTL = "7F"
-PROTOCOL = "11"
-HEADER_CHECKSUM = "0000"
+# IPV6
+VERSION = "6"
+TRAFFIC_CLASS_FLOW_LABEL = "0000000"
+PAYLOAD_LENGTH = "0000"
+NEXT_HEADER = "06"
+HOP_LIMIT = "FF"
 
-# UDP
-UDP_SRC_PORT = "0000"
-UDP_DEST_PORT = "0000"
-UDP_LEN = FRAME_SIZE_BYTES - 14 - 20 - 4
-UDP_CHK = "0000"
-
-
-
-
+# TCP
+TCP_SRC_PORT = "0000"
+TCP_DEST_PORT = "0000"
+TCP_SEQ = "00000000"
+TCP_ACK = "00000000"
+TCP_DF = "5000"
+TCP_WIN_SIZE = "0000"
+TCP_CHK = "0000"
+TCP_URGENT = "0000"
 
 
 #---------------------------
-# ARP TABLE PORT A
+# NDP TABLE PORT A
 #---------------------------
-arp_list_a=[]
+ndp_list_a=[]
 mac_list_a = []
 for i in range(IP_PAIRS):
     mac = "{:012X}".format(int(PORT_A_MAC_BASE, 16) + i)
     mac_string = ''.join(mac[j]+mac[j+1] for j in range(0, len(mac), 2))
     mac_list_a.append(mac_string)
 for i in range(IP_PAIRS):
-    temp = ArpChunk(
-        ipv4_address=ipaddress.IPv4Address(PORT_A_IP_BASE) + i,
+    temp = NdpChunk(
+        ipv6_address=ipaddress.IPv6Address(PORT_A_IP_BASE) + i,
         prefix=21,
         patched_mac=enums.OnOff.OFF,
         mac_address=mac_list_a[i]
         )
-    arp_list_a.append(temp)
+    ndp_list_a.append(temp)
 
 #---------------------------
-# ARP TABLE PORT B
+# NDP TABLE PORT B
 #---------------------------
-arp_list_b=[]
+ndp_list_b=[]
 mac_list_b = []
 for i in range(IP_PAIRS):
     mac = "{:012X}".format(int(PORT_B_MAC_BASE, 16) + i)
     mac_string = ''.join(mac[j]+mac[j+1] for j in range(0, len(mac), 2))
     mac_list_b.append(mac_string)
-for i in range(IP_PAIRS):
-    temp = ArpChunk(
-        ipv4_address=ipaddress.IPv4Address(PORT_B_IP_BASE) + i,
+for i in range(256):
+    temp = NdpChunk(
+        ipv6_address=ipaddress.IPv6Address(PORT_B_IP_BASE) + i,
         prefix=32,
         patched_mac=enums.OnOff.OFF,
         mac_address=mac_list_b[i]
         )
-    arp_list_b.append(temp)
+    ndp_list_b.append(temp)
 
 
 #---------------------------
-# UDP FUNC
+# TCP FUNC
 #---------------------------
-async def udp_config_func(stop_event: asyncio.Event):
-    print(f"Making {IP_PAIRS} UDP stream pairs")
+async def tcp_ipv6_config_func(stop_event: asyncio.Event):
+    print(f"Making {IP_PAIRS} TCP stream pairs")
     # create tester instance and establish connection
     tester = await testers.L23Tester(CHASSIS_IP, USERNAME) 
 
@@ -139,7 +135,7 @@ async def udp_config_func(stop_event: asyncio.Event):
     if resp_b.max_modifiers < 6:
         print(f"Port B cannot support 6 modifiers (max modifier count is {resp_b.max_modifiers}). End")
         return None
-
+    
     #-------------------
     # Configure Port A
     # ------------------
@@ -153,24 +149,24 @@ async def udp_config_func(stop_event: asyncio.Event):
         port_a.tx_config.enable.set_on(),
         port_a.tx_config.packet_limit.set(packet_count_limit=TX_PKT_LIMIT),
         # Enable ARP and Ping reply on Port A
-        port_a.net_config.ipv4.arp_reply.set_on(),
-        port_a.net_config.ipv4.ping_reply.set_on(),
+        port_a.net_config.ipv6.arp_reply.set_on(),
+        port_a.net_config.ipv6.ping_reply.set_on(),
 
         # set ARP table for Port A
-        port_a.arp_rx_table.set(chunks=arp_list_a),
+        port_a.ndp_rx_table.set(chunks=ndp_list_a),
     )
     
     # Create streams on the port and configure the streams
-    print(f"Configure UDP streams A to B")
+    print(f"Configure TCP streams A to B")
     stream_a = await port_a.streams.create()
 
-    src_ip = ipaddress.IPv4Address(PORT_A_IP_BASE)
+    src_ip = ipaddress.IPv6Address(PORT_A_IP_BASE)
     hexlify(src_ip.packed).decode()
-    dst_ip = ipaddress.IPv4Address(PORT_B_IP_BASE)
+    dst_ip = ipaddress.IPv6Address(PORT_B_IP_BASE)
     hexlify(dst_ip.packed).decode()
 
-    HEADER = f'{PORT_B_MAC_BASE}{PORT_A_MAC_BASE}{ETHERNET_TYPE}{VERSION}{HEADER_LENGTH}{DSCP_ECN}{TOTAL_LENGTH}{IDENTIFICATION}{FLAGS_OFFSET}{TTL}{PROTOCOL}{HEADER_CHECKSUM}{hexlify(src_ip.packed).decode()}{hexlify(dst_ip.packed).decode()}{UDP_SRC_PORT}{UDP_DEST_PORT}{UDP_LEN}{UDP_CHK}'
-    
+    HEADER = f'{PORT_B_MAC_BASE}{PORT_A_MAC_BASE}{ETHERNET_TYPE}{VERSION}{TRAFFIC_CLASS_FLOW_LABEL}{PAYLOAD_LENGTH}{NEXT_HEADER}{HOP_LIMIT}{hexlify(src_ip.packed).decode()}{hexlify(dst_ip.packed).decode()}{TCP_SRC_PORT}{TCP_DEST_PORT}{TCP_SEQ}{TCP_ACK}{TCP_DF}{TCP_WIN_SIZE}{TCP_CHK}{TCP_URGENT}'
+
     await utils.apply(
         stream_a.enable.set_on(),
         stream_a.packet.limit.set(packet_count=-1),
@@ -179,8 +175,8 @@ async def udp_config_func(stop_event: asyncio.Event):
         
         stream_a.packet.header.protocol.set(segments=[
             enums.ProtocolOption.ETHERNET,
-            enums.ProtocolOption.IP,
-            enums.ProtocolOption.UDP
+            enums.ProtocolOption.IPV6,
+            enums.ProtocolOption.TCP
             ]),
         stream_a.packet.header.data.set(hex_data=Hex(HEADER)),
 
@@ -188,7 +184,7 @@ async def udp_config_func(stop_event: asyncio.Event):
         # stream.payload.content.set(payload_type=enums.PayloadType.PATTERN, hex_data="0x0000FFFF0000FFFF0000FFFF0000FFFF"),
         stream_a.tpld_id.set(test_payload_identifier = 0),
         stream_a.insert_packets_checksum.set_on(),
-        stream_a.gateway.ipv4.set(gateway=ipaddress.IPv4Address('0.0.0.0'))
+        stream_a.gateway.ipv6.set(gateway=ipaddress.IPv6Address('::'))
     )
     # Configure a modifier on the stream
     await stream_a.packet.header.modifiers.configure(6)
@@ -208,23 +204,23 @@ async def udp_config_func(stop_event: asyncio.Event):
     # Modifier on SRC IP lowest two bytes (pos=28), range from 2 to 2+IP_STREAM_CNT-1 in step of 1
     # e.g. 10.0.0.2, 10.0.0.3 ...
     modifier_dmac = stream_a.packet.header.modifiers.obtain(2)
-    await modifier_dmac.specification.set(position=28, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
+    await modifier_dmac.specification.set(position=34, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
     await modifier_dmac.range.set(min_val=2, step=1, max_val=2+IP_PAIRS-1)
 
     # Modifier on DST IP lowest two bytes (pos=32), range from 2 to 2+IP_STREAM_CNT-1 in step of 1
     # e.g. 10.1.0.2, 10.1.0.3 ...
     modifier_dmac = stream_a.packet.header.modifiers.obtain(3)
-    await modifier_dmac.specification.set(position=32, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
+    await modifier_dmac.specification.set(position=52, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
     await modifier_dmac.range.set(min_val=2, step=1, max_val=2+IP_PAIRS-1)
 
-    # Modifier on UDP SRC PORT (pos=34), range from 4000 to 4000+IP_STREAM_CNT-1 in step of 1
+    # Modifier on TCP SRC PORT (pos=34), range from 4000 to 4000+IP_STREAM_CNT-1 in step of 1
     modifier_dmac = stream_a.packet.header.modifiers.obtain(4)
-    await modifier_dmac.specification.set(position=34, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
+    await modifier_dmac.specification.set(position=54, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
     await modifier_dmac.range.set(min_val=4000, step=1, max_val=4000+IP_PAIRS-1)
 
-    # Modifier on UDP DST PORT (pos=36), range from 4000 to 4000+IP_STREAM_CNT-1 in step of 1
+    # Modifier on TCP DST PORT (pos=36), range from 4000 to 4000+IP_STREAM_CNT-1 in step of 1
     modifier_dmac = stream_a.packet.header.modifiers.obtain(5)
-    await modifier_dmac.specification.set(position=36, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
+    await modifier_dmac.specification.set(position=56, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
     await modifier_dmac.range.set(min_val=4000, step=1, max_val=4000+IP_PAIRS-1)
 
     #-------------------
@@ -240,23 +236,23 @@ async def udp_config_func(stop_event: asyncio.Event):
         port_b.tx_config.enable.set_on(),
         port_b.tx_config.packet_limit.set(packet_count_limit=TX_PKT_LIMIT),
         # Enable ARP and Ping reply on Port B
-        port_b.net_config.ipv4.arp_reply.set_on(),
-        port_b.net_config.ipv4.ping_reply.set_on(),
+        port_b.net_config.ipv6.arp_reply.set_on(),
+        port_b.net_config.ipv6.ping_reply.set_on(),
 
         # set ARP table for Port B
-        port_b.arp_rx_table.set(chunks=arp_list_b),
+        port_b.ndp_rx_table.set(chunks=ndp_list_b),
     )
     
     # Create streams on the port and configure the streams
-    print(f"Configure UDP streams B to A")
+    print(f"Configure TCP streams B to A")
     stream_b = await port_b.streams.create()
 
-    src_ip = ipaddress.IPv4Address(PORT_B_IP_BASE)
+    src_ip = ipaddress.IPv6Address(PORT_B_IP_BASE)
     hexlify(src_ip.packed).decode()
-    dst_ip = ipaddress.IPv4Address(PORT_A_IP_BASE)
+    dst_ip = ipaddress.IPv6Address(PORT_A_IP_BASE)
     hexlify(dst_ip.packed).decode()
 
-    HEADER = f'{PORT_A_MAC_BASE}{PORT_B_MAC_BASE}{ETHERNET_TYPE}{VERSION}{HEADER_LENGTH}{DSCP_ECN}{TOTAL_LENGTH}{IDENTIFICATION}{FLAGS_OFFSET}{TTL}{PROTOCOL}{HEADER_CHECKSUM}{hexlify(src_ip.packed).decode()}{hexlify(dst_ip.packed).decode()}{UDP_SRC_PORT}{UDP_DEST_PORT}{UDP_LEN}{UDP_CHK}'
+    HEADER = f'{PORT_A_MAC_BASE}{PORT_B_MAC_BASE}{ETHERNET_TYPE}{VERSION}{TRAFFIC_CLASS_FLOW_LABEL}{PAYLOAD_LENGTH}{NEXT_HEADER}{HOP_LIMIT}{hexlify(src_ip.packed).decode()}{hexlify(dst_ip.packed).decode()}{TCP_SRC_PORT}{TCP_DEST_PORT}{TCP_SEQ}{TCP_ACK}{TCP_DF}{TCP_WIN_SIZE}{TCP_CHK}{TCP_URGENT}'
     
     await utils.apply(
         stream_b.enable.set_on(),
@@ -275,7 +271,7 @@ async def udp_config_func(stop_event: asyncio.Event):
         # stream.payload.content.set(payload_type=enums.PayloadType.PATTERN, hex_data="0x0000FFFF0000FFFF0000FFFF0000FFFF"),
         stream_b.tpld_id.set(test_payload_identifier = 1),
         stream_b.insert_packets_checksum.set_on(),
-        stream_b.gateway.ipv4.set(gateway=ipaddress.IPv4Address('0.0.0.0'))
+        stream_b.gateway.ipv6.set(gateway=ipaddress.IPv6Address('::'))
     )
     # Configure a modifier on the stream
     await stream_b.packet.header.modifiers.configure(6)
@@ -293,33 +289,33 @@ async def udp_config_func(stop_event: asyncio.Event):
     await modifier_dmac.range.set(min_val=0, step=1, max_val=IP_PAIRS-1)
 
     # Modifier on SRC IP lowest two bytes (pos=28), range from 2 to 2+IP_STREAM_CNT-1 in step of 1
-    # e.g. 10.1.0.2, 10.1.0.3 ...
+    # e.g. 110.1.0.2, 10.1.0.3 ...
     modifier_dmac = stream_b.packet.header.modifiers.obtain(2)
-    await modifier_dmac.specification.set(position=28, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
+    await modifier_dmac.specification.set(position=34, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
     await modifier_dmac.range.set(min_val=2, step=1, max_val=2+IP_PAIRS-1)
 
     # Modifier on DST IP lowest two bytes (pos=32), range from 2 to 2+IP_STREAM_CNT-1 in step of 1
     # e.g. 10.0.0.2, 10.0.0.3 ...
     modifier_dmac = stream_b.packet.header.modifiers.obtain(3)
-    await modifier_dmac.specification.set(position=32, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
+    await modifier_dmac.specification.set(position=52, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
     await modifier_dmac.range.set(min_val=2, step=1, max_val=2+IP_PAIRS-1)
 
-    # Modifier on UDP SRC PORT (pos=34), range from 4000 to 4000+IP_STREAM_CNT-1 in step of 1
+    # Modifier on TCP SRC PORT (pos=34), range from 4000 to 4000+IP_STREAM_CNT-1 in step of 1
     modifier_dmac = stream_b.packet.header.modifiers.obtain(4)
-    await modifier_dmac.specification.set(position=34, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
+    await modifier_dmac.specification.set(position=54, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
     await modifier_dmac.range.set(min_val=4000, step=1, max_val=4000+IP_PAIRS-1)
 
-    # Modifier on UDP DST PORT (pos=36), range from 4000 to 4000+IP_STREAM_CNT-1 in step of 1
+    # Modifier on TCP DST PORT (pos=36), range from 4000 to 4000+IP_STREAM_CNT-1 in step of 1
     modifier_dmac = stream_b.packet.header.modifiers.obtain(5)
-    await modifier_dmac.specification.set(position=36, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
+    await modifier_dmac.specification.set(position=56, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
     await modifier_dmac.range.set(min_val=4000, step=1, max_val=4000+IP_PAIRS-1)
 
     print(f"Done")
-
+    
 async def main():
     stop_event =asyncio.Event()
     try:
-        await udp_config_func(stop_event)
+        await tcp_ipv6_config_func(stop_event)
     except KeyboardInterrupt:
         stop_event.set()
 
