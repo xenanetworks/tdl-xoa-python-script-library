@@ -1,5 +1,4 @@
 import asyncio
-from contextlib import suppress
 from xoa_driver import (
     testers,
     modules,
@@ -12,10 +11,6 @@ from xoa_driver.hlfuncs import mgmt
 from xoa_driver.misc import ArpChunk, NdpChunk, Hex
 import ipaddress
 from binascii import hexlify
-from typing import Union
-
-FreyaPort = Union[ports.PThor100G5S4P, ports.PThor400G7S1P, ports.PThor400G7S1P_b, ports.PThor400G7S1P_c, ports.PThor400G7S1P_d]
-FreyaModule = Union[modules.MThor100G5S4P, modules.MThor400G7S1P, modules.MThor400G7S1P_b, modules.MThor400G7S1P_c, modules.MThor400G7S1P_d]
 
 #---------------------------
 # GLOBAL PARAMS
@@ -24,6 +19,11 @@ CHASSIS_IP = "10.20.1.166"
 USERNAME = "XOA"
 MODULE_IDXS = [4,8]
 PORT_IDXS = [0]
+
+MODULE_TYPE = modules.MThor400G7S1P
+# MODULE_TYPE = modules.MThor400G7S1P_b
+# MODULE_TYPE = modules.MThor400G7S1P_c
+# MODULE_TYPE = modules.MThor400G7S1P_d
 
 #---------------------------
 # MODULE MEDIA
@@ -111,7 +111,7 @@ async def thor_module_streams(stop_event: asyncio.Event):
             # access module on the tester
             module = tester.modules.obtain(mid)
 
-            if not isinstance(module, FreyaModule): #!Make sure this is your module!#
+            if not isinstance(module, MODULE_TYPE): #!Make sure this is your module!#
                 return None # commands which used in this example are not supported by Chimera Module
 
             # reserve module
@@ -144,7 +144,7 @@ async def thor_module_streams(stop_event: asyncio.Event):
             module = tester.modules.obtain(mid)
             _modules.append(module)
 
-            if not isinstance(module, FreyaModule): #!Make sure this is your module!#
+            if not isinstance(module, MODULE_TYPE): #!Make sure this is your module!#
                 return None # commands which used in this example are not supported by Chimera Module
 
             # reserve module

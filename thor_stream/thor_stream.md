@@ -44,10 +44,11 @@ This section details the commands that are necessary for you to specify. This se
 
 ### Connecting to the Chassis/Module/Ports
  
-* Line 23: Enter the IP of the chassis in the quotations.
-* Line 24: Enter the desired username. This will appear under the “Owner” column of the GUI.
-* Line 25: Enter the module indices you would like to apply the script.
-* Line 26: Enter the port indices you would like to apply the script.
+* Enter the IP of the chassis in the quotations.
+* Enter the desired username. This will appear under the “Owner” column of the GUI.
+* Enter the module indices you would like to apply the script.
+* Enter the port indices you would like to apply the script.
+* Choose the module type and the script will only work with that type.
 
 ```python
 #---------------------------
@@ -57,10 +58,22 @@ CHASSIS_IP = "10.20.1.166"
 USERNAME = "XOA"
 MODULE_IDXS = [4,8]
 PORT_IDXS = [0]
+
+MODULE_TYPE = modules.MThor400G7S1P
+# MODULE_TYPE = modules.MThor400G7S1P_b
+# MODULE_TYPE = modules.MThor400G7S1P_c
+# MODULE_TYPE = modules.MThor400G7S1P_d
 ```
 
 ### Module media configuration
-Line 32-69: Enable the module media and port configuration you want to use.
+
+* Enable the module media and port configuration you want to use.
+
+```python
+MODULE_MEDIA = enums.MediaConfigurationType.QSFP56_PAM4
+PORT_COUNT = 2
+PORT_SPEED = 200000
+```
 
 ### Stream parameters
  
