@@ -1,2 +1,2 @@
-xoa-driver
-chimera-core
+xoa-driver>=2.1
+chimera-core>=1.0

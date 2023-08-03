@@ -1,44 +1,5 @@
 # XOA Script Documentation - IP Stream Pairs & ARP Table 
 
-## Introduction
-This document explains which commands can be edited to alter the configuration as desired. 
-
-### What’s Included
-
-* How to install XOA drivers
-* Connect to Chassis IP & Specify which module/Ports to configure.
-* Choose which IP address to increment up from.
-* Specify how many IP addresses you would like to create.
-* Configure Packet Content (# of bytes, PPS, packet limit)
-
-## Installing XOA Driver
-
-This section details how to install XOA drivers. Installation is necessary to execute XOA commands.
-Before installing XOA Python API, please make sure your environment has installed `Python >=3.8` and `PIP`.
-
-### Installing Python
-
-XOA Python API requires that you install Python on your system.
-There are three installation methods on Windows: The Microsoft Store, The full installer, Or Windows Subsystem for Linux
-
-### Installing PIP
-The minimum Python version required for XOA is Python >=3.8.
-
-If `PIP` is not installed for some reason, visit the link below for further instructions on how to install PIP:
-https://docs.xenanetworks.com/projects/xoa-python-api/en/stable/getting_started/installation.html
-
-### Installing XOA Driver
-For the most detailed instructions on how to install the XOA driver, visit our **Getting Started** section of our official XOA documentation here: https://docs.xenanetworks.com/projects/xoa-python-api/en/stable/getting_started/installation.html
-
-You can install the XOA driver to your Global Namespace for Windows, macOS, and Linux using the commands below. We suggest the first one to receive the latest version. 
-```
-pip install xoa-driver            # latest version
-```
-
-Once the XOA driver is installed, you can execute your script.
-
-> Please note that the scripts requires xoa-driver >= 2.0.1. To verify your xoa-driver version, use `pip show xoa-driver`
-
 ## Basic Configuration
 This section details the commands that are necessary for you to specify. This section will include the commands of most interest like “Port IP base”, “IP Count”, “Frame Size Bytes”, etc.
 
