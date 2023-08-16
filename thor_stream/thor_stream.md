@@ -1,139 +1,220 @@
 # XOA Script Documentation - Thor Module and Stream
 
-## Basic Configuration
-This section details the commands that are necessary for you to specify. This section will include the commands of most interest like “Port IP base”, “IP Count”, “Frame Size Bytes”, etc.
+## Introduction
+What this script example does:
+1. Connect to a tester
+2. Change the module media type and port speed config on the specified modules
+3. Create streams on specified ports on the modules
+4. Start & stop traffic on the ports
+5. Collect port-level TX & RX counters
+6. Free the modules and ports
+7. Disconnect from the tester
 
-### Connecting to the Chassis/Module/Ports
- 
-* Enter the IP of the chassis in the quotations.
-* Enter the desired username. This will appear under the “Owner” column of the GUI.
-* Enter the module indices you would like to apply the script.
-* Enter the port indices you would like to apply the script.
-* Choose the module type and the script will only work with that type.
+## How to Use
+1. variable `module_port_traffic_config` is where you specify the configuration of modules, ports, and streams
+2. function `eth_ipv4_header_generator` is a simple ETH-IPV4 header generator
 
-```python
-#---------------------------
-# GLOBAL PARAMS
-#---------------------------
-CHASSIS_IP = "10.20.1.166"
-USERNAME = "XOA"
-MODULE_IDXS = [4,8]
-PORT_IDXS = [0]
-
-MODULE_TYPE = modules.MThor400G7S1P
-# MODULE_TYPE = modules.MThor400G7S1P_b
-# MODULE_TYPE = modules.MThor400G7S1P_c
-# MODULE_TYPE = modules.MThor400G7S1P_d
+## Output Example
 ```
-
-### Module media configuration
-
-* Enable the module media and port configuration you want to use.
-
-```python
-MODULE_MEDIA = enums.MediaConfigurationType.QSFP56_PAM4
-PORT_COUNT = 2
-PORT_SPEED = 200000
-```
-
-### Stream parameters
- 
-IP/MAC base defines the address range you will increment from. If you change the IP/MAC base, you will change the starting point for incrementing. 
-
-```python
-#---------------------------
-# STREAM PARAM
-#---------------------------
-
-SRC_IPV4 = "10.0.0.2"
-SRC_MAC = "AAAAAAAAAA00"
-DST_IPV4 = "10.1.0.2"
-DST_MAC = "BBBBBBBBBB00"
-
-FRAME_SIZE_BYTES = 128      # frame size including FCS field
-STREAM_RATE = 100.0         # this means 100.0%
-TRAFFIC_DURATION = 10       # 10 seconds
-
-# ETHERNET HEADER
-ETHERNET_TYPE =     "0800"
-
-# IPV4
-VERSION = "4"
-HEADER_LENGTH = "5"
-DSCP_ECN = "00"
-TOTAL_LENGTH = '{:04X}'.format(FRAME_SIZE_BYTES - 14 - 4)
-IDENTIFICATION = "0000"
-FLAGS_OFFSET = "0000"
-TTL = "7F"
-PROTOCOL = "11"
-HEADER_CHECKSUM = "0000"
-
-# PAYLOAD PATTER
-PAYLOAD_PATTERN = "FFFF0000"
-```
-
-## Run and Verify
-Simply `python <script_name.py>` to run the script. You should then see the below in your console. (For Linux and macOS users, use `python3 <script_name.py>`)
-```
-============================
+==================================
+START
+==================================
+Connect to chassis: 10.20.1.166
+Username:           10.20.1.166
+==================================
 MODULE MEDIA CONFIG
-============================
-Reserve module 4
-Change module 4 media to QSFP56
-Change port config to 2x200G
-Reserve module 8
-Change module 8 media to QSFP56
-Change port config to 2x200G
-============================
+==================================
+Reserve Module 4
+Module 4's current media: QSFP56
+Module 4's media: no change
+Module 4's current port count x speed: [2, 200000, 200000]
+Module 4's port count x speed: no change
+Reserve Module 8
+Module 8's current media: QSFP56
+Module 8's media: no change
+Module 8's current port count x speed: [2, 200000, 200000]
+Module 8's port count x speed: no change
+==================================
 PORT & STREAM CONFIG
-============================
-Set port 4/0 to RS-FEC
+==================================
+Set Port 4/0 to RS_FEC
 Create a stream on port 4/0
-Stream DMAC:        BBBBBBBBBB00
-Stream SMAC:        AAAAAAAAAA00
-Stream SRC IPv4:    10.0.0.2
-Stream DST IPv4:    10.1.0.2
-Stream Rate:        100.0%
-Stream Frame Size:  128 bytes
-Traffic Duration:   10 seconds
-Set port 8/0 to RS-FEC
+  Index:            0
+  DMAC:             00000A010002
+  SMAC:             00000A010002
+  SRC IPv4:         10.0.0.2
+  DST IPv4:         10.1.0.2
+  Rate:             10.0%
+  Frame Size Type:  FIXED bytes
+  Frame Size (min): 128 bytes
+  Frame Size (max): 128 bytes
+  Payload Pattern:  FFFF0000
+  TPLD ID:          0
+Create a stream on port 4/0
+  Index:            1
+  DMAC:             00000A010003
+  SMAC:             00000A010003
+  SRC IPv4:         10.0.0.3
+  DST IPv4:         10.1.0.3
+  Rate:             10.0%
+  Frame Size Type:  FIXED bytes
+  Frame Size (min): 256 bytes
+  Frame Size (max): 256 bytes
+  Payload Pattern:  FFFF0000
+  TPLD ID:          1
+Set Port 4/1 to RS_FEC
+Create a stream on port 4/1
+  Index:            0
+  DMAC:             00000B010002
+  SMAC:             00000B010002
+  SRC IPv4:         11.0.0.2
+  DST IPv4:         11.1.0.2
+  Rate:             10.0%
+  Frame Size Type:  FIXED bytes
+  Frame Size (min): 128 bytes
+  Frame Size (max): 128 bytes
+  Payload Pattern:  FFFF0000
+  TPLD ID:          2
+Create a stream on port 4/1
+  Index:            1
+  DMAC:             00000B010003
+  SMAC:             00000B010003
+  SRC IPv4:         11.0.0.3
+  DST IPv4:         11.1.0.3
+  Rate:             10.0%
+  Frame Size Type:  FIXED bytes
+  Frame Size (min): 256 bytes
+  Frame Size (max): 256 bytes
+  Payload Pattern:  FFFF0000
+  TPLD ID:          3
+Create a stream on port 4/1
+  Index:            2
+  DMAC:             00000B010004
+  SMAC:             00000B010004
+  SRC IPv4:         11.0.0.4
+  DST IPv4:         11.1.0.4
+  Rate:             10.0%
+  Frame Size Type:  FIXED bytes
+  Frame Size (min): 512 bytes
+  Frame Size (max): 512 bytes
+  Payload Pattern:  FFFF0000
+  TPLD ID:          4
+Set Port 8/0 to RS_FEC
 Create a stream on port 8/0
-Stream DMAC:        BBBBBBBBBB00
-Stream SMAC:        AAAAAAAAAA00
-Stream SRC IPv4:    10.0.0.2
-Stream DST IPv4:    10.1.0.2
-Stream Rate:        100.0%
-Stream Frame Size:  128 bytes
-Traffic Duration:   10 seconds
-============================
+  Index:            0
+  DMAC:             00000A010002
+  SMAC:             00000A010002
+  SRC IPv4:         10.0.0.2
+  DST IPv4:         10.1.0.2
+  Rate:             10.0%
+  Frame Size Type:  FIXED bytes
+  Frame Size (min): 128 bytes
+  Frame Size (max): 128 bytes
+  Payload Pattern:  FFFF0000
+  TPLD ID:          5
+Create a stream on port 8/0
+  Index:            1
+  DMAC:             00000A010003
+  SMAC:             00000A010003
+  SRC IPv4:         10.0.0.3
+  DST IPv4:         10.1.0.3
+  Rate:             10.0%
+  Frame Size Type:  FIXED bytes
+  Frame Size (min): 256 bytes
+  Frame Size (max): 256 bytes
+  Payload Pattern:  FFFF0000
+  TPLD ID:          6
+Set Port 8/1 to RS_FEC
+Create a stream on port 8/1
+  Index:            0
+  DMAC:             00000B010002
+  SMAC:             00000B010002
+  SRC IPv4:         11.0.0.2
+  DST IPv4:         11.1.0.2
+  Rate:             10.0%
+  Frame Size Type:  FIXED bytes
+  Frame Size (min): 128 bytes
+  Frame Size (max): 128 bytes
+  Payload Pattern:  FFFF0000
+  TPLD ID:          7
+Create a stream on port 8/1
+  Index:            1
+  DMAC:             00000B010003
+  SMAC:             00000B010003
+  SRC IPv4:         11.0.0.3
+  DST IPv4:         11.1.0.3
+  Rate:             10.0%
+  Frame Size Type:  FIXED bytes
+  Frame Size (min): 256 bytes
+  Frame Size (max): 256 bytes
+  Payload Pattern:  FFFF0000
+  TPLD ID:          8
+Create a stream on port 8/1
+  Index:            2
+  DMAC:             00000B010004
+  SMAC:             00000B010004
+  SRC IPv4:         11.0.0.4
+  DST IPv4:         11.1.0.4
+  Rate:             10.0%
+  Frame Size Type:  FIXED bytes
+  Frame Size (min): 512 bytes
+  Frame Size (max): 512 bytes
+  Payload Pattern:  FFFF0000
+  TPLD ID:          9
+==================================
 TRAFFIC CONTROL
-============================
+==================================
 Clear port 4/0 RX & TX counters
+Clear port 4/1 RX & TX counters
 Clear port 8/0 RX & TX counters
-Start traffic on port 4/0
-Start traffic on port 8/0
-Stop traffic on port 4/0
-Stop traffic on port 8/0
+Clear port 8/1 RX & TX counters
+Traffic duration: 10 seconds
+Start traffic on Port 4/0
+Start traffic on Port 4/1
+Start traffic on Port 8/0
+Start traffic on Port 8/1
+Stop traffic on Port 4/0
+Stop traffic on Port 4/1
+Stop traffic on Port 8/0
+Stop traffic on Port 8/1
+Cooling down: 2 seconds
 Read port 4/0 RX & TX counters
-============================
+==================================
 TRAFFIC STATS
-============================
-TX FRAMES:          1794515520
-RX FRAMES:          1794515520
-TX BYTES:           229697986560
-RX BYTES:           229697986560
+==================================
+TX FRAMES:          308063469
+RX FRAMES:          308063469
+TX BYTES:           53196134912
+RX BYTES:           53196134912
+Read port 4/1 RX & TX counters
+==================================
+TRAFFIC STATS
+==================================
+TX FRAMES:          345297338
+RX FRAMES:          345297338
+TX BYTES:           77590128256
+RX BYTES:           77590128256
 Read port 8/0 RX & TX counters
-============================
+==================================
 TRAFFIC STATS
-============================
-TX FRAMES:          1706887392
-RX FRAMES:          0
-TX BYTES:           218481586176
-RX BYTES:           0
-============================
+==================================
+TX FRAMES:          276576368
+RX FRAMES:          307735552
+TX BYTES:           47758969344
+RX BYTES:           69149797248
+Read port 8/1 RX & TX counters
+==================================
+TRAFFIC STATS
+==================================
+TX FRAMES:          307735552
+RX FRAMES:          276576368
+TX BYTES:           69149797248
+RX BYTES:           47758969344
+==================================
 DONE
-============================
+==================================
 ```
+
 
 ## Other Documentation
 XOA Driver (Python API Reference) Official Documentation
