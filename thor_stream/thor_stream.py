@@ -48,7 +48,7 @@ module_port_traffic_config = [
                         "stream rate pct": 10.0,
                         "stream rate fps": 10000,
                         "frame count": -1,
-                        "payload pattern": "FFFF0000",
+                        "payload pattern": "1234432156788765ABCDDCBAFFFFEEEE1221",
                         "tpld id": 0
                     },
                     {
@@ -82,7 +82,7 @@ module_port_traffic_config = [
                         "stream rate pct": 10.0,
                         "stream rate fps": 10000,
                         "frame count": -1,
-                        "payload pattern": "FFFF0000",
+                        "payload pattern": "FFFF0000FFFFEEEE",
                         "tpld id": 2
                     },
                     {
@@ -96,7 +96,7 @@ module_port_traffic_config = [
                         "stream rate pct": 10.0,
                         "stream rate fps": 10000,
                         "frame count": -1,
-                        "payload pattern": "FFFF0000",
+                        "payload pattern": "FFFF1234",
                         "tpld id": 3
                     },
                     {
@@ -110,7 +110,7 @@ module_port_traffic_config = [
                         "stream rate pct": 10.0,
                         "stream rate fps": 10000,
                         "frame count": -1,
-                        "payload pattern": "FFFF0000",
+                        "payload pattern": "FFFF00000000",
                         "tpld id": 4
                     }
                 ]
@@ -128,31 +128,31 @@ module_port_traffic_config = [
                 "port fec mode": enums.FECMode.RS_FEC,
                 "streams": [
                     {
-                        "src ipv4": "10.0.0.2",
-                        "src mac": "00000A000002",
-                        "dst ipv4": "10.1.0.2",
-                        "dst mac": "00000A010002",
+                        "src ipv4": "12.0.0.2",
+                        "src mac": "00000C000002",
+                        "dst ipv4": "12.1.0.2",
+                        "dst mac": "00000C010002",
                         "frame size type": enums.LengthType.FIXED,
                         "frame size min": 128,
                         "frame size max": 128,
                         "stream rate pct": 10.0,
                         "stream rate fps": 10000,
                         "frame count": -1,
-                        "payload pattern": "FFFF0000",
+                        "payload pattern": "FFFF00001122",
                         "tpld id": 5
                     },
                     {
-                        "src ipv4": "10.0.0.3",
-                        "src mac": "00000A000003",
-                        "dst ipv4": "10.1.0.3",
-                        "dst mac": "00000A010003",
+                        "src ipv4": "13.0.0.3",
+                        "src mac": "00000D000003",
+                        "dst ipv4": "13.1.0.3",
+                        "dst mac": "00000D010003",
                         "frame size type": enums.LengthType.FIXED,
                         "frame size min": 256,
                         "frame size max": 256,
                         "stream rate pct": 10.0,
                         "stream rate fps": 10000,
                         "frame count": -1,
-                        "payload pattern": "FFFF0000",
+                        "payload pattern": "FFFF0000AABB",
                         "tpld id": 6
                     }
                 ]
@@ -162,52 +162,51 @@ module_port_traffic_config = [
                 "port fec mode": enums.FECMode.RS_FEC,
                 "streams": [
                     {
-                        "src ipv4": "11.0.0.2",
-                        "src mac": "00000B000002",
-                        "dst ipv4": "11.1.0.2",
-                        "dst mac": "00000B010002",
+                        "src ipv4": "14.0.0.2",
+                        "src mac": "00000E000002",
+                        "dst ipv4": "14.1.0.2",
+                        "dst mac": "00000E010002",
                         "frame size type": enums.LengthType.FIXED,
                         "frame size min": 128,
                         "frame size max": 128,
                         "stream rate pct": 10.0,
                         "stream rate fps": 10000,
                         "frame count": -1,
-                        "payload pattern": "FFFF0000",
+                        "payload pattern": "FFFFEEEE",
                         "tpld id": 7
                     },
                     {
-                        "src ipv4": "11.0.0.3",
-                        "src mac": "00000B000003",
-                        "dst ipv4": "11.1.0.3",
-                        "dst mac": "00000B010003",
+                        "src ipv4": "15.0.0.3",
+                        "src mac": "00000F000003",
+                        "dst ipv4": "15.1.0.3",
+                        "dst mac": "00000F010003",
                         "frame size type": enums.LengthType.FIXED,
                         "frame size min": 256,
                         "frame size max": 256,
                         "stream rate pct": 10.0,
                         "stream rate fps": 10000,
                         "frame count": -1,
-                        "payload pattern": "FFFF0000",
+                        "payload pattern": "DEAD",
                         "tpld id": 8
                     },
                     {
-                        "src ipv4": "11.0.0.4",
-                        "src mac": "00000B000004",
-                        "dst ipv4": "11.1.0.4",
-                        "dst mac": "00000B010004",
+                        "src ipv4": "16.0.0.4",
+                        "src mac": "000010000004",
+                        "dst ipv4": "16.1.0.4",
+                        "dst mac": "000010010004",
                         "frame size type": enums.LengthType.FIXED,
                         "frame size min": 512,
                         "frame size max": 512,
                         "stream rate pct": 10.0,
                         "stream rate fps": 10000,
                         "frame count": -1,
-                        "payload pattern": "FFFF0000",
+                        "payload pattern": "DAED",
                         "tpld id": 9
                     }
                 ]
             }
         ]
     },
-    
 ]
 
 
@@ -242,7 +241,7 @@ async def thor_module_streams(stop_event: asyncio.Event):
     print(f"==================================")
     print(f"{'START'}")
     print(f"==================================")
-    # create tester instance and establish connection+
+    # create tester instance and establish connection
     async with testers.L23Tester(CHASSIS_IP, USERNAME) as tester:
         print(f"{'Connect to chassis:':<20}{CHASSIS_IP}")
         print(f"{'Username:':<20}{CHASSIS_IP}")
@@ -293,8 +292,6 @@ async def thor_module_streams(stop_event: asyncio.Event):
                 print(f"Module {mid}'s new port count x speed: {resp.portspeed_list}")
             else:
                 print(f"Module {mid}'s port count x speed: no change")
-
-    # async with testers.L23Tester(CHASSIS_IP, USERNAME) as tester:
         
         print(f"==================================")
         print(f"{'PORT & STREAM CONFIG'}")
@@ -308,7 +305,8 @@ async def thor_module_streams(stop_event: asyncio.Event):
             module = tester.modules.obtain(mid)
             _module_object_list.append(module)
 
-            if not isinstance(module, _THOR_MODULES): 
+            if not isinstance(module, _THOR_MODULES):
+                print(f"Module {mid} is not a Thor module")
                 return None # commands which used in this example are not supported by Chimera Module
 
             # reserve module
@@ -337,10 +335,10 @@ async def thor_module_streams(stop_event: asyncio.Event):
                     stream = await port.streams.create()
 
                     dst_mac = s_item["dst mac"]
-                    src_mac = s_item["dst mac"]
+                    src_mac = s_item["src mac"]
                     src_ipv4 = s_item["src ipv4"]
                     dst_ipv4 = s_item["dst ipv4"]
-                    stream_rate_ppm = s_item["stream rate pct"]
+                    stream_rate_pct = s_item["stream rate pct"]
                     # stream_rate_fps = s_item["stream rate fps"]
                     frame_count = s_item["frame count"]
                     frame_size_type = s_item["frame size type"]
@@ -359,7 +357,7 @@ async def thor_module_streams(stop_event: asyncio.Event):
                     print(f"{'  SMAC:':<20}{src_mac}")
                     print(f"{'  SRC IPv4:':<20}{src_ipv4}")
                     print(f"{'  DST IPv4:':<20}{dst_ipv4}")
-                    print(f"{'  Rate:':<20}{stream_rate_ppm}%")
+                    print(f"{'  Rate:':<20}{stream_rate_pct}%")
                     print(f"{'  Frame Size Type:':<20}{frame_size_type.name} bytes")
                     print(f"{'  Frame Size (min):':<20}{frame_size_min} bytes")
                     print(f"{'  Frame Size (max):':<20}{frame_size_max} bytes")
@@ -370,7 +368,7 @@ async def thor_module_streams(stop_event: asyncio.Event):
                         stream.enable.set_on(),
                         stream.packet.limit.set(packet_count=frame_count),
                         stream.comment.set(f"Test stream"),
-                        stream.rate.fraction.set(stream_rate_ppm=int(1000000*(stream_rate_ppm/100))),
+                        stream.rate.fraction.set(stream_rate_ppm=int(1000000*(stream_rate_pct/100))),
                         # stream.rate.pps.set(stream_rate_pps=stream_rate_fps),  
                         stream.packet.header.protocol.set(segments=[
                             enums.ProtocolOption.ETHERNET,
