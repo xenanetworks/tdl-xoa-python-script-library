@@ -8,7 +8,7 @@ from xoa_driver import (
     exceptions
 )
 from xoa_driver.hlfuncs import mgmt
-from xoa_driver.misc import ArpChunk, NdpChunk, Hex
+from xoa_driver.misc import Hex
 import ipaddress
 from binascii import hexlify
 
