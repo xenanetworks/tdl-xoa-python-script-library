@@ -6,7 +6,7 @@ Streams, once created on a port, will stay on the port until you explicitly remo
 
 For instance, you already have streams on a port as shown below.
 
-![Streams on the port](image.jpg "Streams on the port")
+![Streams on the port](image.png "Streams on the port")
 
 The script will show:
 ```
