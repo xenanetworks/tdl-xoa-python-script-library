@@ -9,7 +9,8 @@ from xoa_driver import (
 )
 from xoa_driver.hlfuncs import mgmt
 from xoa_driver.misc import Hex
-
+from binascii import hexlify
+import ipaddress
 
 #---------------------------
 # GLOBAL PARAMS
@@ -42,6 +43,8 @@ module_port_traffic_config = [
                     {
                         "src mac": "00000A000002",
                         "dst mac": "00000A010002",
+                        "src ip": "10.0.0.2",
+                        "dest ip": "11.0.0.2",
                         "frame size type": enums.LengthType.FIXED,
                         "frame size min": 128,
                         "frame size max": 128,
@@ -54,6 +57,8 @@ module_port_traffic_config = [
                     {
                         "src mac": "00000A000003",
                         "dst mac": "00000A010003",
+                        "src ip": "10.0.0.3",
+                        "dest ip": "11.0.0.3",
                         "frame size type": enums.LengthType.FIXED,
                         "frame size min": 256,
                         "frame size max": 256,
@@ -74,6 +79,8 @@ module_port_traffic_config = [
                     {
                         "src mac": "00000B000002",
                         "dst mac": "00000B010002",
+                        "src ip": "11.0.0.2",
+                        "dest ip": "10.0.0.2",
                         "frame size type": enums.LengthType.FIXED,
                         "frame size min": 128,
                         "frame size max": 128,
@@ -86,6 +93,8 @@ module_port_traffic_config = [
                     {
                         "src mac": "00000B000003",
                         "dst mac": "00000B010003",
+                        "src ip": "11.0.0.3",
+                        "dest ip": "10.0.0.3",
                         "frame size type": enums.LengthType.FIXED,
                         "frame size min": 256,
                         "frame size max": 256,
@@ -98,6 +107,8 @@ module_port_traffic_config = [
                     {
                         "src mac": "00000B000004",
                         "dst mac": "00000B010004",
+                        "src ip": "11.0.0.4",
+                        "dest ip": "10.0.0.4",
                         "frame size type": enums.LengthType.FIXED,
                         "frame size min": 512,
                         "frame size max": 512,
@@ -128,6 +139,8 @@ module_port_traffic_config = [
                     {
                         "src mac": "00000C000002",
                         "dst mac": "00000C010002",
+                        "src ip": "13.0.0.2",
+                        "dst ip": "14.0.0.2",
                         "frame size type": enums.LengthType.FIXED,
                         "frame size min": 128,
                         "frame size max": 128,
@@ -140,6 +153,8 @@ module_port_traffic_config = [
                     {
                         "src mac": "00000D000003",
                         "dst mac": "00000D010003",
+                        "src ip": "13.0.0.3",
+                        "dst ip": "14.0.0.3",
                         "frame size type": enums.LengthType.FIXED,
                         "frame size min": 256,
                         "frame size max": 256,
@@ -160,6 +175,8 @@ module_port_traffic_config = [
                     {
                         "src mac": "00000E000002",
                         "dst mac": "00000E010002",
+                        "src ip": "14.0.0.2",
+                        "dst ip": "13.0.0.2",
                         "frame size type": enums.LengthType.FIXED,
                         "frame size min": 128,
                         "frame size max": 128,
@@ -172,6 +189,8 @@ module_port_traffic_config = [
                     {
                         "src mac": "00000F000003",
                         "dst mac": "00000F010003",
+                        "src ip": "14.0.0.3",
+                        "dst ip": "13.0.0.3",
                         "frame size type": enums.LengthType.FIXED,
                         "frame size min": 256,
                         "frame size max": 256,
@@ -184,6 +203,8 @@ module_port_traffic_config = [
                     {
                         "src mac": "000010000004",
                         "dst mac": "000010010004",
+                        "src ip": "14.0.0.4",
+                        "dst ip": "13.0.0.4",
                         "frame size type": enums.LengthType.FIXED,
                         "frame size min": 512,
                         "frame size max": 512,
@@ -210,6 +231,25 @@ def eth_header_generator(
     _ethertype = "FFFF"
 
     header = f'{dst_mac}{src_mac}{_ethertype}'
+    return header
+
+#---------------------------
+# eth_ip_header_generator
+#---------------------------
+def eth_ip_header_generator(
+        dst_mac: str = "000000000000", 
+        src_mac: str = "000000000000",
+        dst_ip: str = "0.0.0.0",
+        src_ip: str = "0.0.0.0",
+        frame_size: int = 64
+
+        ) -> str:
+    _ethertype = "0800"
+    _total_length = '{:04X}'.format(frame_size - 14 - 4)
+    _src_ip = ipaddress.IPv4Address(src_ip)
+    _dst_ip = ipaddress.IPv4Address(dst_ip)
+
+    header = f'{dst_mac}{src_mac}{_ethertype}4500{_total_length}000000007FFF0000{hexlify(_src_ip.packed).decode()}{hexlify(_dst_ip.packed).decode()}'
     return header
 
 #---------------------------
@@ -382,6 +422,8 @@ async def thor_ppm_anlt_eth(stop_event: asyncio.Event):
 
                     dst_mac = s_item["dst mac"]
                     src_mac = s_item["src mac"]
+                    dst_ip = s_item["dst ip"]
+                    src_ip = s_item["src ip"]
                     stream_rate_pct = s_item["stream rate pct"]
                     # stream_rate_fps = s_item["stream rate fps"]
                     frame_count = s_item["frame count"]
@@ -390,13 +432,22 @@ async def thor_ppm_anlt_eth(stop_event: asyncio.Event):
                     frame_size_max = s_item["frame size max"]
                     payload_pattern = s_item["payload pattern"]
                     tpld_id = s_item["tpld id"]
-                    header = eth_header_generator(
+                    # header = eth_header_generator(
+                    #     dst_mac=dst_mac,
+                    #     src_mac=src_mac,
+                    #     )
+                    header = eth_ip_header_generator(
                         dst_mac=dst_mac,
                         src_mac=src_mac,
+                        dst_ip=dst_ip,
+                        src_ip=src_ip,
+                        frame_size=frame_size_min
                         )
                     print(f"{'  Index:':<20}{stream.idx}")
                     print(f"{'  DMAC:':<20}{dst_mac}")
                     print(f"{'  SMAC:':<20}{src_mac}")
+                    print(f"{'  Dest IP:':<20}{dst_mac}")
+                    print(f"{'  Src  IP:':<20}{src_mac}")
                     print(f"{'  Rate:':<20}{stream_rate_pct}%")
                     print(f"{'  Frame Size Type:':<20}{frame_size_type.name} bytes")
                     print(f"{'  Frame Size (min):':<20}{frame_size_min} bytes")
