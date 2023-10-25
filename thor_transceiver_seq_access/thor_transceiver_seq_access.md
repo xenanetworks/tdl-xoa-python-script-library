@@ -1,4 +1,4 @@
-# XOA Script Documentation - Thor Module and Stream
+# XOA Script Documentation - Transceiver Sequential Access on Thor
 
 ## Introduction
 What this script example does:

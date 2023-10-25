@@ -86,7 +86,6 @@ def main() -> None:
 
     # initialize async wrapper
     xaw = XenaAsyncWrapper()
-    xaw2 = XenaAsyncWrapper()
 
     # check if it starts to work
     while not xaw.is_thread_started():

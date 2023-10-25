@@ -1,4 +1,4 @@
-# XOA Script Documentation - Packet Capture
+# XOA Script Documentation - Synchronize Created Streams to Script
 
 This script will help you access the streams that are created on the port already.
 
