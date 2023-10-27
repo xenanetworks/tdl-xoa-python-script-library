@@ -161,9 +161,21 @@ async def my_awesome_func(stop_event: asyncio.Event):
         print(f"TPLD {tpld_id} RX min jitter: {rx_jitter.min_val}")
         print(f"TPLD {tpld_id} RX max jitter: {rx_jitter.max_val}")
         print(f"TPLD {tpld_id} RX avg jitter: {rx_jitter.avg_val}")
-        print(f"TPLD {tpld_id} RX number of non-incrementing-sequence-number events: {rx_error.non_incre_seq_event_count}")
-        print(f"TPLD {tpld_id} RX number of swapped-sequence-number misorder events: {rx_error.swapped_seq_misorder_event_count}")
-        print(f"TPLD {tpld_id} RX number of packets with non-incrementing payload content: {rx_error.non_incre_payload_packet_count}")
+        print(f"TPLD {tpld_id} RX Lost Packets: {rx_error.non_incre_seq_event_count}")
+        print(f"TPLD {tpld_id} RX Misordered: {rx_error.swapped_seq_misorder_event_count}")
+        print(f"TPLD {tpld_id} RX Payload Errors: {rx_error.non_incre_payload_packet_count}")
+
+
+        # Stream errors of TPLD 0
+        rx_stats_obj = rx_port.statistics.rx.access_tpld(0)
+        errors = await rx_stats_obj.errors.get()
+        lost_packet = errors.non_incre_seq_event_count
+        print(lost_packet) # This is called Lost Packets on the UI
+        misordered_pkts = errors.swapped_seq_misorder_event_count
+        print(misordered_pkts) # This is called Misordered on the UI
+        payload_errors = errors.non_incre_payload_packet_count
+        print(payload_errors) # This is called Payload Errors on the UI
+
 
         #################################################
         #                  Release                      #
