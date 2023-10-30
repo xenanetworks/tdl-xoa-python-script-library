@@ -35,21 +35,21 @@ async def main():
         
         # Read transceiver's register value (single read)
         rx_power_lsb = await my_port.transceiver.access_rw(page_address=0xA2, register_address=0x69).get()
-        print(rx_power_lsb)
+        print(rx_power_lsb.value)
 
         # Write transceiver's register value (single write)
         await my_port.transceiver.access_rw(page_address=0xA2, register_address=0x69).set("FFFF")
 
         # Read MII transceiver's register value (single operation)
         rx_power_lsb = await my_port.transceiver.access_mii(register_address=0x69).get()
-        print(rx_power_lsb)
+        print(rx_power_lsb.value)
 
         # Write MII transceiver's register value (single operation)
         await my_port.transceiver.access_mii(register_address=0x69).set("FFFF")
 
         # Read transceiver's register value (sequential read)
         i2c_read = await my_port.transceiver.access_rw_seq(page_address=0xA2, register_address=0x69, byte_count=16).get()
-        print(i2c_read)
+        print(i2c_read.value)
 
         # Write transceiver's register value (sequential write)
         await my_port.transceiver.access_rw_seq(page_address=0xA2, register_address=0x69, byte_count=16).set("FFFF")
