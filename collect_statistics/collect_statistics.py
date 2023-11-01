@@ -43,6 +43,7 @@ async def main():
         await mgmt.reserve_port(port)
         await mgmt.reset_port(port)
 
+    await asyncio.sleep(5)
 
     # Create one stream on the port
     print(f"Creating a stream on port {MODULE_ID}/{PORT1_ID}")
