@@ -109,6 +109,8 @@ def main() -> None:
     xaw(mgmt.reserve_port(port=port))
     xaw(mgmt.reset_port(port=port))
 
+    xaw(asyncio.sleep(5))
+
     # executing set request
     xaw(port.comment.set(comment="this is my comment"))
 

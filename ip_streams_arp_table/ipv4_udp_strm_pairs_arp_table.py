@@ -146,6 +146,8 @@ async def udp_ipv4_config_func(stop_event: asyncio.Event):
     print(f"Reset Port A")
     await mgmt.reset_port(port_a)
 
+    await asyncio.sleep(5)
+
     print(f"Configure Port A")
     await utils.apply(
         port_a.speed.mode.selection.set(mode=enums.PortSpeedMode.UNKNOWN),
@@ -232,6 +234,8 @@ async def udp_ipv4_config_func(stop_event: asyncio.Event):
     # ------------------
     print(f"Reset Port B")
     await mgmt.reset_port(port_b)
+
+    await asyncio.sleep(5)
 
     print(f"Configure Port B")
     await utils.apply(

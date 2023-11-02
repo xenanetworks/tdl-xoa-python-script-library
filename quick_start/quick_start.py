@@ -35,6 +35,8 @@ async def my_awesome_func(stop_event: asyncio.Event):
         await mgmt.reserve_port(rx_port)
         await mgmt.reset_port(rx_port)
 
+        await asyncio.sleep(5)
+
         #################################################
         #           TX Port Configuration               #
         #################################################

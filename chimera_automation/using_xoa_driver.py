@@ -66,6 +66,8 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
         await mgmt.reserve_port(port)
         await mgmt.reset_port(port)
 
+        await asyncio.sleep(5)
+
         await port.comment.set(comment="My Chimera Port")
         await port.pcs_pma.link_flap.params.set(duration=100, period=1000, repetition=0)
         await port.pcs_pma.link_flap.enable.set_on()

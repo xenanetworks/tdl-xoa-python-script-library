@@ -321,6 +321,8 @@ async def thor_module_streams(stop_event: asyncio.Event):
                 await mgmt.reserve_port(port, force=True)
                 await mgmt.reset_port(port)
 
+                await asyncio.sleep(5)
+
                 # fec mode = rs-fec
                 fec_mode = p_item["port fec mode"]
                 await port.fec_mode.set(mode=fec_mode)
