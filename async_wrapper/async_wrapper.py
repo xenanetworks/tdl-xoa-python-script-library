@@ -105,6 +105,10 @@ def main() -> None:
     # Obtain a port from the module
     port = module.ports.obtain(PORT_IDX)
 
+    # Read port property
+    resp = xaw(port.comment.get())
+    print(f"{resp.comment}")
+
     # reserve & reset port
     xaw(mgmt.reserve_port(port=port))
     xaw(mgmt.reset_port(port=port))
