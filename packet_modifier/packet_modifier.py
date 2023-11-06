@@ -4,6 +4,7 @@ from xoa_driver import testers
 from xoa_driver import modules
 from xoa_driver import utils, enums
 from xoa_driver.hlfuncs import mgmt
+from xoa_driver.misc import Hex
 
 CHASSIS_IP = "demo.xenanetworks.com"
 USERNAME = "xoa"
@@ -36,7 +37,7 @@ async def main():
     # create one stream on the port
     my_stream = await tx_port.streams.create() 
 
-    header_data = f'0x{DMAC}{SMAC}{ETHERTYPE}'
+    header_data = Hex(f"{DMAC}{SMAC}{ETHERTYPE}")
 
     await utils.apply(
         # Create the TPLD index of stream
@@ -60,7 +61,7 @@ async def main():
     my_modifier = my_stream.packet.header.modifiers.obtain(0)
     # configure the modifier
     # place the modifier on header position 0
-    await my_modifier.specification.set(position=0, mask="0xFFFF", action=enums.ModifierAction.INC, repetition=1) 
+    await my_modifier.specification.set(position=0, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1) 
     await my_modifier.range.set(min_val=0, step=1, max_val=65535)
 
     # to create another modifier, you need to re-configure all modifiers again
@@ -68,12 +69,12 @@ async def main():
 
     my_modifier = my_stream.packet.header.modifiers.obtain(0)
     # place the first modifier on header position 0
-    await my_modifier.specification.set(position=0, mask="0xFFFF", action=enums.ModifierAction.INC, repetition=1) 
+    await my_modifier.specification.set(position=0, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1) 
     await my_modifier.range.set(min_val=0, step=1, max_val=65535)
 
     my_modifier_2 = my_stream.packet.header.modifiers.obtain(1)
     # place the second modifier on header position 6
-    await my_modifier_2.specification.set(position=6, mask="0xFFFF", action=enums.ModifierAction.INC, repetition=1) 
+    await my_modifier_2.specification.set(position=6, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1) 
     await my_modifier_2.range.set(min_val=0, step=1, max_val=65535)
 
     # to delete the first modifier, you need to re-configure all modifiers again
@@ -81,7 +82,7 @@ async def main():
     
     my_modifier = my_stream.packet.header.modifiers.obtain(0)
     # place the modifier on header position 0
-    await my_modifier.specification.set(position=6, mask="0xFFFF", action=enums.ModifierAction.INC, repetition=1) 
+    await my_modifier.specification.set(position=6, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1) 
     await my_modifier.range.set(min_val=0, step=1, max_val=65535)
 
     # to delete all modifiers
