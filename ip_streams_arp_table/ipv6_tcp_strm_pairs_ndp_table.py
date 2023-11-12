@@ -105,7 +105,7 @@ for i in range(256):
 async def tcp_ipv6_config_func(stop_event: asyncio.Event):
     print(f"Making {IP_PAIRS} TCP stream pairs")
     # create tester instance and establish connection
-    tester = await testers.L23Tester(CHASSIS_IP, USERNAME) 
+    tester = await testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False) 
 
     # access the module on the tester
     module = tester.modules.obtain(MODULE_INDEX)

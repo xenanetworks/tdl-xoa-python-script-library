@@ -194,7 +194,7 @@ async def start() -> None:
     print(config.ip_address)
     print(config.ports)
     print('Start to connect to the chassis...')
-    async with testers.L23Tester(config.ip_address, "python_test_1", debug=True) as tester:
+    async with testers.L23Tester(host=config.ip_address, username="python_test_1", password="xena", port=22606 enable_logging=True) as tester:
         test_ports = [ tester.modules.obtain(p.module_id).ports.obtain(p.port_id) for p in config.ports ]
         if any(isinstance(p, ports.PortChimera) for p in test_ports):
             raise ValueError("Please select other port. Chimera Ports can't be used in this test.")

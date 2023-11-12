@@ -9,11 +9,14 @@ from xoa_driver.hlfuncs import mgmt
 from xoa_driver.misc import Hex
 import ipaddress
 
+CHASSIS_IP = "demo.xenanetworks.com"
+USERNAME = "quick_start"
+
 async def my_awesome_func(stop_event: asyncio.Event):
 
     # Establish connection to a Valkyrie tester using Python context manager
     # The connection will be automatically terminated when it is out of the block
-    async with testers.L23Tester("demo.xenanetworks.com", "xoa") as tester:
+    async with testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xoa", port=22606, enable_logging=False) as tester:
 
         # Access module index 0 on the tester
         my_module = tester.modules.obtain(2)

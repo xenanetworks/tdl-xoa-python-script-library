@@ -17,7 +17,7 @@ PORT_ID = 0
 
 async def main():
     # create tester instance and establish connection
-    async with testers.L23Tester(CHASSIS_IP, USERNAME) as tester:
+    async with testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False) as tester:
 
         # access module 0 on the tester
         module = tester.modules.obtain(MODULE_ID)

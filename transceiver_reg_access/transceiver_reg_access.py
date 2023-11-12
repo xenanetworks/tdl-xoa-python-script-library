@@ -11,7 +11,7 @@ PORT_ID = 2
 
 async def main():
     # Establish connection to a Valkyrie tester
-    async with testers.L23Tester(CHASSIS_IP, USERNAME) as my_tester:
+    async with testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False) as my_tester:
         my_module = my_tester.modules.obtain(MODULE_ID)
 
         # commands which used in this example are not supported by Chimera Module

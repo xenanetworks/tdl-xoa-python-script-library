@@ -20,7 +20,7 @@ MODULE_MEDIA = enums.MediaConfigurationType.QSFP28
 async def my_awesome_func(stop_event: asyncio.Event) -> None:
 
     # Access to the chassis that has a Chimera module in
-    async with testers.L23Tester(CHASSIS_IP, USERNAME) as tester:
+    async with testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False) as tester:
         # Access the module
         module = tester.modules.obtain(MODULE_IDX)
 

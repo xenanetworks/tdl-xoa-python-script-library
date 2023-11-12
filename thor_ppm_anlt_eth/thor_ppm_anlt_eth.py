@@ -260,7 +260,7 @@ async def thor_ppm_anlt_eth(stop_event: asyncio.Event):
     print(f"{'START'}")
     print(f"==================================")
     # create tester instance and establish connection
-    async with testers.L23Tester(CHASSIS_IP, USERNAME) as tester:
+    async with testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False) as tester:
         print(f"{'Connect to chassis:':<20}{CHASSIS_IP}")
         print(f"{'Username:':<20}{CHASSIS_IP}")
 

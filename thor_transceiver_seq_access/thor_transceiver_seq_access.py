@@ -31,7 +31,7 @@ VALUE_HEX_STRING = "ffff"
 #---------------------------
 async def thor_seq_access(stop_event: asyncio.Event):
     # create tester instance and establish connection
-    async with testers.L23Tester(CHASSIS_IP, USERNAME) as tester:
+    async with testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False) as tester:
         print(f"{'Connect to chassis:':<20}{CHASSIS_IP}")
         print(f"{'Username:':<20}{CHASSIS_IP}")
 

@@ -93,7 +93,7 @@ def main() -> None:
 
     # create a tester instance
     # this will automatically create a tcp connection to the tester
-    tester = xaw(testers.L23Tester(host=CHASSIS_IP, username=USERNAME, enable_logging=False))
+    tester = xaw(testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False))
 
     # obtain a module instance
     module = tester.modules.obtain(MODULE_IDX)

@@ -26,7 +26,7 @@ VLAN2 = "0010FFFF"
 async def main():
     # create tester instance and establish connection
     print(f"Connecting to chassis: {CHASSIS_IP}, username: {USERNAME}")
-    my_tester = await testers.L23Tester(CHASSIS_IP, USERNAME)
+    my_tester = await testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False)
 
 
     my_module = my_tester.modules.obtain(MODULE_ID)

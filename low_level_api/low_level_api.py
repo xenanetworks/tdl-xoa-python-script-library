@@ -16,7 +16,7 @@ async def my_awesome_func():
     #  Connect to chassis 1                          #
     ##################################################
     handler = TransportationHandler(enable_logging=False)
-    await establish_connection(handler, "192.168.1.198")
+    await establish_connection(handler, host="192.168.1.198", port=22606)
     await utils.apply(
         cmd.C_LOGON(handler).set("xena"),
         cmd.C_OWNER(handler).set("xoa"),
@@ -26,7 +26,7 @@ async def my_awesome_func():
     #  Connect to chassis 2                          #
     ##################################################
     handler2 = TransportationHandler(enable_logging=False)
-    await establish_connection(handler2, "192.168.1.198")
+    await establish_connection(handler2, host="192.168.1.198", port=22606)
     await utils.apply(
         cmd.C_LOGON(handler2).set("xena"),
         cmd.C_OWNER(handler2).set("Alice"),
@@ -36,7 +36,7 @@ async def my_awesome_func():
     #  Connect to chassis 3                          #
     ##################################################
     handler3 = TransportationHandler(enable_logging=False)
-    await establish_connection(handler3, "192.168.1.198")
+    await establish_connection(handler3, host="192.168.1.198", port=22606)
     await utils.apply(
         cmd.C_LOGON(handler3).set("xena"),
         cmd.C_OWNER(handler3).set("Bob"),
