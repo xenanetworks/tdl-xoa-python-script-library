@@ -3,7 +3,7 @@
 ## Introduction
 What this script example does:
 1. Connect to a tester
-2. Reserve a port. Must be Freya
+2. Reserve a port. Must be Freya, Thor, or Loki
 3. Reset the port
 4. Set the port FEC mode on
 5. Clear FEC stats
