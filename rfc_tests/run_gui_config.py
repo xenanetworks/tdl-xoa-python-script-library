@@ -19,15 +19,11 @@ except ImportError:
 
 PROJECT_PATH = Path(__file__).parent
 PLUGINS_PATH = PROJECT_PATH / "rfc_lib"
-XENA2544_CONFIG = PROJECT_PATH / "demo.v2544"
+XENA2544_CONFIG = PROJECT_PATH / "rfc2544.v2544"
 XOA2544_CONFIG = PROJECT_PATH / "rfc2544.json"
 DATA_FILE = PROJECT_PATH / "data_file.csv"
 
 CHASSIS_IP = "10.20.1.170"
-
-
-# class RFC2544CSV
-
 
 async def main() -> None:
     # Define your tester login credentials
@@ -82,8 +78,6 @@ async def main() -> None:
                         csv_writer.writerow(header)
                         csv_writer.writerow(result_data.values())
                         
-                        
-
     # By the next line, we prevent the script from being immediately
     # terminated as the test execution and subscription are non blockable, and they ran asynchronously,
     # await asyncio.Event().wait()
