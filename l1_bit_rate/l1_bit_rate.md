@@ -1,4 +1,4 @@
-# XOA Script Documentation - Quick Start
+# XOA Script Documentation - L1 bit rate
 
 ## Introduction
 What this script example does:
