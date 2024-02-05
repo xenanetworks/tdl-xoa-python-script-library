@@ -19,11 +19,23 @@ except ImportError:
 
 PROJECT_PATH = Path(__file__).parent
 PLUGINS_PATH = PROJECT_PATH / "rfc_lib"
-XENA2544_CONFIG = PROJECT_PATH / "rfc2544.v2544"
-XOA2544_CONFIG = PROJECT_PATH / "rfc2544.json"
+XENA2544_CONFIG = PROJECT_PATH / "demo.v2544"
+XOA2544_CONFIG = PROJECT_PATH / "demo.json"
 DATA_FILE = PROJECT_PATH / "data_file.csv"
 
-CHASSIS_IP = "10.20.1.170"
+CHASSIS_IP = "10.165.136.70"
+
+def normalize_json(data: dict) -> dict: 
+
+    new_data = dict() 
+    for key, value in data.items(): 
+        if not isinstance(value, dict): 
+            new_data[key] = value 
+        else: 
+            for k, v in value.items(): 
+                new_data[key + "_" + k] = v 
+
+    return new_data
 
 async def main() -> None:
     # Define your tester login credentials
