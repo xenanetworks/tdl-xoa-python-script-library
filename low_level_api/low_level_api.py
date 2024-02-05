@@ -63,10 +63,10 @@ async def my_awesome_func():
     ##################################################
     #  Reserve port 0/0                              #
     ##################################################
-    reservation = await cmd.P_RESERVATION(handler, 0, 0).get() # port 0/0
-    if reservation == enums.ReservedStatus.RESERVED_BY_OTHER:
+    resp = await cmd.P_RESERVATION(handler, 0, 0).get() # port 0/0
+    if resp.status == enums.ReservedStatus.RESERVED_BY_OTHER:
         await cmd.P_RESERVATION(handler, 0, 0).set(enums.ReservedAction.RELINQUISH)
-    if reservation == enums.ReservedStatus.RESERVED_BY_YOU:
+    if resp.status == enums.ReservedStatus.RESERVED_BY_YOU:
         await cmd.P_RESERVATION(handler, 0, 0).set(enums.ReservedAction.RELEASE)
     await cmd.P_RESERVATION(handler, 0, 0).set(enums.ReservedAction.RESERVE)
 
