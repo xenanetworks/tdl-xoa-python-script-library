@@ -6,4 +6,4 @@ What this script example does:
 2. Reserve port
 3. Create two streams on the port
 4. Start traffic
-5. Collect statistics
+5. Collect live statistics

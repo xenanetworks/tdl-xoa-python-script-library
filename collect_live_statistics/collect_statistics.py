@@ -1,15 +1,16 @@
 import asyncio
 from xoa_driver import testers
 from xoa_driver import modules
+from xoa_driver import ports
 from xoa_driver.enums import *
 from xoa_driver.hlfuncs import mgmt
 from xoa_driver.misc import Hex
 
 CHASSIS_IP = "demo.xenanetworks.com"
 USERNAME = "xoa"
-MODULE_ID = 0
-PORT1_ID = 1
-PORT2_ID = 3
+MODULE_ID = 2
+PORT1_ID = 0
+PORT2_ID = 1
 
 TRAFFIC_DURATION = 180  # Three minutes
 
@@ -23,7 +24,45 @@ SOURCE_MAC2 =        "AAAAAAAAAAAA"
 ETHERNET_TYPE2 =     "8100"
 VLAN2 = "0010FFFF"
 
-async def main():
+async def statistic_fetcher(
+        port1: ports.GenericL23Port, 
+        port2: ports.GenericL23Port, 
+        stop_event: asyncio.Event
+    ) -> None:
+
+    # collect statistics
+    print(f"Collecting statistics..")
+
+    count = 1
+
+    while not stop_event.is_set():
+        (p1_tx, p1_rx, p2_tx, p2_rx) = await asyncio.gather(
+            port1.statistics.tx.obtain_from_stream(0).get(),
+            port1.statistics.rx.access_tpld(1).traffic.get(),
+            port2.statistics.tx.obtain_from_stream(0).get(),
+            port2.statistics.rx.access_tpld(0).traffic.get(),
+        )
+        print(f"#"*count)
+        print(f"Port 1")
+        print(f"  TX(tid=0).Byte_Count: {p1_tx.byte_count_since_cleared}")
+        print(f"  TX(tid=0).Packet_Count: {p1_tx.packet_count_since_cleared}")
+        print(f"  RX(tid=1).Byte_Count: {p1_rx.byte_count_since_cleared}")
+        print(f"  RX(tid=1).Packet_Count: {p1_rx.packet_count_since_cleared}")
+
+        print(f"Port 2")
+        print(f"  TX(tid=1).Byte_Count: {p2_tx.byte_count_since_cleared}")
+        print(f"  TX(tid=1).Packet_Count: {p2_tx.packet_count_since_cleared}")
+        print(f"  RX(tid=0).Byte_Count: {p2_rx.byte_count_since_cleared}")
+        print(f"  RX(tid=0).Packet_Count: {p2_rx.packet_count_since_cleared}")
+
+        print(f"Frame Loss (TX-RX)")
+        print(f"  Port 1->Port 2 (tid=0): {p1_tx.packet_count_since_cleared - p2_rx.packet_count_since_cleared}")
+        print(f"  Port 2->Port 1 (tid=1): {p2_tx.packet_count_since_cleared - p1_rx.packet_count_since_cleared}")
+
+        count+=1
+        await asyncio.sleep(1.0)
+
+async def my_awesome_func(stop_event: asyncio.Event):
     # create tester instance and establish connection
     print(f"Connecting to chassis: {CHASSIS_IP}, username: {USERNAME}")
     my_tester = await testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False)
@@ -109,50 +148,38 @@ async def main():
         port2.traffic.state.set_start()
     )
 
+    asyncio.create_task(statistic_fetcher(port1, port2, stop_event))
+    await stop_event.wait()
+
     # # let traffic runs for 10 seconds
-    print(f"Wait for {TRAFFIC_DURATION} seconds...")
-    await asyncio.sleep(TRAFFIC_DURATION)
+    # print(f"Wait for {TRAFFIC_DURATION} seconds...")
+    # await asyncio.sleep(TRAFFIC_DURATION)
 
     # # stop traffic on the Tx port
-    print(f"Stopping traffic..")
-    await asyncio.gather(
-        port1.traffic.state.set_stop(),
-        port2.traffic.state.set_stop()
-    )
-    await asyncio.sleep(2)
+    # print(f"Stopping traffic..")
+    # await asyncio.gather(
+    #     port1.traffic.state.set_stop(),
+    #     port2.traffic.state.set_stop()
+    # )
+    # await asyncio.sleep(2)
 
-    # collect statistics
-    print(f"Collecting statistics..")
+    # # free ports
+    # print(f"Free ports")
+    # for port in resources:
+    #     await mgmt.free_port(port)
 
-    (p1_tx, p1_rx, p2_tx, p2_rx) = await asyncio.gather(
-        port1.statistics.tx.obtain_from_stream(0).get(),
-        port1.statistics.rx.access_tpld(1).traffic.get(),
-        port2.statistics.tx.obtain_from_stream(0).get(),
-        port2.statistics.rx.access_tpld(0).traffic.get(),
-    )
-    print(f"Port 1")
-    print(f"  TX(tid=0).Byte_Count: {p1_tx.byte_count_since_cleared}")
-    print(f"  TX(tid=0).Packet_Count: {p1_tx.packet_count_since_cleared}")
-    print(f"  RX(tid=1).Byte_Count: {p1_rx.byte_count_since_cleared}")
-    print(f"  RX(tid=1).Packet_Count: {p1_rx.packet_count_since_cleared}")
+    # # done
+    # print(f"Test done")
 
-    print(f"Port 2")
-    print(f"  TX(tid=1).Byte_Count: {p2_tx.byte_count_since_cleared}")
-    print(f"  TX(tid=1).Packet_Count: {p2_tx.packet_count_since_cleared}")
-    print(f"  RX(tid=0).Byte_Count: {p2_rx.byte_count_since_cleared}")
-    print(f"  RX(tid=0).Packet_Count: {p2_rx.packet_count_since_cleared}")
 
-    print(f"Frame Loss (TX-RX)")
-    print(f"  Port 1->Port 2 (tid=0): {p1_tx.packet_count_since_cleared - p2_rx.packet_count_since_cleared}")
-    print(f"  Port 2->Port 1 (tid=1): {p2_tx.packet_count_since_cleared - p1_rx.packet_count_since_cleared}")
 
-    # free ports
-    print(f"Free ports")
-    for port in resources:
-        await mgmt.free_port(port)
+async def main():
+    stop_event = asyncio.Event()
+    try:
+        await my_awesome_func(stop_event)
+    except KeyboardInterrupt:
+        stop_event.set()
 
-    # done
-    print(f"Test done")
 
 if __name__ == "__main__":
     asyncio.run(main())
