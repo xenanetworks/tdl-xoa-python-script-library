@@ -23,7 +23,7 @@ XENA2544_CONFIG = PROJECT_PATH / "demo.v2544"
 XOA2544_CONFIG = PROJECT_PATH / "demo.json"
 DATA_FILE = PROJECT_PATH / "data_file.csv"
 
-CHASSIS_IP = "10.165.136.70"
+CHASSIS_IP = "demo.xenanetworks.com"
 
 def normalize_json(data: dict) -> dict: 
 
