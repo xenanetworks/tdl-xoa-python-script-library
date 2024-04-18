@@ -11,6 +11,9 @@ import ipaddress
 
 CHASSIS_IP = "demo.xenanetworks.com"
 USERNAME = "quick_start"
+MODULE_IDX = 2
+PORT0_IDX = 0
+PORT1_IDX = 1
 
 async def my_awesome_func(stop_event: asyncio.Event):
 
@@ -19,16 +22,16 @@ async def my_awesome_func(stop_event: asyncio.Event):
     async with testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False) as tester:
 
         # Access module index 0 on the tester
-        my_module = tester.modules.obtain(2)
+        my_module = tester.modules.obtain(MODULE_IDX)
 
         if isinstance(my_module, modules.ModuleChimera):
             return None # commands which used in this example are not supported by Chimera Module
 
         # Get the port 0 on module 0 as TX port
-        tx_port = my_module.ports.obtain(0)
+        tx_port = my_module.ports.obtain(PORT0_IDX)
 
         # Get the port 1 on module 0 as RX port
-        rx_port = my_module.ports.obtain(1)
+        rx_port = my_module.ports.obtain(PORT1_IDX)
 
         # Forcibly reserve the TX port and reset it.
         await mgmt.reserve_port(tx_port)
