@@ -12,7 +12,7 @@ from binascii import hexlify
 from xoa_driver.misc import Hex
 
 CHASSIS_IP = "demo.xenanetworks.com"
-USERNAME = "quick_start"
+USERNAME = "simple_arp"
 MODULE_IDX = 2
 PORT_IDX = 0
 ARP_FPS = 1
@@ -58,13 +58,13 @@ async def gratuitous_arp(stop_event: asyncio.Event):
     async with testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False) as tester:
 
         # Access module index 0 on the tester
-        my_module = tester.modules.obtain(MODULE_IDX)
+        module = tester.modules.obtain(MODULE_IDX)
 
-        if isinstance(my_module, modules.ModuleChimera):
+        if isinstance(module, modules.ModuleChimera):
             return None # commands which used in this example are not supported by Chimera Module
 
         # Get the port on module 
-        port = my_module.ports.obtain(PORT_IDX)
+        port = module.ports.obtain(PORT_IDX)
 
         # Forcibly reserve the TX port and reset it.
         await mgmt.reserve_port(port)
