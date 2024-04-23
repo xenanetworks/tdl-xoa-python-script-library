@@ -27,10 +27,10 @@ async def my_awesome_func(stop_event: asyncio.Event):
         if isinstance(my_module, modules.ModuleChimera):
             return None # commands which used in this example are not supported by Chimera Module
 
-        # Get the port 0 on module 0 as TX port
+        # Get the port on module as TX port
         tx_port = my_module.ports.obtain(PORT0_IDX)
 
-        # Get the port 1 on module 0 as RX port
+        # Get the port on module as RX port
         rx_port = my_module.ports.obtain(PORT1_IDX)
 
         # Forcibly reserve the TX port and reset it.
