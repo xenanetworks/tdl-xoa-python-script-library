@@ -8,9 +8,9 @@ from xoa_driver import ports
 from xoa_driver import utils
 from xoa_driver import enums
 from ipaddress import IPv4Address, IPv6Address
-from binascii import hexlify
 from xoa_driver.misc import Hex
 from headers import *
+from xoa_driver.hlfuncs import mgmt
 
 #---------------------------
 # Global parameters
@@ -55,14 +55,8 @@ async def my_awesome_func(stop_event: asyncio.Event, should_burst: bool) -> None
         print(f"#---------------------------")
         print(f"# Port reservation")
         print(f"#---------------------------")
-        if txport.is_released():
-            print(f"The txport is released (not owned by anyone). Will reserve the txport to continue txport configuration.")
-            await txport.reservation.set_reserve() # set reservation , means txport will be controlled by our session
-        elif not txport.is_reserved_by_me():
-            print(f"The txport is reserved by others. Will relinquish and reserve the txport to continue txport configuration.")
-            await txport.reservation.set_relinquish() # send relinquish the txport
-            await txport.reservation.set_reserve() # set reservation , means txport will be controlled by our session
-
+        await mgmt.reserve_port(txport)
+    
         #---------------------------
         # Start port configuration
         #---------------------------
@@ -71,7 +65,7 @@ async def my_awesome_func(stop_event: asyncio.Event, should_burst: bool) -> None
         print(f"#---------------------------")
 
         print(f"Reset the txport")
-        await txport.reset.set()
+        await mgmt.reset_port(txport)
 
         print(f"Configure the txport")
         await utils.apply(
