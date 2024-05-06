@@ -21,6 +21,7 @@ USERNAME = "XOA"                # Username
 MODULE_IDX = 3                  # Module index
 PORT_IDX = 1                    # TX Port index
 
+# This is the total IP data size, e.g. 72 bytes each fragments and 20 fragments in total
 IP_DATA_TOTAL = 72*20
 IP_FRAGMENTS = 20
 
