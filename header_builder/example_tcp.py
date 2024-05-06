@@ -16,10 +16,10 @@ from headers import *
 # Global parameters
 #---------------------------
 
-CHASSIS_IP = "10.10.10.10"      # Chassis IP address or hostname
+CHASSIS_IP = "10.165.136.70"      # Chassis IP address or hostname
 USERNAME = "XOA"                # Username
 MODULE_INDEX = 0                # Module index
-TX_PORT_INDEX = 0               # TX Port index
+TX_PORT_INDEX = 2               # TX Port index
 
 FRAME_SIZE_BYTES = 1000         # Frame size on wire including the FCS.
 FRAME_COUNT = 20                # The number of frames including the first, the middle, and the last.
@@ -105,30 +105,43 @@ async def my_awesome_func(stop_event: asyncio.Event, should_burst: bool) -> None
         eth = Ethernet()
         eth.src_mac = "aaaa.aaaa.0005"
         eth.dst_mac = "bbbb.bbbb.0005"
+        eth.ethertype = "0800"
 
         ipv4 = IPV4()
         ipv4.src = "1.1.1.5"
         ipv4.dst = "2.2.2.5"
-
+        ipv4.proto = 6
+        
         ipv6 = IPV6()
         ipv6.src = "2001::5"
         ipv6.dst = "2002::5"
 
-        udp = UDP()
-        udp.src_port = 4791
-        udp.dst_port = 4791
+        tcp = TCP()
+        tcp.src_port = 4791
+        tcp.dst_port = 80
+        tcp.seq_num = 19
+        tcp.ack_num = 31
+        tcp.ae = 0
+        tcp.cwr = 0
+        tcp.ece = 0
+        tcp.urg = 1
+        tcp.ack = 0
+        tcp.psh = 0
+        tcp.rst = 1
+        tcp.syn = 0
+        tcp.fin = 1
 
         await utils.apply(
             stream_0.enable.set_on(),
             stream_0.packet.limit.set(packet_count=1),
-            stream_0.comment.set(f"First packet"),
+            stream_0.comment.set(f"Stream TCP"),
             stream_0.rate.fraction.set(stream_rate_ppm=10000),
             stream_0.packet.header.protocol.set(segments=[
                 enums.ProtocolOption.ETHERNET,
                 enums.ProtocolOption.IP,
-                enums.ProtocolOption.UDP,
+                enums.ProtocolOption.TCPCHECK,
                 ]),
-            stream_0.packet.header.data.set(hex_data=Hex(str(eth)+str(ipv4)+str(udp))),
+            stream_0.packet.header.data.set(hex_data=Hex(str(eth)+str(ipv4)+str(tcp))),
             stream_0.packet.length.set(length_type=enums.LengthType.FIXED, min_val=FRAME_SIZE_BYTES, max_val=FRAME_SIZE_BYTES),
             stream_0.payload.content.set(
                 payload_type=enums.PayloadType.PATTERN, 

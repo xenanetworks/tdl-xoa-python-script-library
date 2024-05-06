@@ -9,7 +9,7 @@ class Ethernet:
     def __init__(self):
         self.dst_mac = "0000.0000.0000"
         self.src_mac = "0000.0000.0000"
-        self.ethertype = "86DD"
+        self.ethertype = "0800"
     
     def __str__(self):
         _dst_mac = self.dst_mac.replace(".", "")
@@ -118,3 +118,64 @@ class UDP:
         _length = '{:04X}'.format(self.length)
         _checksum = '{:04X}'.format(self.checksum)
         return f"{_src_port}{_dst_port}{_length}{_checksum}".upper()
+
+####################################
+#           TCP                    #
+####################################
+class TCP:
+    def __init__(self):
+        self.src_port = 0
+        self.dst_port = 0
+        self.seq_num = 0
+        self.ack_num = 0
+        self.header_length = 20
+        """Aka. Data Offset (bytes)"""
+        self.RSRVD = 0
+        """Reserved 000"""
+        self.ae = 0
+        """Accurate ECN"""
+        self.cwr = 0
+        """Congestion Window Reduced"""
+        self.ece = 0
+        """ECN-Echo"""
+        self.urg = 0
+        """Urgent"""
+        self.ack = 0
+        """Acknowledgment"""
+        self.psh = 0
+        """Push"""
+        self.rst = 0
+        """Rest"""
+        self.syn = 0
+        """Sync"""
+        self.fin = 0
+        """Fin"""
+        self.window = 0
+        self.checksum = 0
+        self.urgent_pointer = 0
+
+    def __str__(self):
+        _src_port = '{:04X}'.format(self.src_port)
+        _dst_port = '{:04X}'.format(self.dst_port)
+        _seq_num = '{:08X}'.format(self.seq_num)
+        _ack_num = '{:08X}'.format(self.ack_num)
+        if self.header_length % 4 != 0:
+            raise Exception("Header Length field (bytes) must be multiple of 4")
+        _header_length = '{:01X}'.format(int(self.header_length/4))
+        _flags = 0
+        _flags += (self.RSRVD<<9)
+        _flags += (self.ae<<8)
+        _flags += (self.cwr<<7)
+        _flags += (self.ece<<6)
+        _flags += (self.urg<<5)
+        _flags += (self.ack<<4)
+        _flags += (self.psh<<3)
+        _flags += (self.rst<<2)
+        _flags += (self.syn<<1)
+        _flags += (self.fin<<0)
+        _flags = '{:03X}'.format(_flags)
+        _window = '{:04X}'.format(self.window)
+        _checksum = '{:04X}'.format(self.checksum)
+        _urgent_pointer = '{:04X}'.format(self.urgent_pointer)
+
+        return f"{_src_port}{_dst_port}{_seq_num}{_ack_num}{_header_length}{_flags}{_window}{_checksum}{_urgent_pointer}".upper()
