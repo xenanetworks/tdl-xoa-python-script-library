@@ -96,7 +96,9 @@ async def s_plane_ptp_dos(chassis_ip: str, port_str: str, username: str, xpc_mod
         print(f"Start traffic")
         await port.traffic.state.set_start()
         # test duration
-        await asyncio.sleep(duration)
+        for i in range(duration):
+            print(f"."*(i+1))
+            await asyncio.sleep(1)
         # stop traffic
         print(f"Stop traffic")
         await port.traffic.state.set_stop()
