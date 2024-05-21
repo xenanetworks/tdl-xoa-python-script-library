@@ -3,6 +3,7 @@ import asyncio
 from xoa_driver import testers
 from xoa_driver import modules
 from xoa_driver.hlfuncs import mgmt
+from xoa_driver.misc import Hex
 
 CHASSIS_IP = "demo.xenanetworks.com"
 USERNAME = "xoa"
@@ -38,14 +39,14 @@ async def main():
         print(rx_power_lsb.value)
 
         # Write transceiver's register value (single write)
-        await my_port.transceiver.access_rw(page_address=0xA2, register_address=0x69).set("FFFF")
+        await my_port.transceiver.access_rw(page_address=0xA2, register_address=0x69).set(Hex("FFFF"))
 
         # Read MII transceiver's register value (single operation)
         rx_power_lsb = await my_port.transceiver.access_mii(register_address=0x69).get()
         print(rx_power_lsb.value)
 
         # Write MII transceiver's register value (single operation)
-        await my_port.transceiver.access_mii(register_address=0x69).set("FFFF")
+        await my_port.transceiver.access_mii(register_address=0x69).set(Hex("FFFF"))
 
         # Read transceiver's register value (sequential read)
         i2c_read = await my_port.transceiver.access_rw_seq(page_address=0xA2, register_address=0x69, byte_count=16).get()
