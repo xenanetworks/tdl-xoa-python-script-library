@@ -74,9 +74,9 @@ class XenaAsyncWrapper:
         return result
 
 
-CHASSIS_IP = "10.20.1.170"
+CHASSIS_IP = "10.10.10.10"
 USERNAME = "xoa"
-MODULE_IDX = 0
+MODULE_IDX = 3
 PORT_IDX = 0
 TRAFFIC_DURATION = 3
 COOLDOWN_DURATION = 1
@@ -95,8 +95,17 @@ def main() -> None:
     # this will automatically create a tcp connection to the tester
     tester = xaw(testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False))
 
+    # reserve the chassis to change multi-user setting
+    xaw(mgmt.free_tester(tester=tester, should_free_modules_ports=True))
+    xaw(mgmt.reserve_tester(tester=tester))
+    # xaw(tester.multiuser.set_on())
+
     # obtain a module instance
     module = tester.modules.obtain(MODULE_IDX)
+
+    # reserve the module
+    xaw(mgmt.free_module(module=module, should_free_ports=True))
+    xaw(mgmt.reserve_module(module=module))
 
     # exit if module type is Chimera
     if isinstance(module, modules.ModuleChimera):
@@ -151,6 +160,8 @@ def main() -> None:
     print(f"{'TX BYTES:':<20}{_tx.byte_count_since_cleared}")
     print(f"{'RX BYTES:':<20}{_rx.byte_count_since_cleared}")
 
+    xaw(tester.session.logoff())
+    xaw.close()
 
 
 if __name__ == "__main__":
