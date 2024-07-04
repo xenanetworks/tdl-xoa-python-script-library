@@ -88,7 +88,9 @@ class XenaAsyncWrapper:
             raise exc
         return result
 
-
+#---------------------------
+# GLOBAL PARAMS
+#---------------------------
 CHASSIS_IP = "10.10.10.10"
 USERNAME = "xoa"
 MODULE_IDX = 3
@@ -96,7 +98,9 @@ PORT_IDX = 0
 TRAFFIC_DURATION = 3
 COOLDOWN_DURATION = 1
 
-
+#---------------------------
+# main
+#---------------------------
 def main() -> None:
 
     # initialize async wrapper
