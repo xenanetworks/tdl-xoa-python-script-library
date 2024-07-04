@@ -1,21 +1,56 @@
+################################################################
+#
+#                   CHIMERA AUTOMATION
+#
+# The simple code example demonstrates how to automate Chimera 
+# for network emulation:
+# 
+# 1. Change the module's media configuration
+# 2. Configure Chimera port
+# 3. Configure flow's basic filter on a port
+# 4. Configure flow's extended filter on a port
+# 5. Configure impairment - Drop
+# 6. Configure impairment - Misordering
+# 7. Configure impairment - Latency & Jitter
+# 8. Configure impairment - Duplication
+# 9. Configure impairment - Corruption
+# 10. Configure bandwidth control - Policer
+# 11. Configure bandwidth control - Shaper
+# 12. Flow statistics
+# 13. Port statistics
+#
+################################################################
+
 import asyncio
 from ipaddress import IPv4Address, IPv6Address
+import logging
 
 from chimera_core.controller import MainController
 from chimera_core.types import distributions, enums, dataset
 
+#---------------------------
+# GLOBAL PARAMS
+#---------------------------
 CHASSIS_IP = "87.61.110.118"
-USERNAME = "chimera-core"
-MODULE_IDX = 2
-PORT_IDX = 0
+USERNAME = "XOA"
+PORT = "2/0"
 FLOW_IDX = 1
 
-async def my_awesome_func(stop_event: asyncio.Event) -> None:
+async def chimera_using_chimera_core_func(chassis: str, username: str, port_str: str, flow_id: int) -> None:
+
+    # configure basic logger
+    logging.basicConfig(
+        format="%(asctime)s  %(message)s",
+        level=logging.DEBUG,
+        handlers=[
+            logging.FileHandler(filename="test.log", mode="a"),
+            logging.StreamHandler()]
+        )
 
     # create credential object
     credentials = dataset.Credentials(
         product=dataset.EProductType.VALKYRIE,
-        host=CHASSIS_IP)
+        host=chassis)
     
     #----------------------------------------------
     # 1. Connect to Valkyrie chassis and select port
@@ -29,23 +64,25 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
     tester_id = await controller.add_tester(credentials=credentials)
 
     # create tester object
-    tester = await controller.use_tester(tester_id, username=USERNAME, reserve=False, debug=False)
+    tester = await controller.use_tester(tester_id, username=username, reserve=False, debug=False)
 
     # create module object
-    module = await tester.use_module(module_id=MODULE_IDX, reserve=False)
+    _mid = int(port_str.split("/")[0])
+    _pid = int(port_str.split("/")[1])
+    module_obj = await tester.use_module(module_id=_mid, reserve=False)
 
     # free the module in case it is reserved by others
-    await module.free(should_free_sub_resources=True)
-    await module.reserve()
+    await module_obj.free(should_free_sub_resources=True)
+    await module_obj.reserve()
 
     # create port object and reserver the port
-    port = await tester.use_port(module_id=MODULE_IDX, port_id=PORT_IDX, reserve=False)
+    port_obj = await tester.use_port(module_id=_mid, port_id=_pid, reserve=False)
 
     # reserve the port
-    await port.reserve()
+    await port_obj.reserve()
 
     # reset port
-    await port.reset()
+    await port_obj.reset()
 
     # endregion
 
@@ -53,7 +90,7 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
     # 2. Configure Chimera port
     # ---------------------------------------------
     # region Configure Chimera port
-    port_config = await port.config.get()
+    port_config = await port_obj.config.get()
     port_config.comment = "My Chimera Port"
 
     port_config.set_fcs_error_mode_discard()
@@ -71,7 +108,7 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
     port_config.tpld_mode = enums.TPLDMode.NORMAL
     port_config.tpld_mode = enums.TPLDMode.MICRO
 
-    await port.config.set(port_config)
+    await port_obj.config.set(port_config)
 
     # endregion
 
@@ -81,7 +118,7 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
     # region Flow configuration + basic filter on a port
 
     # Configure flow properties
-    flow = port.flows[FLOW_IDX]
+    flow = port_obj.flows[flow_id]
     flow_config = await flow.get()
     flow_config.comment = "Flow description"
     await flow.set(config=flow_config)
@@ -260,7 +297,7 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
     # region Flow configuration + extended filter on a port
 
     # Configure flow properties
-    flow = port.flows[FLOW_IDX]
+    flow = port_obj.flows[flow_id]
     flow_config = await flow.get()
     flow_config.comment = "Flow description"
     await flow.set(config=flow_config)
@@ -354,7 +391,7 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
 
     # Custom distribution for impairment Drop
     data_x=[0, 1] * 256
-    custom_distribution = await port.custom_distributions.add(
+    custom_distribution = await port_obj.custom_distributions.add(
         linear=False,
         entry_count = len(data_x),
         data_x=data_x,
@@ -432,7 +469,7 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
 
     # Custom distribution for impairment Latency & Jitter
     data_x=[0, 1] * 256
-    custom_distribution = await port.custom_distributions.add(
+    custom_distribution = await port_obj.custom_distributions.add(
         linear=False,
         entry_count = len(data_x),
         data_x=data_x,
@@ -506,7 +543,7 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
 
     # Custom distribution for impairment Duplication
     data_x=[0, 1] * 256
-    custom_distribution = await port.custom_distributions.add(
+    custom_distribution = await port_obj.custom_distributions.add(
         linear=False,
         entry_count = len(data_x),
         data_x=data_x,
@@ -581,7 +618,7 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
 
     # Custom distribution for impairment Corruption
     data_x=[0, 1] * 256
-    custom_distribution = await port.custom_distributions.add(
+    custom_distribution = await port_obj.custom_distributions.add(
         linear=False,
         entry_count = len(data_x),
         data_x=data_x,
@@ -718,7 +755,7 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
     # 13. Port statistics
     # ---------------------------------------------
     # region Port Statistics
-    port_drop = await port.config.statistics.dropped.get()
+    port_drop = await port_obj.config.statistics.dropped.get()
     port_drop.pkt_drop_count_total
     port_drop.pkt_drop_count_programmed
     port_drop.pkt_drop_count_bandwidth
@@ -728,7 +765,7 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
     port_drop.pkt_drop_ratio_bandwidth
     port_drop.pkt_drop_ratio_other
 
-    port_corrupted = await port.config.statistics.corrupted.get()
+    port_corrupted = await port_obj.config.statistics.corrupted.get()
     port_corrupted.fcs_corrupted_pkt_count
     port_corrupted.fcs_corrupted_pkt_ratio
     port_corrupted.ip_corrupted_pkt_count
@@ -740,30 +777,34 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
     port_corrupted.udp_corrupted_pkt_count
     port_corrupted.udp_corrupted_pkt_ratio
 
-    port_delayed = await port.config.statistics.delayed.get()
+    port_delayed = await port_obj.config.statistics.delayed.get()
     port_delayed.pkt_count
     port_delayed.ratio
 
-    port_jittered = await port.config.statistics.jittered.get()
+    port_jittered = await port_obj.config.statistics.jittered.get()
     port_jittered.pkt_count
     port_jittered.ratio
 
-    port_duplicated = await port.config.statistics.duplicated.get()
+    port_duplicated = await port_obj.config.statistics.duplicated.get()
     port_duplicated.pkt_count
     port_duplicated.ratio
 
-    port_misordered = await port.config.statistics.misordered.get()
+    port_misordered = await port_obj.config.statistics.misordered.get()
     port_misordered.pkt_count
     port_misordered.ratio
 
-    await port.config.statistics.clear.set()
+    await port_obj.config.statistics.clear.set()
 
     # endregion
 
 async def main() -> None:
     stop_event = asyncio.Event()
-    await my_awesome_func(stop_event=stop_event)
-
+    await chimera_using_chimera_core_func(
+        chassis=CHASSIS_IP, 
+        username=USERNAME,
+        port_str=PORT,
+        flow_id=FLOW_IDX
+        )
 
 if __name__ == "__main__":
     asyncio.run(main())

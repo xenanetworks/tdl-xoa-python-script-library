@@ -1,3 +1,26 @@
+################################################################
+#
+#                   CHIMERA AUTOMATION
+#
+# The simple code example demonstrates how to automate Chimera 
+# for network emulation:
+# 
+# 1. Change the module's media configuration
+# 2. Configure Chimera port
+# 3. Configure flow's basic filter on a port
+# 4. Configure flow's extended filter on a port
+# 5. Configure impairment - Drop
+# 6. Configure impairment - Misordering
+# 7. Configure impairment - Latency & Jitter
+# 8. Configure impairment - Duplication
+# 9. Configure impairment - Corruption
+# 10. Configure bandwidth control - Policer
+# 11. Configure bandwidth control - Shaper
+# 12. Flow statistics
+# 13. Port statistics
+#
+################################################################
+
 import asyncio
 from xoa_driver import testers
 from xoa_driver import modules
@@ -8,24 +31,44 @@ from xoa_driver.hlfuncs import mgmt
 from xoa_driver import enums
 from xoa_driver.misc import Hex
 from ipaddress import IPv4Address, IPv6Address
+import logging
 
-
+#---------------------------
+# GLOBAL PARAMS
+#---------------------------
 CHASSIS_IP = "87.61.110.118"
-USERNAME = "chimera-xoa"
-MODULE_IDX = 2
-PORT_IDX = 0
+USERNAME = "XOA"
+PORT = "2/0"
 FLOW_IDX = 1
 MODULE_MEDIA = enums.MediaConfigurationType.QSFP28
 
-async def my_awesome_func(stop_event: asyncio.Event) -> None:
+#---------------------------
+# chimera_using_xoa_driver_func
+#---------------------------
+async def chimera_using_xoa_driver_func(chassis: str, username: str, port_str: str, module_media: enums.MediaConfigurationType, flow_id: int) -> None:
+
+    # configure basic logger
+    logging.basicConfig(
+        format="%(asctime)s  %(message)s",
+        level=logging.DEBUG,
+        handlers=[
+            logging.FileHandler(filename="test.log", mode="a"),
+            logging.StreamHandler()]
+        )
 
     # Access to the chassis that has a Chimera module in
-    async with testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False) as tester:
+    async with testers.L23Tester(host=chassis, username=username, password="xena", port=22606, enable_logging=False) as tester:
+        logging.info(f"===================================")
+        logging.info(f"{'Connect to chassis:':<20}{chassis}")
+        logging.info(f"{'Username:':<20}{username}")
+
         # Access the module
-        module = tester.modules.obtain(MODULE_IDX)
+        _mid = int(port_str.split("/")[0])
+        _pid = int(port_str.split("/")[1])
+        module_obj = tester.modules.obtain(_mid)
 
         # Check whether the module is a Chimera module
-        if not isinstance(module, modules.ModuleChimera):
+        if not isinstance(module_obj, modules.ModuleChimera):
             print("Selected not a Chimera module.", "Exiting.")
             return None
 
@@ -35,22 +78,22 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
         # region change the module's media configuration
 
         # Free the module and all its ports
-        await mgmt.free_module(module, should_free_ports=True)
+        await mgmt.free_module(module=module_obj, should_free_ports=True)
 
         # Reserve the module
-        await mgmt.reserve_module(module)
+        await mgmt.reserve_module(module=module_obj)
 
         # Change the module media configuration to MODULE_MEDIA, if not already done.
-        module_media = await module.media.get()
-        if module_media.media_config != MODULE_MEDIA:
-            print(f"Changing module media type to: {MODULE_MEDIA.name}")
-            await module.media.set(media_config=MODULE_MEDIA)
+        resp = await module_obj.media.get()
+        if resp.media_config != module_media:
+            print(f"Changing module media type to: {module_media.name}")
+            await module_obj.media.set(media_config=module_media)
 
         # Wait for the media configuration change to finish
         await asyncio.sleep(10)
 
         # Release the module
-        await mgmt.free_module(module)
+        await mgmt.free_module(module=module_obj)
     
         # endregion
 
@@ -60,30 +103,30 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
         # region Configure Chimera port
 
         # Access the port you want to configure
-        port = module.ports.obtain(PORT_IDX)
+        port_obj = module_obj.ports.obtain(_pid)
 
         # Use HL-FUNC to reserve and reset the Chimera port.
-        await mgmt.reserve_port(port)
-        await mgmt.reset_port(port)
+        await mgmt.reserve_port(port_obj)
+        await mgmt.reset_port(port_obj)
 
         await asyncio.sleep(5)
 
-        await port.comment.set(comment="My Chimera Port")
-        await port.pcs_pma.link_flap.params.set(duration=100, period=1000, repetition=0)
-        await port.pcs_pma.link_flap.enable.set_on()
-        await port.pcs_pma.link_flap.enable.set_off()
+        await port_obj.comment.set(comment="My Chimera Port")
+        await port_obj.pcs_pma.link_flap.params.set(duration=100, period=1000, repetition=0)
+        await port_obj.pcs_pma.link_flap.enable.set_on()
+        await port_obj.pcs_pma.link_flap.enable.set_off()
 
-        await port.pcs_pma.pma_pulse_err_inj.params.set(duration=100, period=1000, repetition=0, coeff=100, exp=-4)
-        await port.pcs_pma.pma_pulse_err_inj.enable.set_on()
-        await port.pcs_pma.pma_pulse_err_inj.enable.set_off()
+        await port_obj.pcs_pma.pma_pulse_err_inj.params.set(duration=100, period=1000, repetition=0, coeff=100, exp=-4)
+        await port_obj.pcs_pma.pma_pulse_err_inj.enable.set_on()
+        await port_obj.pcs_pma.pma_pulse_err_inj.enable.set_off()
 
         # Enable impairment on the port. If you don't do this, the port won't impair the incoming traffic.
-        await port.emulate.set_off()
-        await port.emulate.set_on()
+        await port_obj.emulate.set_off()
+        await port_obj.emulate.set_on()
 
         # Set TPLD mode
-        await port.emulation.tpld_mode.set(mode=enums.TPLDMode.NORMAL)
-        await port.emulation.tpld_mode.set(mode=enums.TPLDMode.MICRO)
+        await port_obj.emulation.tpld_mode.set(mode=enums.TPLDMode.NORMAL)
+        await port_obj.emulation.tpld_mode.set(mode=enums.TPLDMode.MICRO)
 
         # endregion
 
@@ -94,7 +137,7 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
         # region Flow configuration + basic filter on a port
 
         # Configure flow properties
-        flow = port.emulation.flows[FLOW_IDX]
+        flow = port_obj.emulation.flows[flow_id]
         await flow.comment.set("Flow description")
 
         # Initializing the shadow copy of the filter.
@@ -255,7 +298,7 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
         # region Flow configuration + extended filter on a port
 
         # Configure flow properties
-        flow = port.emulation.flows[FLOW_IDX]
+        flow = port_obj.emulation.flows[flow_id]
         await flow.comment.set("Flow description")
 
         # Initializing the shadow copy of the filter.
@@ -357,9 +400,9 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
 
         # Custom distribution for impairment Drop
         data_x=[0, 1] * 256
-        await port.custom_distributions.assign(0)
-        await port.custom_distributions[0].comment.set(comment="Example Custom Distribution")
-        await port.custom_distributions[0].definition.set(linear=enums.OnOff.OFF, symmetric=enums.OnOff.OFF, entry_count=len(data_x), data_x=data_x)
+        await port_obj.custom_distributions.assign(0)
+        await port_obj.custom_distributions[0].comment.set(comment="Example Custom Distribution")
+        await port_obj.custom_distributions[0].definition.set(linear=enums.OnOff.OFF, symmetric=enums.OnOff.OFF, entry_count=len(data_x), data_x=data_x)
         await utils.apply(
             flow.impairment_distribution.drop_type_config.custom.set(cust_id=0),
             flow.impairment_distribution.drop_type_config.schedule.set(duration=1, period=1),
@@ -440,7 +483,7 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
 
         # Poisson distribution for impairment Latency & Jitter
         await utils.apply(
-            flow.impairment_distribution.latency_jitter_type_config.poison.set(mean=1),
+            flow.impairment_distribution.latency_jitter_type_config.poisson.set(mean=1),
             flow.impairment_distribution.latency_jitter_type_config.schedule.set(duration=0, period=0), #continuous
         )
 
@@ -452,9 +495,9 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
 
         # Custom distribution for impairment Latency & Jitter
         data_x=[0, 1] * 256
-        await port.custom_distributions.assign(0)
-        await port.custom_distributions[0].comment.set(comment="Example Custom Distribution")
-        await port.custom_distributions[0].definition.set(linear=enums.OnOff.OFF, symmetric=enums.OnOff.OFF, entry_count=len(data_x), data_x=data_x)
+        await port_obj.custom_distributions.assign(0)
+        await port_obj.custom_distributions[0].comment.set(comment="Example Custom Distribution")
+        await port_obj.custom_distributions[0].definition.set(linear=enums.OnOff.OFF, symmetric=enums.OnOff.OFF, entry_count=len(data_x), data_x=data_x)
         await utils.apply(
             flow.impairment_distribution.latency_jitter_type_config.custom.set(cust_id=0),
             flow.impairment_distribution.latency_jitter_type_config.schedule.set(duration=0, period=0), #continuous
@@ -545,9 +588,9 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
 
         # Custom distribution for impairment Duplication
         data_x=[0, 1] * 256
-        await port.custom_distributions.assign(0)
-        await port.custom_distributions[0].comment.set(comment="Example Custom Distribution")
-        await port.custom_distributions[0].definition.set(linear=enums.OnOff.OFF, symmetric=enums.OnOff.OFF, entry_count=len(data_x), data_x=data_x)
+        await port_obj.custom_distributions.assign(0)
+        await port_obj.custom_distributions[0].comment.set(comment="Example Custom Distribution")
+        await port_obj.custom_distributions[0].definition.set(linear=enums.OnOff.OFF, symmetric=enums.OnOff.OFF, entry_count=len(data_x), data_x=data_x)
         await utils.apply(
             flow.impairment_distribution.duplication_type_config.custom.set(cust_id=0),
             flow.impairment_distribution.duplication_type_config.schedule.set(duration=1, period=1),
@@ -639,9 +682,9 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
 
         # Custom distribution for impairment Corruption
         data_x=[0, 1] * 256
-        await port.custom_distributions.assign(0)
-        await port.custom_distributions[0].comment.set(comment="Example Custom Distribution")
-        await port.custom_distributions[0].definition.set(linear=enums.OnOff.OFF, symmetric=enums.OnOff.OFF, entry_count=len(data_x), data_x=data_x)
+        await port_obj.custom_distributions.assign(0)
+        await port_obj.custom_distributions[0].comment.set(comment="Example Custom Distribution")
+        await port_obj.custom_distributions[0].definition.set(linear=enums.OnOff.OFF, symmetric=enums.OnOff.OFF, entry_count=len(data_x), data_x=data_x)
         await utils.apply(
             flow.impairment_distribution.corruption_type_config.custom.set(cust_id=0),
             flow.impairment_distribution.corruption_type_config.schedule.set(duration=1, period=1),
@@ -748,7 +791,7 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
         # 13. Port statistics
         # ---------------------------------------------
         # region Port Statistics
-        port_drop = await port.emulation.statistics.drop.get()
+        port_drop = await port_obj.emulation.statistics.drop.get()
         port_drop.pkt_drop_count_total
         port_drop.pkt_drop_count_programmed
         port_drop.pkt_drop_count_bandwidth
@@ -758,7 +801,7 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
         port_drop.pkt_drop_ratio_bandwidth
         port_drop.pkt_drop_ratio_other
 
-        port_corrupted = await port.emulation.statistics.corrupted.get()
+        port_corrupted = await port_obj.emulation.statistics.corrupted.get()
         port_corrupted.fcs_corrupted_pkt_count
         port_corrupted.fcs_corrupted_pkt_ratio
         port_corrupted.ip_corrupted_pkt_count
@@ -770,23 +813,23 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
         port_corrupted.udp_corrupted_pkt_count
         port_corrupted.udp_corrupted_pkt_ratio
 
-        port_delayed = await port.emulation.statistics.latency.get()
+        port_delayed = await port_obj.emulation.statistics.latency.get()
         port_delayed.pkt_count
         port_delayed.ratio
 
-        port_jittered = await port.emulation.statistics.jittered.get()
+        port_jittered = await port_obj.emulation.statistics.jittered.get()
         port_jittered.pkt_count
         port_jittered.ratio
 
-        port_duplicated = await port.emulation.statistics.duplicated.get()
+        port_duplicated = await port_obj.emulation.statistics.duplicated.get()
         port_duplicated.pkt_count
         port_duplicated.ratio
 
-        port_misordered = await port.emulation.statistics.mis_ordered.get()
+        port_misordered = await port_obj.emulation.statistics.mis_ordered.get()
         port_misordered.pkt_count
         port_misordered.ratio
 
-        await port.emulation.clear.set()
+        await port_obj.emulation.clear.set()
 
         # endregion
     
@@ -794,7 +837,13 @@ async def my_awesome_func(stop_event: asyncio.Event) -> None:
 async def main():
     stop_event = asyncio.Event()
     try:
-        await my_awesome_func(stop_event)
+        await chimera_using_xoa_driver_func(
+            chassis=CHASSIS_IP, 
+            username=USERNAME,
+            port_str=PORT,
+            module_media=MODULE_MEDIA,
+            flow_id=FLOW_IDX
+            )
     except KeyboardInterrupt:
         stop_event.set()
 
