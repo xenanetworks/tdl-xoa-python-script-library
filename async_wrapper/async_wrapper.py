@@ -1,3 +1,19 @@
+################################################################
+#
+#                   ASYNC WRAPPER
+#
+# The APIs provided by xoa-driver are **async** functions. 
+# This means any function that uses the xoa-driver must be 
+# declared as **async**. 
+# 
+# This might be a problem for you if your existing framework 
+# doesn't support async functions. To solve this "incompatibility" 
+# issue, we have made an async wrapper class **XenaAsyncWrapper** 
+# for you to wrap xoa-driver's async function inside and use it 
+# as a regular Python function.
+#
+################################################################
+
 from typing import Any, Awaitable, Callable, TypeVar
 from xoa_driver.hlfuncs import mgmt, cli
 from xoa_driver.misc import Hex
@@ -12,7 +28,6 @@ import time
 import queue
 
 T = TypeVar("T")
-
 
 class XenaAsyncWrapper:
     """This is a wrapper class that encapsulates XOA asyncio functions 
