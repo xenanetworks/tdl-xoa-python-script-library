@@ -38,7 +38,6 @@ PORT = "0/0"
 # stream_sync
 #---------------------------
 async def stream_sync(chassis: str, username: str, port_str: str):
-
     # configure basic logger
     logging.basicConfig(
         format="%(asctime)s  %(message)s",
