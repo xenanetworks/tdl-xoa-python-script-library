@@ -50,7 +50,7 @@ async def build_tcp_stream(chassis: str, username: str, port_str: str, should_bu
         )
     
     # create tester instance and establish connection
-    tester = await testers.L23Tester(CHASSIS_IP, USERNAME, enable_logging=False) 
+    tester = await testers.L23Tester(chassis, username, enable_logging=False) 
 
     # access the module on the tester
     _mid = int(port_str.split("/")[0])
@@ -58,7 +58,7 @@ async def build_tcp_stream(chassis: str, username: str, port_str: str, should_bu
     module_obj = tester.modules.obtain(_mid)
 
     # check if the module is of type Loki-100G-5S-2P
-    if not isinstance(module_obj, modules.ModuleChimera):
+    if not isinstance(module_obj, modules.E100ChimeraModule):
         
         # access the tx port on the module
         port_obj = module_obj.ports.obtain(_pid)

@@ -58,7 +58,7 @@ async def build_udp_stream(chassis: str, username: str, port_str: str, should_bu
     module_obj = tester.modules.obtain(_mid)
 
     # check if the module is of type Loki-100G-5S-2P
-    if not isinstance(module_obj, modules.ModuleChimera):
+    if not isinstance(module_obj, modules.E100ChimeraModule):
         
         # access the tx port on the module
         port_obj = module_obj.ports.obtain(_pid)
