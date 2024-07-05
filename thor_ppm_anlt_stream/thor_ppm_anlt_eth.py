@@ -1,3 +1,20 @@
+################################################################
+#
+#                   THOR PPM, ANLT & STREAM
+#
+# What this script example does:
+# 1. Connect to a tester
+# 2. Change the module media type and port speed config on the specified modules
+# 3. Configure module clock configuration
+# 4. Configure ANLT on specified ports
+# 5. Create IP streams on specified ports on the modules
+# 6. Start & stop traffic on the ports
+# 7. Collect port-level TX & RX counters
+# 8. Free the modules and ports
+# 9. Disconnect from the tester
+#
+################################################################
+
 import asyncio
 from xoa_driver import (
     testers,
@@ -7,10 +24,11 @@ from xoa_driver import (
     enums,
     exceptions
 )
-from xoa_driver.hlfuncs import mgmt
+from xoa_driver.hlfuncs import mgmt, headers
 from xoa_driver.misc import Hex
 from binascii import hexlify
 import ipaddress
+import logging
 
 #---------------------------
 # GLOBAL PARAMS
@@ -18,14 +36,13 @@ import ipaddress
 CHASSIS_IP = "10.20.1.166"
 USERNAME = "XOA"
 
-_THOR_MODULES = (modules.MThor400G7S1P, modules.MThor400G7S1P_b, modules.MThor400G7S1P_c, modules.MThor400G7S1P_d)
-_TRAFFIC_DURATION = 10
-_COOL_DOWN = 2
+TRAFFIC_DURATION = 10
+COOL_DOWN = 2
 
 #---------------------------
 # MODULE PORT TRAFFIC CONFIG
 #---------------------------
-module_port_traffic_config = [
+CONFIG_DATA = [
     {
         "mid": 4,
         "media": enums.MediaConfigurationType.QSFP56_PAM4,
@@ -41,8 +58,8 @@ module_port_traffic_config = [
                 "link training": False,
                 "streams": [
                     {
-                        "src mac": "00000A000002",
-                        "dst mac": "00000A010002",
+                        "src mac": "0000.0A00.0002",
+                        "dst mac": "0000.0A01.0002",
                         "src ip": "10.0.0.2",
                         "dest ip": "11.0.0.2",
                         "frame size type": enums.LengthType.FIXED,
@@ -55,8 +72,8 @@ module_port_traffic_config = [
                         "tpld id": 0
                     },
                     {
-                        "src mac": "00000A000003",
-                        "dst mac": "00000A010003",
+                        "src mac": "0000.0A00.0003",
+                        "dst mac": "0000.0A01.0003",
                         "src ip": "10.0.0.3",
                         "dest ip": "11.0.0.3",
                         "frame size type": enums.LengthType.FIXED,
@@ -77,8 +94,8 @@ module_port_traffic_config = [
                 "link training": False,
                 "streams": [
                     {
-                        "src mac": "00000B000002",
-                        "dst mac": "00000B010002",
+                        "src mac": "0000.0B00.0002",
+                        "dst mac": "0000.0B01.0002",
                         "src ip": "11.0.0.2",
                         "dest ip": "10.0.0.2",
                         "frame size type": enums.LengthType.FIXED,
@@ -91,8 +108,8 @@ module_port_traffic_config = [
                         "tpld id": 2
                     },
                     {
-                        "src mac": "00000B000003",
-                        "dst mac": "00000B010003",
+                        "src mac": "0000.0B00.0003",
+                        "dst mac": "0000.0B01.0003",
                         "src ip": "11.0.0.3",
                         "dest ip": "10.0.0.3",
                         "frame size type": enums.LengthType.FIXED,
@@ -105,8 +122,8 @@ module_port_traffic_config = [
                         "tpld id": 3
                     },
                     {
-                        "src mac": "00000B000004",
-                        "dst mac": "00000B010004",
+                        "src mac": "0000.0B00.0004",
+                        "dst mac": "0000.0B01.0004",
                         "src ip": "11.0.0.4",
                         "dest ip": "10.0.0.4",
                         "frame size type": enums.LengthType.FIXED,
@@ -222,63 +239,41 @@ module_port_traffic_config = [
 
 
 #---------------------------
-# eth_header_generator
+# thor_ppm_anlt_stream
 #---------------------------
-def eth_header_generator(
-        dst_mac: str = "000000000000", 
-        src_mac: str = "000000000000"
-        ) -> str:
-    _ethertype = "FFFF"
-
-    header = f'{dst_mac}{src_mac}{_ethertype}'
-    return header
-
-#---------------------------
-# eth_ip_header_generator
-#---------------------------
-def eth_ip_header_generator(
-        dst_mac: str = "000000000000", 
-        src_mac: str = "000000000000",
-        dst_ip: str = "0.0.0.0",
-        src_ip: str = "0.0.0.0",
-        frame_size: int = 64
-
-        ) -> str:
-    _ethertype = "0800"
-    _total_length = '{:04X}'.format(frame_size - 14 - 4)
-    _src_ip = ipaddress.IPv4Address(src_ip)
-    _dst_ip = ipaddress.IPv4Address(dst_ip)
-
-    header = f'{dst_mac}{src_mac}{_ethertype}4500{_total_length}000000007FFF0000{hexlify(_src_ip.packed).decode()}{hexlify(_dst_ip.packed).decode()}'
-    return header
-
-#---------------------------
-# thor_ppm_anlt_eth
-#---------------------------
-async def thor_ppm_anlt_eth(stop_event: asyncio.Event):
-    print(f"==================================")
-    print(f"{'START'}")
-    print(f"==================================")
+async def thor_ppm_anlt_stream(chassis: str, username: str, duration: int, cool_down: int):
+    # configure basic logger
+    logging.basicConfig(
+        format="%(asctime)s  %(message)s",
+        level=logging.DEBUG,
+        handlers=[
+            logging.FileHandler(filename="test.log", mode="a"),
+            logging.StreamHandler()]
+        )
+    
+    logging.info(f"==================================")
+    logging.info(f"{'START'}")
+    logging.info(f"==================================")
     # create tester instance and establish connection
-    async with testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False) as tester:
-        print(f"{'Connect to chassis:':<20}{CHASSIS_IP}")
-        print(f"{'Username:':<20}{CHASSIS_IP}")
+    async with testers.L23Tester(host=chassis, username=username, password="xena", port=22606, enable_logging=False) as tester:
+        logging.info(f"{'Connect to chassis:':<20}{chassis}")
+        logging.info(f"{'Username:':<20}{username}")
 
-        print(f"==================================")
-        print(f"{'MODULE MEDIA CONFIG'}")
-        print(f"==================================")
+        logging.info(f"==================================")
+        logging.info(f"{'MODULE MEDIA CONFIG'}")
+        logging.info(f"==================================")
 
-        for m_item in module_port_traffic_config:
+        for m_item in CONFIG_DATA:
             # access module on the tester
             mid = m_item["mid"]
             module = tester.modules.obtain(mid)
 
-            if not isinstance(module, _THOR_MODULES):
-                print(f"Module {mid} is not a Thor module")
+            if not isinstance(module, modules.Z400ThorModule):
+                logging.info(f"Module {mid} is not a Thor module")
                 return None # commands which used in this example are not supported by Chimera Module
 
             # reserve module
-            print(f"Reserve Module {mid}")
+            logging.info(f"Reserve Module {mid}")
             await mgmt.free_module(module=module, should_free_ports=True)
             await mgmt.reserve_module(module=module, force=True)
 
@@ -286,56 +281,56 @@ async def thor_ppm_anlt_eth(stop_event: asyncio.Event):
             module_config = m_item["media"]
             
             resp = await module.media.get()
-            print(f"Module {mid}'s current media: {resp.media_config.name}")
+            logging.info(f"Module {mid}'s current media: {resp.media_config.name}")
             if resp.media_config != module_config:
-                print(f"Change Module {mid}'s media to: {module_config.name}")
+                logging.info(f"Change Module {mid}'s media to: {module_config.name}")
                 await module.media.set(media_config=module_config)
                 resp = await module.media.get()
-                print(f"Module {mid}'s new media: {resp.media_config.name}")
+                logging.info(f"Module {mid}'s new media: {resp.media_config.name}")
             else:
-                print(f"Module {mid}'s media: no change")
+                logging.info(f"Module {mid}'s media: no change")
 
             # Change module's port config
             resp = await module.cfp.config.get()
-            print(f"Module {mid}'s current port count x speed: {resp.portspeed_list}")
+            logging.info(f"Module {mid}'s current port count x speed: {resp.portspeed_list}")
             port_count = m_item["port count"]
             port_speed = m_item["port speed"]
             
             speeds = [port_count]
             speeds.extend([port_speed]*port_count)
             if resp.portspeed_list != speeds:
-                print(f"Change Module {mid}'s port count x speed to: {port_count}x{int(port_speed/1000)}G")
+                logging.info(f"Change Module {mid}'s port count x speed to: {port_count}x{int(port_speed/1000)}G")
                 await module.cfp.config.set(portspeed_list=speeds)
                 resp = await module.cfp.config.get()
-                print(f"Module {mid}'s new port count x speed: {resp.portspeed_list}")
+                logging.info(f"Module {mid}'s new port count x speed: {resp.portspeed_list}")
             else:
-                print(f"Module {mid}'s port count x speed: no change")
+                logging.info(f"Module {mid}'s port count x speed: no change")
 
-            print(f"==================================")
-            print(f"{'MODULE CLOCK CONFIG'}")
-            print(f"==================================")
+            logging.info(f"==================================")
+            logging.info(f"{'MODULE CLOCK CONFIG'}")
+            logging.info(f"==================================")
             # timing configuration
             timing_source = m_item["timing source"]
             local_clock_adjustment_ppm = m_item["local clock adjustment ppm"]
             await module.timing.source.set(source=timing_source)
             await module.timing.clock_local_adjust.set(ppb=local_clock_adjustment_ppm*1000)
-            print(f"Module {mid}'s timing source: {timing_source.name}")
-            print(f"Module {mid}'s local clock adjustment: {local_clock_adjustment_ppm} ppm")
+            logging.info(f"Module {mid}'s timing source: {timing_source.name}")
+            logging.info(f"Module {mid}'s local clock adjustment: {local_clock_adjustment_ppm} ppm")
         
-        print(f"==================================")
-        print(f"{'PORT CONFIG'}")
-        print(f"==================================")
+        logging.info(f"==================================")
+        logging.info(f"{'PORT CONFIG'}")
+        logging.info(f"==================================")
 
         _module_object_list = []
         _port_object_list = []
-        for m_item in module_port_traffic_config:
+        for m_item in CONFIG_DATA:
             # access module on the tester
             mid = m_item["mid"]
             module = tester.modules.obtain(mid)
             _module_object_list.append(module)
 
-            if not isinstance(module, _THOR_MODULES):
-                print(f"Module {mid} is not a Thor module")
+            if not isinstance(module, modules.Z400ThorModule):
+                logging.info(f"Module {mid} is not a Thor module")
                 return None # commands which used in this example are not supported by Chimera Module
 
             # reserve module
@@ -355,18 +350,18 @@ async def thor_ppm_anlt_eth(stop_event: asyncio.Event):
                 # fec mode = rs-fec
                 fec_mode = p_item["port fec mode"]
                 await port.fec_mode.set(mode=fec_mode)
-                print(f"Set Port {mid}/{pid} to {fec_mode.name}")
+                logging.info(f"Set Port {mid}/{pid} to {fec_mode.name}")
 
                 # loopback mode
                 await port.loop_back.set_none()
 
                 # ANLT configuration
-                print(f"==================================")
-                print(f"{'ANLT CONFIG'}")
-                print(f"==================================")
+                logging.info(f"==================================")
+                logging.info(f"{'ANLT CONFIG'}")
+                logging.info(f"==================================")
                 should_an = p_item["autoneg"]
                 should_lt = p_item["link training"]
-                print(f"{mid}/{pid}: Autoneg: {should_an}, Link Training: {should_lt}")
+                logging.info(f"{mid}/{pid}: Autoneg: {should_an}, Link Training: {should_lt}")
                 
                 if should_an == True and should_lt == True:
                     await port.pcs_pma.link_training.settings.set(
@@ -412,14 +407,14 @@ async def thor_ppm_anlt_eth(stop_event: asyncio.Event):
                         timeout_mode=enums.TimeoutMode.DEFAULT
                     )
                 else:
-                    print("Thor doesn't support Autoneg-only mode.")
+                    logging.info("Thor doesn't support Autoneg-only mode.")
                 
-                print(f"==================================")
-                print(f"{'STREAM CONFIG'}")
-                print(f"==================================")
+                logging.info(f"==================================")
+                logging.info(f"{'STREAM CONFIG'}")
+                logging.info(f"==================================")
                 for s_item in p_item["streams"]:
                     # Create the stream on the port
-                    print(f"Create a stream on port {mid}/{pid}")
+                    logging.info(f"Create a stream on port {mid}/{pid}")
                     stream = await port.streams.create()
 
                     dst_mac = s_item["dst mac"]
@@ -434,28 +429,27 @@ async def thor_ppm_anlt_eth(stop_event: asyncio.Event):
                     frame_size_max = s_item["frame size max"]
                     payload_pattern = s_item["payload pattern"]
                     tpld_id = s_item["tpld id"]
-                    # header = eth_header_generator(
-                    #     dst_mac=dst_mac,
-                    #     src_mac=src_mac,
-                    #     )
-                    header = eth_ip_header_generator(
-                        dst_mac=dst_mac,
-                        src_mac=src_mac,
-                        dst_ip=dst_ip,
-                        src_ip=src_ip,
-                        frame_size=frame_size_min
-                        )
-                    print(f"{'  Index:':<20}{stream.idx}")
-                    print(f"{'  DMAC:':<20}{dst_mac}")
-                    print(f"{'  SMAC:':<20}{src_mac}")
-                    print(f"{'  Dest IP:':<20}{dst_ip}")
-                    print(f"{'  Src  IP:':<20}{src_ip}")
-                    print(f"{'  Rate:':<20}{stream_rate_pct}%")
-                    print(f"{'  Frame Size Type:':<20}{frame_size_type.name} bytes")
-                    print(f"{'  Frame Size (min):':<20}{frame_size_min} bytes")
-                    print(f"{'  Frame Size (max):':<20}{frame_size_max} bytes")
-                    print(f"{'  Payload Pattern:':<20}{payload_pattern}")
-                    print(f"{'  TPLD ID:':<20}{tpld_id}")
+                    
+                    eth = headers.Ethernet()                    
+                    eth.dst_mac = dst_mac
+                    eth.src_mac = src_mac
+                    eth.ethertype = "0800"
+
+                    ip = headers.IPV4()
+                    ip.src = src_ip
+                    ip.dst = dst_ip
+
+                    logging.info(f"{'  Index:':<20}{stream.idx}")
+                    logging.info(f"{'  DMAC:':<20}{dst_mac}")
+                    logging.info(f"{'  SMAC:':<20}{src_mac}")
+                    logging.info(f"{'  Dest IP:':<20}{dst_ip}")
+                    logging.info(f"{'  Src  IP:':<20}{src_ip}")
+                    logging.info(f"{'  Rate:':<20}{stream_rate_pct}%")
+                    logging.info(f"{'  Frame Size Type:':<20}{frame_size_type.name} bytes")
+                    logging.info(f"{'  Frame Size (min):':<20}{frame_size_min} bytes")
+                    logging.info(f"{'  Frame Size (max):':<20}{frame_size_max} bytes")
+                    logging.info(f"{'  Payload Pattern:':<20}{payload_pattern}")
+                    logging.info(f"{'  TPLD ID:':<20}{tpld_id}")
 
                     await utils.apply(
                         stream.enable.set_on(),
@@ -466,7 +460,7 @@ async def thor_ppm_anlt_eth(stop_event: asyncio.Event):
                         stream.packet.header.protocol.set(segments=[
                             enums.ProtocolOption.ETHERNET,
                             enums.ProtocolOption.IP]),
-                        stream.packet.header.data.set(hex_data=Hex(header)),
+                        stream.packet.header.data.set(hex_data=Hex(str(eth)+str(ip))),
                         stream.packet.length.set(length_type=frame_size_type, min_val=frame_size_min, max_val=frame_size_max),
                         stream.payload.content.set(payload_type=enums.PayloadType.PATTERN, hex_data=Hex(payload_pattern)),
                         stream.tpld_id.set(test_payload_identifier = tpld_id),
@@ -474,51 +468,51 @@ async def thor_ppm_anlt_eth(stop_event: asyncio.Event):
                     )
                 
 
-        print(f"==================================")
-        print(f"{'TRAFFIC CONTROL'}")
-        print(f"==================================")
+        logging.info(f"==================================")
+        logging.info(f"{'TRAFFIC CONTROL'}")
+        logging.info(f"==================================")
         for port in _port_object_list:
-            print(f"Clear port {port.kind.module_id}/{port.kind.port_id} RX & TX counters")
+            logging.info(f"Clear port {port.kind.module_id}/{port.kind.port_id} RX & TX counters")
             await utils.apply(
                 port.statistics.rx.clear.set(),
                 port.statistics.tx.clear.set()
             )
 
-        print(f"Traffic duration: {_TRAFFIC_DURATION} seconds")
+        logging.info(f"Traffic duration: {duration} seconds")
         for port in _port_object_list:
-            print(f"Start traffic on Port {port.kind.module_id}/{port.kind.port_id}")
+            logging.info(f"Start traffic on Port {port.kind.module_id}/{port.kind.port_id}")
             await port.traffic.state.set_start()
         
-        await asyncio.sleep(_TRAFFIC_DURATION)
+        await asyncio.sleep(duration)
 
         for port in _port_object_list:
-            print(f"Stop traffic on Port {port.kind.module_id}/{port.kind.port_id}")
+            logging.info(f"Stop traffic on Port {port.kind.module_id}/{port.kind.port_id}")
             await port.traffic.state.set_stop()
 
         # cool down
-        print(f"Cooling down: {_COOL_DOWN} seconds")
-        await asyncio.sleep(_COOL_DOWN)
+        logging.info(f"Cooling down: {cool_down} seconds")
+        await asyncio.sleep(cool_down)
 
         for port in _port_object_list:
-            print(f"Read port {port.kind.module_id}/{port.kind.port_id} RX & TX counters")
+            logging.info(f"Read port {port.kind.module_id}/{port.kind.port_id} RX & TX counters")
             _tx, _rx = await utils.apply(
                 port.statistics.tx.total.get(),
                 port.statistics.rx.total.get(),
             )
-            print(f"==================================")
-            print(f"{'TRAFFIC STATS'}")
-            print(f"==================================")
-            print(f"{'TX FRAMES:':<20}{_tx.packet_count_since_cleared}")
-            print(f"{'RX FRAMES:':<20}{_rx.packet_count_since_cleared}")
-            print(f"{'TX BYTES:':<20}{_tx.byte_count_since_cleared}")
-            print(f"{'RX BYTES:':<20}{_rx.byte_count_since_cleared}")
+            logging.info(f"==================================")
+            logging.info(f"{'TRAFFIC STATS'}")
+            logging.info(f"==================================")
+            logging.info(f"{'TX FRAMES:':<20}{_tx.packet_count_since_cleared}")
+            logging.info(f"{'RX FRAMES:':<20}{_rx.packet_count_since_cleared}")
+            logging.info(f"{'TX BYTES:':<20}{_tx.byte_count_since_cleared}")
+            logging.info(f"{'RX BYTES:':<20}{_rx.byte_count_since_cleared}")
 
         for module in _module_object_list:
             await mgmt.free_module(module=module, should_free_ports=True)
         
-        print(f"==================================")
-        print(f"{'DONE'}")
-        print(f"==================================")
+        logging.info(f"==================================")
+        logging.info(f"{'DONE'}")
+        logging.info(f"==================================")
 
 
 
@@ -526,7 +520,7 @@ async def thor_ppm_anlt_eth(stop_event: asyncio.Event):
 async def main():
     stop_event = asyncio.Event()
     try:
-        await thor_ppm_anlt_eth(stop_event)
+        await thor_ppm_anlt_stream(CHASSIS_IP, USERNAME, TRAFFIC_DURATION, COOL_DOWN)
     except KeyboardInterrupt:
         stop_event.set()
 
