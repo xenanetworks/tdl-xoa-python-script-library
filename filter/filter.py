@@ -1,3 +1,12 @@
+################################################################
+#
+#                   PORT FILTER
+#
+# What this script shows you how to configure port filter, and
+# how to read filtered traffic statistics
+#
+################################################################
+
 import asyncio
 
 from xoa_driver import testers
@@ -5,118 +14,44 @@ from xoa_driver import modules
 from xoa_driver import ports
 from xoa_driver import enums
 from xoa_driver import utils
-from xoa_driver.hlfuncs import mgmt
+from xoa_driver.hlfuncs import mgmt, headers
 from xoa_driver.misc import Hex
 from ipaddress import IPv4Address
 from binascii import hexlify
 
+#---------------------------
+# GLOBAL PARAMS
+#---------------------------
 CHASSIS_IP = "demo.xenanetworks.com"
-USERNAME = "traffic_filter"
-TX_MODULE_IDX = 2
-TX_PORT_IDX = 4
-RX_MODULE_IDX = 3
-RX_PORT_IDX = 4
+USERNAME = "XOA"
+TX_PORT = "2/3"
+RX_PORT = "2/4"
 
-class Ethernet:
-    def __init__(self):
-        self.dst_mac = "0000.0000.0000"
-        self.src_mac = "0000.0000.0000"
-        self.ethertype = "8100"
-    
-    def __str__(self):
-        _dst_mac = self.dst_mac.replace(".", "")
-        _src_mac = self.src_mac.replace(".", "")
-        _ethertype = self.ethertype
-        return f"{_dst_mac}{_src_mac}{_ethertype}".upper()
-
-    def __repr__(self):
-        _dst_mac = self.dst_mac.replace(".", "")
-        _src_mac = self.src_mac.replace(".", "")
-        _ethertype = self.ethertype
-        return f"{_dst_mac}{_src_mac}{_ethertype}".upper()
-
-class VLAN:
-    def __init__(self):
-        self.pcp = 0
-        self.dei = 0
-        self.tag = 0
-        self.ethertype = "0800"
-
-    def __str__(self):
-        _pcp_dei_tmp = (self.pcp<<1)+self.dei
-        _pcp_dei_tag = '{:04X}'.format((_pcp_dei_tmp<<12)+self.tag)
-        _ethertype = self.ethertype
-        return f"{_pcp_dei_tag}{_ethertype}".upper()
-    
-    def __repr__(self):
-        _pcp_dei_tmp = (self.pcp<<1)+self.dei
-        _pcp_dei_tag = '{:04X}'.format((_pcp_dei_tmp<<12)+self.tag)
-        _ethertype = self.ethertype
-        return f"{_pcp_dei_tag}{_ethertype}".upper()
-    
-class IPV4:
-    def __init__(self):
-        self.version = 4
-        self.header_length = 5
-        self.dscp = 0
-        self.ecn = 0
-        self.total_length = 42
-        self.identification = "0000"
-        self.flags = 0
-        self.offset = 0
-        self.ttl = 255
-        self.proto = 255
-        self.checksum = "0000"
-        self.src = "0.0.0.0"
-        self.dst = "0.0.0.0"
-
-    def __str__(self):
-        _ver = '{:01X}'.format(self.version)
-        _header_length = '{:01X}'.format(self.header_length)
-        _dscp_ecn = '{:02X}'.format((self.dscp<<2)+self.ecn)
-        _total_len = '{:04X}'.format(self.total_length)
-        _ident = self.identification
-        _flag_offset = '{:04X}'.format((self.flags<<13)+self.offset)
-        _ttl = '{:02X}'.format(self.ttl)
-        _proto = '{:02X}'.format(self.proto)
-        _check = self.checksum
-        _src = hexlify(IPv4Address(self.src).packed).decode()
-        _dst = hexlify(IPv4Address(self.dst).packed).decode()
-        return f"{_ver}{_header_length}{_dscp_ecn}{_total_len}{_ident}{_flag_offset}{_ttl}{_proto}{_check}{_src}{_dst}".upper()
-    
-    def __repr__(self):
-        _ver = '{:01X}'.format(self.version)
-        _header_length = '{:01X}'.format(self.header_length)
-        _dscp_ecn = '{:02X}'.format((self.dscp<<2)+self.ecn)
-        _total_len = '{:04X}'.format(self.total_length)
-        _ident = self.identification
-        _flag_offset = '{:04X}'.format((self.flags<<13)+self.offset)
-        _ttl = '{:02X}'.format(self.ttl)
-        _proto = '{:02X}'.format(self.proto)
-        _check = self.checksum
-        _src = hexlify(IPv4Address(self.src).packed).decode()
-        _dst = hexlify(IPv4Address(self.dst).packed).decode()
-        return f"{_ver}{_header_length}{_dscp_ecn}{_total_len}{_ident}{_flag_offset}{_ttl}{_proto}{_check}{_src}{_dst}".upper()
-
-
-async def my_awesome_func(stop_event: asyncio.Event):
+#---------------------------
+# port_filter
+#---------------------------
+async def port_filter(chassis: str, username: str, port_str1: str, port_str2: str):
 
     # Establish connection to a Valkyrie tester using Python context manager
     # The connection will be automatically terminated when it is out of the block
-    async with testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False) as tester:
+    async with testers.L23Tester(host=chassis, username=username, password="xena", port=22606, enable_logging=False) as tester:
 
         # Access module index 0 on the tester
-        tx_module = tester.modules.obtain(TX_MODULE_IDX)
-        rx_module = tester.modules.obtain(RX_MODULE_IDX)
+        _mid1 = int(port_str1.split("/")[0])
+        _pid1 = int(port_str1.split("/")[1])
+        _mid2 = int(port_str2.split("/")[0])
+        _pid2 = int(port_str2.split("/")[1])
+        tx_module = tester.modules.obtain(_mid1)
+        rx_module = tester.modules.obtain(_mid2)
 
-        if isinstance(tx_module, modules.ModuleChimera):
+        if isinstance(tx_module, modules.E100ChimeraModule):
             return None
-        if isinstance(rx_module, modules.ModuleChimera):
+        if isinstance(rx_module, modules.E100ChimeraModule):
             return None
 
         # Get the port object on module
-        tx_port = tx_module.ports.obtain(TX_PORT_IDX)
-        rx_port = rx_module.ports.obtain(RX_PORT_IDX)
+        tx_port = tx_module.ports.obtain(_pid1)
+        rx_port = rx_module.ports.obtain(_pid2)
 
         await mgmt.reserve_port(tx_port)
         await mgmt.reset_port(tx_port)
@@ -148,12 +83,14 @@ async def my_awesome_func(stop_event: asyncio.Event):
         )
 
         # Configure packet header data
-        eth = Ethernet()
+        eth = headers.Ethernet()
         eth.dst_mac = "0001.0100.0100"
         eth.src_mac = "aaaa.aaaa.aaaa"
-        vlan = VLAN()
-        vlan.tag = 100
-        ip = IPV4()
+        eth.ethertype = "8100"
+        vlan = headers.VLAN()
+        vlan.id = 100
+        vlan.type = "0800"
+        ip = headers.IPV4()
         ip.src = "1.1.1.1"
         ip.dst = "2.2.2.2"
         await stream.packet.header.protocol.set(segments=[
@@ -286,10 +223,9 @@ async def my_awesome_func(stop_event: asyncio.Event):
 async def main():
     stop_event = asyncio.Event()
     try:
-        await my_awesome_func(stop_event)
+        await port_filter(CHASSIS_IP, USERNAME, TX_PORT, RX_PORT)
     except KeyboardInterrupt:
         stop_event.set()
-
 
 if __name__ == "__main__":
     asyncio.run(main())
