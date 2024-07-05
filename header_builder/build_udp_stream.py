@@ -3,7 +3,7 @@
 #                   BUILD UDP STREAM
 #
 # This script shows you how to build UDP stream using the header 
-# builder in headers.py
+# builder in xoa_driver.hlfuncs
 #
 ################################################################
 import asyncio

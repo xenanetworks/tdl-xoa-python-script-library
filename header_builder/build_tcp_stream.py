@@ -3,7 +3,7 @@
 #                   BUILD TCP STREAM
 #
 # This script shows you how to build TCP stream using the header 
-# builder in headers.py
+# builder in xoa_driver.hlfuncs
 #
 ################################################################
 import asyncio
