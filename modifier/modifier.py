@@ -1,3 +1,15 @@
+################################################################
+#
+#                   STREAM MODIFIER
+#
+# What this script example does:
+# 1. Connect to a tester
+# 2. Reserve port
+# 3. Create a stream
+# 4. Add modifiers on the stream
+#
+################################################################
+
 import asyncio
 
 from xoa_driver import testers
@@ -5,39 +17,46 @@ from xoa_driver import modules
 from xoa_driver import utils, enums
 from xoa_driver.hlfuncs import mgmt
 from xoa_driver.misc import Hex
+from headers import *
 
+#---------------------------
+# GLOBAL PARAMS
+#---------------------------
 CHASSIS_IP = "demo.xenanetworks.com"
 USERNAME = "xoa"
-MODULE_ID = 0
-PORT_ID = 0
+PORT = "0/0"
 
-SMAC = '000000000001'
-DMAC = '000000000002'
-ETHERTYPE = '0800'
-
-async def main():
+#---------------------------
+# modifier
+#---------------------------
+async def modifier(chassis: str, username: str, port_str: str):
     # create tester instance and establish connection
-    my_tester = await testers.L23Tester(CHASSIS_IP, USERNAME) 
+    my_tester = await testers.L23Tester(chassis, username) 
 
-    # access module 0 on the tester
-    my_module = my_tester.modules.obtain(MODULE_ID)
+    # access module on the tester
+    _mid = int(port_str.split("/")[0])
+    _pid = int(port_str.split("/")[1])
+    module_obj = my_tester.modules.obtain(_mid)
 
-    if isinstance(my_module, modules.ModuleChimera):
+    if isinstance(module_obj, modules.E100ChimeraModule):
         return None # commands which used in this example are not supported by Chimera Module
 
     # access port 0 on the module as the TX port
-    tx_port = my_module.ports.obtain(PORT_ID)
+    port_obj = module_obj.ports.obtain(_pid)
 
     # use high-level func to reserve the port
-    await mgmt.reserve_port(tx_port)
+    await mgmt.reserve_port(port_obj)
     
     # reset the port
-    await tx_port.reset.set()
+    await port_obj.reset.set()
 
     # create one stream on the port
-    my_stream = await tx_port.streams.create() 
+    my_stream = await port_obj.streams.create()
 
-    header_data = Hex(f"{DMAC}{SMAC}{ETHERTYPE}")
+    eth = Ethernet()
+    eth.dst_mac = "0000.0000.0002"
+    eth.src_mac = "0000.0000.0001"
+    eth.ethertype = "0800"
 
     await utils.apply(
         # Create the TPLD index of stream
@@ -52,7 +71,7 @@ async def main():
         # Configure the packet type
         my_stream.packet.header.protocol.set(segments=[enums.ProtocolOption.ETHERNET, enums.ProtocolOption.IP]),
         # Configure the packet header data
-        my_stream.packet.header.data.set(hex_data = header_data) 
+        my_stream.packet.header.data.set(hex_data = Hex(str(eth))) 
     )
 
     # create one modifier and configure
@@ -87,6 +106,17 @@ async def main():
 
     # to delete all modifiers
     await my_stream.packet.header.modifiers.configure(0)
+
+async def main():
+    stop_event = asyncio.Event()
+    try:
+        await modifier(
+            chassis=CHASSIS_IP, 
+            username=USERNAME,
+            port_str=PORT
+        )
+    except KeyboardInterrupt:
+        stop_event.set()
 
 if __name__ == "__main__":
     asyncio.run(main())
