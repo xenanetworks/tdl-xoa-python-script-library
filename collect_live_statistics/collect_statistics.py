@@ -32,9 +32,9 @@ PORT2 = "3/1"
 TRAFFIC_DURATION = 10 # seconds
 
 #---------------------------
-# live_statistic_fetcher
+# statistics_background_task
 #---------------------------
-async def live_statistic_fetcher(
+async def statistics_background_task(
         port1: ports.GenericL23Port, 
         port2: ports.GenericL23Port, 
         duration: int,
@@ -223,7 +223,7 @@ async def traffic_control(
     logging.info(f"Wait for {duration} seconds...")
 
     # spawn a Task to wait until 'event' is set.
-    asyncio.create_task(live_statistic_fetcher(port_obj_1, port_obj_2, duration, stop_event))
+    asyncio.create_task(statistics_background_task(port_obj_1, port_obj_2, duration, stop_event))
     await stop_event.wait()
 
     # stop traffic on the Tx port
