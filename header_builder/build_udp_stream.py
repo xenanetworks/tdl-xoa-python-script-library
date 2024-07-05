@@ -1,6 +1,11 @@
-#--------------------------------
-# Author: leonard.yu@teledyne.com
-#--------------------------------
+################################################################
+#
+#                   BUILD UDP STREAM
+#
+# This script shows you how to build UDP stream using the header 
+# builder in headers.py
+#
+################################################################
 import asyncio
 from xoa_driver import testers
 from xoa_driver import modules
@@ -11,6 +16,7 @@ from ipaddress import IPv4Address, IPv6Address
 from xoa_driver.misc import Hex
 from headers import *
 from xoa_driver.hlfuncs import mgmt
+import logging
 
 #---------------------------
 # Global parameters
@@ -18,8 +24,7 @@ from xoa_driver.hlfuncs import mgmt
 
 CHASSIS_IP = "10.10.10.10"      # Chassis IP address or hostname
 USERNAME = "XOA"                # Username
-MODULE_INDEX = 0                # Module index
-TX_PORT_INDEX = 0               # TX Port index
+PORT = "0/0"
 
 FRAME_SIZE_BYTES = 1000         # Frame size on wire including the FCS.
 FRAME_COUNT = 20                # The number of frames including the first, the middle, and the last.
@@ -33,70 +38,80 @@ INTRA_BURST_GAP_BYTES = 1000    # The inter-frame gap within a burst, aka. intra
 
 
 #------------------------------
-# def my_awesome_func()
+# build_udp_stream
 #------------------------------
-async def my_awesome_func(stop_event: asyncio.Event, should_burst: bool) -> None:
-
+async def build_udp_stream(chassis: str, username: str, port_str: str, should_burst: bool) -> None:
+    # configure basic logger
+    logging.basicConfig(
+        format="%(asctime)s  %(message)s",
+        level=logging.DEBUG,
+        handlers=[
+            logging.FileHandler(filename="test.log", mode="a"),
+            logging.StreamHandler()]
+        )
+    
     # create tester instance and establish connection
-    tester = await testers.L23Tester(CHASSIS_IP, USERNAME, enable_logging=False) 
+    tester = await testers.L23Tester(chassis, username, enable_logging=False) 
 
     # access the module on the tester
-    module = tester.modules.obtain(MODULE_INDEX)
+    _mid = int(port_str.split("/")[0])
+    _pid = int(port_str.split("/")[1])
+    module_obj = tester.modules.obtain(_mid)
 
     # check if the module is of type Loki-100G-5S-2P
-    if not isinstance(module, modules.ModuleChimera):
+    if not isinstance(module_obj, modules.ModuleChimera):
         
-        # access the txport on the module
-        txport = module.ports.obtain(TX_PORT_INDEX)
+        # access the tx port on the module
+        port_obj = module_obj.ports.obtain(_pid)
 
         #---------------------------
         # Port reservation
         #---------------------------
-        print(f"#---------------------------")
-        print(f"# Port reservation")
-        print(f"#---------------------------")
-        await mgmt.reserve_port(txport)
+        logging.info(f"#---------------------------")
+        logging.info(f"# Port reservation")
+        logging.info(f"#---------------------------")
+        await mgmt.reserve_port(port_obj)
         
 
         #---------------------------
         # Start port configuration
         #---------------------------
-        print(f"#---------------------------")
-        print(f"# Start port configuration")
-        print(f"#---------------------------")
+        logging.info(f"#---------------------------")
+        logging.info(f"# Start port configuration")
+        logging.info(f"#---------------------------")
 
-        print(f"Reset the txport")
-        await mgmt.reset_port(txport)
+        logging.info(f"Reset the txport")
+        await mgmt.reset_port(port_obj)
 
-        print(f"Configure the txport")
+        logging.info(f"Configure the txport")
         await utils.apply(
-            txport.comment.set(comment="this is a comment"),
-            txport.tx_config.enable.set_on(),
-            txport.latency_config.offset.set(offset=0),
-            txport.latency_config.mode.set(mode=enums.LatencyMode.LAST2LAST),
-            txport.tx_config.burst_period.set(burst_period=0),
-            txport.tx_config.packet_limit.set(packet_count_limit=FRAME_COUNT),
-            txport.max_header_length.set(max_header_length=128),
-            txport.autotrain.set(interval=0),
-            txport.loop_back.set_none(),                                # If you want loopback the port TX to its own RX, change it to set_txoff2rx()
-            txport.checksum.set(offset=0),
-            txport.tx_config.delay.set(delay_val=0),
-            txport.tpld_mode.set_normal(),
-            txport.payload_mode.set_normal(),
+            port_obj.comment.set(comment="this is a comment"),
+            port_obj.tx_config.enable.set_on(),
+            port_obj.latency_config.offset.set(offset=0),
+            port_obj.latency_config.mode.set(mode=enums.LatencyMode.LAST2LAST),
+            port_obj.tx_config.burst_period.set(burst_period=0),
+            port_obj.tx_config.packet_limit.set(packet_count_limit=FRAME_COUNT),
+            port_obj.max_header_length.set(max_header_length=128),
+            port_obj.autotrain.set(interval=0),
+            port_obj.loop_back.set_none(),                                # If you want loopback the port TX to its own RX, change it to set_txoff2rx()
+            port_obj.checksum.set(offset=0),
+            port_obj.tx_config.delay.set(delay_val=0),
+            port_obj.tpld_mode.set_normal(),
+            port_obj.payload_mode.set_normal(),
             #txport.rate.pps.set(port_rate_pps=TRAFFIC_RATE_FPS),       # If you want to control traffic rate with FPS, uncomment this.
-            txport.rate.fraction.set(TRAFFIC_RATE_PERCENT),             # If you want to control traffic rate with fraction, uncomment this. 1,000,000 = 100%
+            port_obj.rate.fraction.set(TRAFFIC_RATE_PERCENT),             # If you want to control traffic rate with fraction, uncomment this. 1,000,000 = 100%
         )
         if should_burst:
-            await txport.tx_config.mode.set_burst()
+            await port_obj.tx_config.mode.set_burst()
         else:
-            await txport.tx_config.mode.set_sequential()
+            await port_obj.tx_config.mode.set_sequential()
         
         #--------------------------------------
         # Configure stream_0 on the txport
         #--------------------------------------
-        print(f"   Configure stream on the txport")
+        logging.info(f"   Configure stream on the txport")
 
-        stream_0 = await txport.streams.create()
+        stream_0 = await port_obj.streams.create()
         eth = Ethernet()
         eth.src_mac = "aaaa.aaaa.0005"
         eth.dst_mac = "bbbb.bbbb.0005"
@@ -142,7 +157,12 @@ async def my_awesome_func(stop_event: asyncio.Event, should_burst: bool) -> None
 async def main():
     stop_event =asyncio.Event()
     try:
-        await my_awesome_func(stop_event, should_burst=SHOULD_BURST)
+        await build_udp_stream(
+            chassis=CHASSIS_IP,
+            username=USERNAME,
+            port_str=PORT,
+            should_burst=SHOULD_BURST
+            )
     except KeyboardInterrupt:
         stop_event.set()
 
