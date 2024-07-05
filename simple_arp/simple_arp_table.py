@@ -1,3 +1,11 @@
+################################################################
+#
+#                   SIMPLE ARP TABLE
+#
+# This script show you how to configure ARP table 
+#
+################################################################
+
 import asyncio
 
 from xoa_driver import testers
@@ -11,24 +19,31 @@ from ipaddress import IPv4Address, IPv6Address
 from binascii import hexlify
 from xoa_driver.misc import Hex
 
+#---------------------------
+# GLOBAL PARAMS
+#---------------------------
 CHASSIS_IP = "demo.xenanetworks.com"
 USERNAME = "simple_arp_table"
-MODULE_IDX = 2
-PORT_IDX = 0
+PORT = "2/0"
 
-async def simple_arp_table(stop_event: asyncio.Event):
+#---------------------------
+# simple_arp_table
+#---------------------------
+async def simple_arp_table(chassis: str, username: str, port_str: str,):
     # Establish connection to a Valkyrie tester using Python context manager
     # The connection will be automatically terminated when it is out of the block
-    async with testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False) as tester:
+    async with testers.L23Tester(host=chassis, username=username, password="xena", port=22606, enable_logging=False) as tester:
 
         # Access module index 0 on the tester
-        module = tester.modules.obtain(MODULE_IDX)
+        _mid = int(port_str.split("/")[0])
+        _pid = int(port_str.split("/")[1])
+        module = tester.modules.obtain(_mid)
 
-        if isinstance(module, modules.ModuleChimera):
+        if isinstance(module, modules.E100ChimeraModule):
             return None # commands which used in this example are not supported by Chimera Module
 
         # Get the port on module 
-        port = module.ports.obtain(PORT_IDX)
+        port = module.ports.obtain(_pid)
 
         # Forcibly reserve the TX port and reset it.
         await mgmt.reserve_port(port)
@@ -53,3 +68,6 @@ async def simple_arp_table(stop_event: asyncio.Event):
         arp_table_entry_list.append(arp_table_entry)
         # set ARP table for Port
         await port.arp_rx_table.set(chunks=arp_table_entry_list)
+
+        # release port
+        await mgmt.free_port(port=port)

@@ -1,3 +1,11 @@
+################################################################
+#
+#                   GRATUITOUS ARP
+#
+# This script show you how to send a gratuitous ARP
+#
+################################################################
+
 import asyncio
 
 from xoa_driver import testers
@@ -5,66 +13,38 @@ from xoa_driver import modules
 from xoa_driver import ports
 from xoa_driver import enums
 from xoa_driver import utils
-from xoa_driver.hlfuncs import mgmt
+from xoa_driver.hlfuncs import mgmt, headers
 from xoa_driver.misc import Hex
 from ipaddress import IPv4Address, IPv6Address
 from binascii import hexlify
 from xoa_driver.misc import Hex
 
+#---------------------------
+# GLOBAL PARAMS
+#---------------------------
 CHASSIS_IP = "demo.xenanetworks.com"
 USERNAME = "simple_arp"
-MODULE_IDX = 2
-PORT_IDX = 0
+PORT = "2/0"
 ARP_FPS = 1
 
-class Ethernet:
-    def __init__(self):
-        self.dst_mac = "0000.0000.0000"
-        self.src_mac = "0000.0000.0000"
-        self.ethertype = "86DD"
-    
-    def __str__(self):
-        _dst_mac = self.dst_mac.replace(".", "")
-        _src_mac = self.src_mac.replace(".", "")
-        _ethertype = self.ethertype
-        return f"{_dst_mac}{_src_mac}{_ethertype}".upper()
-    
-class ARP:
-    def __init__(self):
-        self.hardware_type: str = "0001"
-        self.protocol_type: str = "0800"
-        self.hardware_size: str = "06"
-        self.protocol_size: str = "04"
-        self.opcode: str = "0001"
-        self.sender_mac = "0000.0000.0000"
-        self.sender_ip = "0.0.0.0"
-        self.target_mac = "0000.0000.0000"
-        self.target_ip = "0.0.0.0"
-    
-    def __str__(self):
-        _hardware_type = self.hardware_type
-        _protocol_type = self.protocol_type
-        _hardware_size = self.hardware_size
-        _protocol_size = self.protocol_size
-        _sender_mac = self.sender_mac.replace(".", "")
-        _sender_ip = hexlify(IPv4Address(self.sender_ip).packed).decode()
-        _target_mac = self.target_mac.replace(".", "")
-        _target_ip = hexlify(IPv4Address(self.target_ip).packed).decode()
-        return f"{_hardware_type}{_protocol_type}{_hardware_size}{_protocol_size}{_sender_mac}{_sender_ip}{_target_mac}{_target_ip}".upper()
-
-async def gratuitous_arp(stop_event: asyncio.Event):
+#---------------------------
+# gratuitous_arp
+#---------------------------
+async def gratuitous_arp(chassis: str, username: str, port_str: str, fps: int):
     # Establish connection to a Valkyrie tester using Python context manager
     # The connection will be automatically terminated when it is out of the block
-    async with testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False) as tester:
+    async with testers.L23Tester(host=chassis, username=username, password="xena", port=22606, enable_logging=False) as tester:
 
         # Access module index 0 on the tester
-        module = tester.modules.obtain(MODULE_IDX)
+        _mid = int(port_str.split("/")[0])
+        _pid = int(port_str.split("/")[1])
+        module = tester.modules.obtain(_mid)
 
-        if isinstance(module, modules.ModuleChimera):
+        if isinstance(module, modules.E100ChimeraModule):
             return None # commands which used in this example are not supported by Chimera Module
 
         # Get the port on module 
-        port = module.ports.obtain(PORT_IDX)
+        port = module.ports.obtain(_pid)
 
         # Forcibly reserve the TX port and reset it.
         await mgmt.reserve_port(port)
@@ -87,7 +67,7 @@ async def gratuitous_arp(stop_event: asyncio.Event):
             # Stream description
             stream.comment.set(f"gratuitous arp"),
             # Stream fps rate
-            stream.rate.pps.set(stream_rate_pps=ARP_FPS),
+            stream.rate.pps.set(stream_rate_pps=fps),
             # Stream header structure
             stream.packet.header.protocol.set(segments=[
                 enums.ProtocolOption.ETHERNET,
@@ -106,10 +86,10 @@ async def gratuitous_arp(stop_event: asyncio.Event):
             stream.insert_packets_checksum.set_on()
         )
         # Configure the stream header value
-        eth = Ethernet()
+        eth = headers.Ethernet()
         eth.src_mac = "0000.0000.0002"
         eth.dst_mac = "0000.0000.0003"
-        arp = ARP()
+        arp = headers.ARP()
         arp.sender_mac = eth.src_mac
         arp.sender_ip = "1.1.1.2"
         arp.target_mac = eth.dst_mac
@@ -121,10 +101,13 @@ async def gratuitous_arp(stop_event: asyncio.Event):
         await asyncio.sleep(10)
         await port.traffic.state.set_stop()
 
+        # release port
+        await mgmt.free_port(port=port)
+
 async def main():
     stop_event =asyncio.Event()
     try:
-        await gratuitous_arp(stop_event)
+        await gratuitous_arp(chassis=CHASSIS_IP, username=USERNAME, port_str=PORT, fps=ARP_FPS)
     except KeyboardInterrupt:
         stop_event.set()
 
