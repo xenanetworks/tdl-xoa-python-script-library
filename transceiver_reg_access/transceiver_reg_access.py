@@ -1,62 +1,112 @@
+################################################################
+#
+#                   XCVR ACCESS
+#
+# What this script example does:
+# 1. Connect to a tester
+# 2. Reserve port
+# 3. Read transceiver's temperature
+# 4. Read transceiver's register value (single read)
+# 5. Write transceiver's register value (single write)
+# 6. Read MII transceiver's register value (single operation)
+# 7. Write MII transceiver's register value (single operation)
+# 8. Read transceiver's register value (sequential read)
+# 9. Write transceiver's register value (sequential write)
+# 10. Release the port
+#
+################################################################
+
 import asyncio
 
 from xoa_driver import testers
 from xoa_driver import modules
 from xoa_driver.hlfuncs import mgmt
 from xoa_driver.misc import Hex
+import logging
 
+#---------------------------
+# GLOBAL PARAMS
+#---------------------------
 CHASSIS_IP = "demo.xenanetworks.com"
 USERNAME = "xoa"
-MODULE_ID = 2
-PORT_ID = 2
+PORT = "4/0"
 
-async def main():
+#---------------------------
+# xcvr_access
+#---------------------------
+async def xcvr_access(chassis: str, username: str, port_str: str):
+    # configure basic logger
+    logging.basicConfig(
+        format="%(asctime)s  %(message)s",
+        level=logging.DEBUG,
+        handlers=[
+            logging.FileHandler(filename="test.log", mode="a"),
+            logging.StreamHandler()]
+        )
+    
     # Establish connection to a Valkyrie tester
-    async with testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False) as my_tester:
-        my_module = my_tester.modules.obtain(MODULE_ID)
+    async with testers.L23Tester(host=chassis, username=username, password="xena", port=22606, enable_logging=False) as my_tester:
+        logging.info(f"===================================")
+        logging.info(f"{'Connect to chassis:':<20}{chassis}")
+        logging.info(f"{'Username:':<20}{username}")
+
+        _mid = int(port_str.split("/")[0])
+        _pid = int(port_str.split("/")[1])
+        module_obj = my_tester.modules.obtain(_mid)
 
         # commands which used in this example are not supported by Chimera Module
-        if isinstance(my_module, modules.ModuleChimera):
+        if isinstance(module_obj, modules.E100ChimeraModule):
             return None 
 
         # Get the port 2/2 (module 2)
-        my_port = my_module.ports.obtain(PORT_ID)
+        port_obj = module_obj.ports.obtain(_pid)
 
         # use high-level func to reserve the port
-        await mgmt.reserve_port(my_port)
+        await mgmt.reserve_port(port_obj)
 
         # Reset the port
-        await my_port.reset.set()
+        await port_obj.reset.set()
 
         await asyncio.sleep(10)
 
         # Read transceiver's temperature
-        temperature = await my_port.transceiver.access_temperature.get()
-        print(f"Transceiver temperature: {temperature.integral_part + temperature.fractional_part/256} degrees Celsius.")
+        temperature = await port_obj.transceiver.access_temperature.get()
+        logging.info(f"Transceiver temperature: {temperature.integral_part + temperature.fractional_part/256} degrees Celsius.")
         
         # Read transceiver's register value (single read)
-        rx_power_lsb = await my_port.transceiver.access_rw(page_address=0xA2, register_address=0x69).get()
-        print(rx_power_lsb.value)
+        rx_power_lsb = await port_obj.transceiver.access_rw(page_address=0xA2, register_address=0x69).get()
+        logging.info(rx_power_lsb.value)
 
         # Write transceiver's register value (single write)
-        await my_port.transceiver.access_rw(page_address=0xA2, register_address=0x69).set(Hex("FFFF"))
+        await port_obj.transceiver.access_rw(page_address=0xA2, register_address=0x69).set(Hex("FFFF"))
 
         # Read MII transceiver's register value (single operation)
-        rx_power_lsb = await my_port.transceiver.access_mii(register_address=0x69).get()
-        print(rx_power_lsb.value)
+        rx_power_lsb = await port_obj.transceiver.access_mii(register_address=0x69).get()
+        logging.info(rx_power_lsb.value)
 
         # Write MII transceiver's register value (single operation)
-        await my_port.transceiver.access_mii(register_address=0x69).set(Hex("FFFF"))
+        await port_obj.transceiver.access_mii(register_address=0x69).set(Hex("FFFF"))
 
         # Read transceiver's register value (sequential read)
-        i2c_read = await my_port.transceiver.access_rw_seq(page_address=0xA2, register_address=0x69, byte_count=16).get()
-        print(i2c_read.value)
+        i2c_read = await port_obj.transceiver.access_rw_seq(page_address=0xA2, register_address=0x69, byte_count=16).get()
+        logging.info(i2c_read.value)
 
         # Write transceiver's register value (sequential write)
-        await my_port.transceiver.access_rw_seq(page_address=0xA2, register_address=0x69, byte_count=16).set("FFFF")
+        await port_obj.transceiver.access_rw_seq(page_address=0xA2, register_address=0x69, byte_count=16).set(Hex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"))
 
         # Release the port
-        await my_port.reservation.set_release()
+        await port_obj.reservation.set_release()
+
+async def main():
+    stop_event = asyncio.Event()
+    try:
+        await xcvr_access(
+            chassis=CHASSIS_IP, 
+            username=USERNAME,
+            port_str=PORT
+        )
+    except KeyboardInterrupt:
+        stop_event.set()
 
 if __name__ == "__main__":
     asyncio.run(main())
