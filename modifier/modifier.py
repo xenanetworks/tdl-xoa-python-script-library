@@ -15,9 +15,8 @@ import asyncio
 from xoa_driver import testers
 from xoa_driver import modules
 from xoa_driver import utils, enums
-from xoa_driver.hlfuncs import mgmt
+from xoa_driver.hlfuncs import mgmt, headers
 from xoa_driver.misc import Hex
-from headers import *
 
 #---------------------------
 # GLOBAL PARAMS
@@ -53,7 +52,7 @@ async def modifier(chassis: str, username: str, port_str: str):
     # create one stream on the port
     my_stream = await port_obj.streams.create()
 
-    eth = Ethernet()
+    eth = headers.Ethernet()
     eth.dst_mac = "0000.0000.0002"
     eth.src_mac = "0000.0000.0001"
     eth.ethertype = "0800"

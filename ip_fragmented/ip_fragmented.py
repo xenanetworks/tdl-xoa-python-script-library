@@ -13,8 +13,7 @@ from xoa_driver import utils
 from xoa_driver import enums
 from ipaddress import IPv4Address, IPv6Address
 from xoa_driver.misc import Hex
-from headers import *
-from xoa_driver.hlfuncs import mgmt
+from xoa_driver.hlfuncs import mgmt, headers
 import logging
 
 #---------------------------
@@ -111,12 +110,12 @@ async def ip_fragmentation(chassis: str, username: str, port_str: str) -> None:
         logging.info(f"   Configure stream on the txport")
 
         ip_stream = await port_obj.streams.create()
-        eth = Ethernet()
+        eth = headers.Ethernet()
         eth.src_mac = "aaaa.aaaa.0005"
         eth.dst_mac = "bbbb.bbbb.0005"
         eth.ethertype = "0800"
 
-        ipv4 = IPV4()
+        ipv4 = headers.IPV4()
         ipv4.src = "1.1.1.5"
         ipv4.dst = "2.2.2.5"
         ipv4.proto = 255

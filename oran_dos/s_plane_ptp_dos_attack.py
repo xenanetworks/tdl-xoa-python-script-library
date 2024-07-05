@@ -13,10 +13,9 @@ from xoa_driver import modules
 from xoa_driver import ports
 from xoa_driver import enums
 from xoa_driver import utils
-from xoa_driver.hlfuncs import mgmt, cli
+from xoa_driver.hlfuncs import mgmt, cli, headers
 from xoa_driver.misc import Hex
 import ipaddress
-from headers import *
 import logging
 
 #---------------------------
@@ -87,22 +86,22 @@ async def s_plane_ptp_dos(chassis_ip: str, port_str: str, username: str, xpc_mod
             stream = await port.streams.create() # create a stream on the port
             
             # Prepare packet header data
-            eth = Ethernet()
+            eth = headers.Ethernet()
             eth.dst_mac = "0100.5e00.0181"
             eth.src_mac = "0030.051d.1e27"
             eth.ethertype = "0800"
 
-            ipv4 = IPV4()
+            ipv4 = headers.IPV4()
             ipv4.src = "10.10.100.5"
             ipv4.dst = "224.0.1.129"
             ipv4.proto = 17
 
-            udp = UDP()
+            udp = headers.UDP()
             udp.src_port = 319
             udp.dst_port = 319
             udp.length = 132
 
-            ptp = PTP()
+            ptp = headers.PTP()
             
             await utils.apply(
                 stream.comment.set(comment="S-Plane PTP DoS Attack"), # stream description

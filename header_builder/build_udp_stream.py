@@ -14,8 +14,7 @@ from xoa_driver import utils
 from xoa_driver import enums
 from ipaddress import IPv4Address, IPv6Address
 from xoa_driver.misc import Hex
-from headers import *
-from xoa_driver.hlfuncs import mgmt
+from xoa_driver.hlfuncs import mgmt, headers
 import logging
 
 #---------------------------
@@ -112,21 +111,21 @@ async def build_udp_stream(chassis: str, username: str, port_str: str, should_bu
         logging.info(f"   Configure stream on the txport")
 
         stream_0 = await port_obj.streams.create()
-        eth = Ethernet()
+        eth = headers.Ethernet()
         eth.src_mac = "aaaa.aaaa.0005"
         eth.dst_mac = "bbbb.bbbb.0005"
         eth.ethertype = "0800"
 
-        ipv4 = IPV4()
+        ipv4 = headers.IPV4()
         ipv4.src = "1.1.1.5"
         ipv4.dst = "2.2.2.5"
         ipv4.proto = 17
 
-        ipv6 = IPV6()
+        ipv6 = headers.IPV6()
         ipv6.src = "2001::5"
         ipv6.dst = "2002::5"
 
-        udp = UDP()
+        udp = headers.UDP()
         udp.src_port = 4791
         udp.dst_port = 4791
 

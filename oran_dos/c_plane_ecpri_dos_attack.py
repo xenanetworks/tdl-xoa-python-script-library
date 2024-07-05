@@ -13,10 +13,9 @@ from xoa_driver import modules
 from xoa_driver import ports
 from xoa_driver import enums
 from xoa_driver import utils
-from xoa_driver.hlfuncs import mgmt, cli
+from xoa_driver.hlfuncs import mgmt, cli, headers
 from xoa_driver.misc import Hex
 import ipaddress
-from headers import *
 import logging
 
 #---------------------------
@@ -87,12 +86,12 @@ async def c_plane_ecpri_dos(chassis_ip: str, port_str: str, username: str, xpc_m
             stream = await port.streams.create() # create a stream on the port
             
             # Prepare packet header data
-            eth = Ethernet()
+            eth = headers.Ethernet()
             eth.dst_mac = "0080.1600.0000"
             eth.src_mac = "0030.051d.1e27"
             eth.ethertype = "AEFE"
 
-            ecpri = eCPRIGeneralDataTransfer()
+            ecpri = headers.eCPRIGeneralDataTransfer()
             
             await utils.apply(
                 stream.comment.set(comment="C-Plane eCPRI DoS Attack"), # stream description

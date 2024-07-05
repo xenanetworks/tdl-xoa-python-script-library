@@ -17,11 +17,10 @@ from xoa_driver import (
     enums,
     exceptions
 )
-from xoa_driver.hlfuncs import mgmt
+from xoa_driver.hlfuncs import mgmt, headers
 from xoa_driver.misc import ArpChunk, NdpChunk, Hex
 import ipaddress
 from binascii import hexlify
-from headers import *
 import logging
 
 #---------------------------
@@ -173,18 +172,18 @@ async def tcp_udp_ipv4_ipv6_config_func(chassis: str, username: str, port_str1: 
     logging.info(f"Configure streams A to B")
     stream_a = await port_obj_a.streams.create()
 
-    eth = Ethernet()
+    eth = headers.Ethernet()
     eth.src_mac = mac_base1
     eth.dst_mac = mac_base2
     eth.ethertype = "0800"
-    ipv4 = IPV4()
+    ipv4 = headers.IPV4()
     ipv4.src = ipv4_base1
     ipv4.dst = ipv4_base2
     ipv4.proto = 255
-    ipv6 = IPV6()
+    ipv6 = headers.IPV6()
     ipv6.src = ipv6_base1
     ipv6.dst = ipv6_base2
-    tcp = TCP()
+    tcp = headers.TCP()
     tcp.src_port = 4791
     tcp.dst_port = 80
     tcp.seq_num = 0
@@ -198,7 +197,7 @@ async def tcp_udp_ipv4_ipv6_config_func(chassis: str, username: str, port_str1: 
     tcp.rst = 1
     tcp.syn = 0
     tcp.fin = 1
-    udp = UDP()
+    udp = headers.UDP()
     udp.src_port = 0
     udp.dst_port = 0
 
@@ -299,18 +298,18 @@ async def tcp_udp_ipv4_ipv6_config_func(chassis: str, username: str, port_str1: 
     logging.info(f"Configure streams B to A")
     stream_b = await port_obj_b.streams.create()
 
-    eth = Ethernet()
+    eth = headers.Ethernet()
     eth.src_mac = mac_base2
     eth.dst_mac = mac_base1
     eth.ethertype = "0800"
-    ipv4 = IPV4()
+    ipv4 = headers.IPV4()
     ipv4.src = ipv4_base2
     ipv4.dst = ipv4_base1
     ipv4.proto = 255
-    ipv6 = IPV6()
+    ipv6 = headers.IPV6()
     ipv6.src = ipv6_base2
     ipv6.dst = ipv6_base1
-    tcp = TCP()
+    tcp = headers.TCP()
     tcp.src_port = 4791
     tcp.dst_port = 80
     tcp.seq_num = 0
@@ -324,7 +323,7 @@ async def tcp_udp_ipv4_ipv6_config_func(chassis: str, username: str, port_str1: 
     tcp.rst = 1
     tcp.syn = 0
     tcp.fin = 1
-    udp = UDP()
+    udp = headers.UDP()
     udp.src_port = 0
     udp.dst_port = 0
     
