@@ -1,3 +1,11 @@
+################################################################
+#
+#                   C-PLANE ECPRI DOS ATTACK
+#
+# This script shows you how to do C-Plane eCPRI DoS attack
+#
+################################################################
+
 import asyncio
 
 from xoa_driver import testers
@@ -9,7 +17,11 @@ from xoa_driver.hlfuncs import mgmt, cli
 from xoa_driver.misc import Hex
 import ipaddress
 from headers import *
+import logging
 
+#---------------------------
+# GLOBAL PARAMS
+#---------------------------
 CHASSIS_IP = "demo.xenanetworks.com"
 USERNAME = "oran_dos"
 PORT = "7/1"
@@ -17,25 +29,37 @@ XPC_MODE = True
 DURATION = 10
 XPC_FILENAME = "ecpri_dos.xpc"
 
-async def s_plane_ptp_dos(chassis_ip: str, port_str: str, username: str, xpc_mode: bool, duration: int):
+#---------------------------
+# c_plane_ecpri_dos
+#---------------------------
+async def c_plane_ecpri_dos(chassis_ip: str, port_str: str, username: str, xpc_mode: bool, duration: int, xpc_filename: str):
 
+    # configure basic logger
+    logging.basicConfig(
+        format="%(asctime)s  %(message)s",
+        level=logging.DEBUG,
+        handlers=[
+            logging.FileHandler(filename="test.log", mode="a"),
+            logging.StreamHandler()]
+        )
+    
     _mid = int(port_str.split("/")[0])
     _pid = int(port_str.split("/")[1])
 
-    print(f"#####################################################################")
-    print(f"Test:               C-Plane eCPRI DoS Attack")
-    print(f"Chassis:            {chassis_ip}")
-    print(f"Username:           {username}")
-    print(f"Port:               {port_str}")
-    print(f"XPC mode:           {xpc_mode}")
-    print(f"Test Duration:      {duration} sec")
-    print(f"#####################################################################")
+    logging.info(f"#####################################################################")
+    logging.info(f"Test:               C-Plane eCPRI DoS Attack")
+    logging.info(f"Chassis:            {chassis_ip}")
+    logging.info(f"Username:           {username}")
+    logging.info(f"Port:               {port_str}")
+    logging.info(f"XPC mode:           {xpc_mode}")
+    logging.info(f"Test Duration:      {duration} sec")
+    logging.info(f"#####################################################################")
 
 
     # Establish connection to a Valkyrie tester using Python context manager
     # The connection will be automatically terminated when it is out of the block
-    print(f"Connect to chassis")
-    async with testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False) as tester:
+    logging.info(f"Connect to chassis")
+    async with testers.L23Tester(host=chassis_ip, username=username, password="xena", port=22606, enable_logging=False) as tester:
 
         # Access module index 0 on the tester
         module = tester.modules.obtain(_mid)
@@ -47,17 +71,17 @@ async def s_plane_ptp_dos(chassis_ip: str, port_str: str, username: str, xpc_mod
         port = module.ports.obtain(_pid)
 
         # Forcibly reserve the TX port and reset it.
-        print(f"Reserve port {port.kind.module_id}/{port.kind.port_id}")
+        logging.info(f"Reserve port {port.kind.module_id}/{port.kind.port_id}")
         await mgmt.reserve_port(port)
         await mgmt.reset_port(port)
         await asyncio.sleep(2)
 
         if xpc_mode:
             # Configure port from .xpc file
-            print(f"Load {XPC_FILENAME}")
-            await cli.port_config_from_file(port, XPC_FILENAME)
+            logging.info(f"Load {xpc_filename}")
+            await cli.port_config_from_file(port, xpc_filename)
         else:
-            print(f"Configure port and stream")
+            logging.info(f"Configure port and stream")
             # Configure port using native python
             await port.max_header_length.set(max_header_length=256) # Port's max header length = 128
             stream = await port.streams.create() # create a stream on the port
@@ -93,23 +117,23 @@ async def s_plane_ptp_dos(chassis_ip: str, port_str: str, username: str, xpc_mod
             await mod0.range.set(min_val=0, step=1, max_val=65535)
 
         # start traffic
-        print(f"Start traffic")
+        logging.info(f"Start traffic")
         await port.traffic.state.set_start()
         # test duration
         for i in range(duration):
-            print(f"."*(i+1))
+            logging.info(f"."*(i+1))
             await asyncio.sleep(1)
         # stop traffic
-        print(f"Stop traffic")
+        logging.info(f"Stop traffic")
         await port.traffic.state.set_stop()
         await mgmt.free_port(port)
 
-        print(f"Done")
+        logging.info(f"Done")
 
 async def main():
     stop_event = asyncio.Event()
     try:
-        await s_plane_ptp_dos(CHASSIS_IP, PORT, USERNAME, XPC_MODE, DURATION)
+        await c_plane_ecpri_dos(CHASSIS_IP, PORT, USERNAME, XPC_MODE, DURATION, XPC_FILENAME)
     except KeyboardInterrupt:
         stop_event.set()
 
