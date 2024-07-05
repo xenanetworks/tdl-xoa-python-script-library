@@ -1,1 +1,1 @@
-xoa-driver
+xoa-driver>=2.7.0
