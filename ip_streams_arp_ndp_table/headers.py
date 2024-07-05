@@ -188,3 +188,103 @@ class TCP:
         _urgent_pointer = '{:04X}'.format(self.urgent_pointer)
 
         return f"{_src_port}{_dst_port}{_seq_num}{_ack_num}{_header_length}{_flags}{_window}{_checksum}{_urgent_pointer}".upper()
+    
+####################################
+#           PTP                    #
+####################################
+class PTP:
+    def __init__(self):
+        self.version_ptp = 1
+        self.version_network = 1
+        self.subdomain = "5F44464c540000000000000000000000"
+        self.message_type = 1
+        self.source_comm_tech = 1
+        self.source_uuid = "0030051D1E27"
+        self.source_port_id = 1
+        self.seq_id = 94
+        self.control_field = 0
+        self.flags = "0008"
+        self.original_timestamp_sec = 1163594296
+        self.original_timestamp_nsec = 247015000
+        self.epoch_num = 0
+        self.current_utc_offset = 0
+        self.gm_comm_tech = 1
+        self.gm_clock_uuid = "0030051D1E27"
+        self.gm_port_id = 0
+        self.gm_seq_id = 94
+        self.gm_clock_stratum = 4
+        self.gm_clock_id = "44464c54"
+        self.gm_clock_variance = -4000
+        self.gm_preferred = 0
+        self.gm_is_boundary_clock = 0
+        self.sync_interval = 1
+        self.local_clock_variance = -4000
+        self.local_step_removed = 0
+        self.local_clock_stratum = 4
+        self.local_clock_id = "44464c54"
+        self.parent_comm_tech = 1
+        self.parent_clock_uuid = "0030051D1E27"
+        self.parent_port_id = 0
+        self.est_master_variance = 0
+        self.est_master_drift = 0
+        self.utc_reasonable = 0
+
+    def __str__(self):
+        _version_ptp = '{:04X}'.format(self.version_ptp)
+        _version_network = '{:04X}'.format(self.version_network)
+        _subdomain = self.subdomain
+        _message_type = '{:02X}'.format(self.message_type)
+        _source_comm_tech = '{:02X}'.format(self.source_comm_tech)
+        _source_uuid = self.source_uuid
+        _source_port_id = '{:04X}'.format(self.source_port_id)
+        _sequence_id = '{:04X}'.format(self.seq_id)
+        _control_field = '{:02X}'.format(self.control_field)
+        _flags = self.flags
+        _original_timestamp_sec = '{:08X}'.format(self.original_timestamp_sec)
+        _original_timestamp_nsec = '{:08X}'.format(self.original_timestamp_nsec)
+        _epoch_num = '{:04X}'.format(self.epoch_num)
+        _current_utc_offset = '{:04X}'.format(self.current_utc_offset)
+        _gm_comm_tech = '{:02X}'.format(self.gm_comm_tech)
+        _gm_clock_uuid = self.gm_clock_uuid
+        _gm_port_id = '{:04X}'.format(self.gm_port_id)
+        _gm_seq_id = '{:04X}'.format(self.gm_seq_id)
+        _gm_clock_stratum = '{:02X}'.format(self.gm_clock_stratum)
+        _gm_clock_id = self.gm_clock_id
+        _gm_clock_variance = '{:04X}'.format(self.gm_clock_variance & ((1 << 16)-1))
+        _gm_preferred = '{:02X}'.format(self.gm_preferred)
+        _gm_is_boundary_clock = '{:02X}'.format(self.gm_is_boundary_clock)
+        _sync_interval = '{:02X}'.format(self.sync_interval)
+        _local_clock_variance = '{:04X}'.format(self.local_clock_variance & ((1 << 16)-1))
+        _local_step_removed = '{:04X}'.format(self.local_step_removed & ((1 << 16)-1))
+        _local_clock_stratum = '{:02X}'.format(self.local_clock_stratum)
+        _local_clock_id = self.local_clock_id
+        _parent_comm_tech = '{:02X}'.format(self.parent_comm_tech)
+        _parent_clock_uuid = self.parent_clock_uuid
+        _parent_port_id = '{:04X}'.format(self.parent_port_id)
+        _est_master_variance = '{:04X}'.format(self.est_master_variance & ((1 << 16)-1))
+        _est_master_drift = '{:08X}'.format(self.est_master_drift & ((1 << 16)-1))
+        _utc_reasonable = '{:02X}'.format(self.utc_reasonable)
+
+        return f"{_version_ptp}{_version_network}{_subdomain}{_message_type}{_source_comm_tech}{_source_uuid}{_source_port_id}{_sequence_id}{_control_field}00{_flags}00000000{_original_timestamp_sec}{_original_timestamp_nsec}{_epoch_num}{_current_utc_offset}00{_gm_comm_tech}{_gm_clock_uuid}{_gm_port_id}{_gm_seq_id}000000{_gm_clock_stratum}{_gm_clock_id}0000{_gm_clock_variance}00{_gm_preferred}00{_gm_is_boundary_clock}000000{_sync_interval}0000{_local_clock_variance}0000{_local_step_removed}000000{_local_clock_stratum}{_local_clock_id}00{_parent_comm_tech}{_parent_clock_uuid}0000{_parent_port_id}0000{_est_master_variance}{_est_master_drift}000000{_utc_reasonable}".upper()
+    
+####################################
+#  eCPRI GeneralDataTransfer       #
+####################################
+class eCPRIGeneralDataTransfer:
+    def __init__(self):
+        self.protocol_rev = 1
+        self.c_bit = 0
+        self.message_type = "03"
+        self.payload_size = 24
+        self.pc_id = "12345678"
+        self.seq_id = "87654321"
+        self.user_data = "0f0e0d0c0b0a09080706050403020100"
+
+    def __str__(self):
+        _tmp = '{:02X}'.format((self.protocol_rev<<4)+self.c_bit)
+        _message_type = self.message_type
+        _payload_size = '{:04X}'.format(self.payload_size)
+        _pc_id = self.pc_id
+        _seq_id = self.seq_id
+        _user_data = self.user_data
+        return f"{_tmp}{_message_type}{_payload_size}{_pc_id}{_seq_id}{_user_data}".upper()
