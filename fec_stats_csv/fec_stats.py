@@ -1,3 +1,19 @@
+################################################################
+#
+#                   FEC STATS
+#
+# What this script example does:
+# 1. Connect to a tester
+# 2. Reserve a port. Must be Freya, Thor, or Loki
+# 3. Reset the port
+# 4. Set the port FEC mode on
+# 5. Clear FEC stats
+# 6. Query FEC Blocks (symbol error) and FEC stats
+# 7. Write the stats into csv file (csv example: fec_stats.csv)
+# 8. logging.info the stats out
+#
+################################################################
+
 import asyncio
 
 from xoa_driver import testers
@@ -10,41 +26,63 @@ from xoa_driver.misc import Hex
 import ipaddress
 import csv
 import time
+import logging
 
+#---------------------------
+# GLOBAL PARAMS
+#---------------------------
 CHASSIS_IP = "10.20.30.60"
 USERNAME = "xoa"
-MODULE_IDX = 3
-PORT_IDX = 1
-_FREYA_THOR_LOKI_MODULES = (modules.MFreya800G4S1P_a, modules.MFreya800G4S1P_b, modules.MFreya800G4S1POSFP_a, modules.MFreya800G4S1POSFP_b, modules.MThor400G7S1P, modules.MThor400G7S1P_b, modules.MThor400G7S1P_c, modules.MThor400G7S1P_d, modules.MLoki100G5S1P, modules.MLoki100G5S2P)
+PORT = "3/1"
         
-
-async def my_awesome_func(stop_event: asyncio.Event):
+#---------------------------
+# fec_stats
+#---------------------------
+async def fec_stats(chassis: str, username: str, port_str: str):
+    # configure basic logger
+    logging.basicConfig(
+        format="%(asctime)s  %(message)s",
+        level=logging.DEBUG,
+        handlers=[
+            logging.FileHandler(filename="test.log", mode="a"),
+            logging.StreamHandler()]
+        )
 
     # Establish connection to a Valkyrie tester using Python context manager
     # The connection will be automatically terminated when it is out of the block
-    async with testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False) as tester:
+    async with testers.L23Tester(host=chassis, username=username, password="xena", port=22606, enable_logging=False) as tester:
+        logging.info(f"===================================")
+        logging.info(f"{'Connect to chassis:':<20}{chassis}")
+        logging.info(f"{'Username:':<20}{username}")
 
-        # Access module index 0 on the tester
-        module = tester.modules.obtain(MODULE_IDX)
+        # Access module on the tester
+        _mid = int(port_str.split("/")[0])
+        _pid = int(port_str.split("/")[1])
+        module_obj = tester.modules.obtain(_mid)
 
-        if not isinstance(module, _FREYA_THOR_LOKI_MODULES):
-            print(f"Not Freya or Thor or Loki module")
+        if isinstance(module_obj, modules.E100ChimeraModule):
+            logging.info(f"FEC not supported on E100 Chimera modules")
+            return None
+        
+        if isinstance(module_obj, modules.Z10OdinModule):
+            logging.info(f"FEC not supported on Z10 Odin modules")
             return None 
 
-        # Get the port 0 on module 0 as TX port
-        port = module.ports.obtain(PORT_IDX)
+        # Get the port on module as TX port
+        port_obj = module_obj.ports.obtain(_pid)
 
         # Forcibly reserve the port and reset it.
-        await mgmt.reserve_port(port)
-        await mgmt.reset_port(port)
+        await mgmt.free_module(module=module_obj, should_free_ports=False)
+        await mgmt.reserve_port(port_obj)
+        await mgmt.reset_port(port_obj)
 
         await asyncio.sleep(5)
 
         # set FEC mode on
-        await port.fec_mode.set(mode=enums.FECMode.ON)
+        await port_obj.fec_mode.set(mode=enums.FECMode.ON)
 
-        await port.pcs_pma.rx.clear.set()
-        _fec_status = await port.pcs_pma.rx.fec_status.get()
+        await port_obj.pcs_pma.rx.clear.set()
+        _fec_status = await port_obj.pcs_pma.rx.fec_status.get()
         n = _fec_status.data_count - 2
         field = ["time"]
         for i in range(n):
@@ -65,17 +103,17 @@ async def my_awesome_func(stop_event: asyncio.Event):
                 dat = []
                 dat.append(time.time())
                 _total_status, _fec_status = await utils.apply(
-                    port.pcs_pma.rx.total_status.get(),
-                    port.pcs_pma.rx.fec_status.get()
+                    port_obj.pcs_pma.rx.total_status.get(),
+                    port_obj.pcs_pma.rx.fec_status.get()
                 )
-                print(f"{_fec_status.data_count}")
-                print(f"{_fec_status.stats}")
-                print(f"{_total_status}")
+                logging.info(f"{_fec_status.data_count}")
+                logging.info(f"{_fec_status.stats}")
+                logging.info(f"{_total_status}")
                 n = _fec_status.data_count - 2
                 for i in range(n):
                     dat.append(_fec_status.stats[i])
-                    print(f"FEC Blocks (Symbol Errors = {i}): {_fec_status.stats[i]}")
-                print(f"FEC Blocks (Symbol Errors > {n-1}): {_fec_status.stats[n]}")
+                    logging.info(f"FEC Blocks (Symbol Errors = {i}): {_fec_status.stats[i]}")
+                logging.info(f"FEC Blocks (Symbol Errors > {n-1}): {_fec_status.stats[n]}")
                 dat.append(_fec_status.stats[n])
                 dat.append(_total_status.total_rx_bit_count)
                 dat.append(_total_status.total_rx_codeword_count)
@@ -85,19 +123,23 @@ async def my_awesome_func(stop_event: asyncio.Event):
                 dat.append(1/_total_status.total_pre_fec_ber)
                 dat.append(1/_total_status.total_post_fec_ber)
                 writer.writerow(dat)
-                print(f"total_rx_bit_count: {_total_status.total_rx_bit_count}")
-                print(f"total_rx_codeword_count: {_total_status.total_rx_codeword_count}")
-                print(f"total_corrected_codeword_count: {_total_status.total_corrected_codeword_count}")
-                print(f"total_uncorrectable_codeword_count: {_total_status.total_uncorrectable_codeword_count}")
-                print(f"total_corrected_symbol_count: {_total_status.total_corrected_symbol_count}")
-                print(f"total_pre_fec_ber: {1/_total_status.total_pre_fec_ber}")
-                print(f"total_post_fec_ber: {1/_total_status.total_post_fec_ber}")
+                logging.info(f"total_rx_bit_count: {_total_status.total_rx_bit_count}")
+                logging.info(f"total_rx_codeword_count: {_total_status.total_rx_codeword_count}")
+                logging.info(f"total_corrected_codeword_count: {_total_status.total_corrected_codeword_count}")
+                logging.info(f"total_uncorrectable_codeword_count: {_total_status.total_uncorrectable_codeword_count}")
+                logging.info(f"total_corrected_symbol_count: {_total_status.total_corrected_symbol_count}")
+                logging.info(f"total_pre_fec_ber: {1/_total_status.total_pre_fec_ber}")
+                logging.info(f"total_post_fec_ber: {1/_total_status.total_post_fec_ber}")
                 await asyncio.sleep(1)
 
 async def main():
     stop_event = asyncio.Event()
     try:
-        await my_awesome_func(stop_event)
+        await fec_stats(
+            chassis=CHASSIS_IP,
+            username=USERNAME,
+            port_str=PORT
+            )
     except KeyboardInterrupt:
         stop_event.set()
 
