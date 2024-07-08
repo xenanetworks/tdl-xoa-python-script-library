@@ -23,7 +23,7 @@ from xoa_driver import modules
 from xoa_driver import ports
 from xoa_driver import enums
 from xoa_driver import utils
-from xoa_driver.hlfuncs import mgmt
+from xoa_driver.hlfuncs import mgmt, headers
 from xoa_driver.misc import Hex
 import ipaddress
 import logging
@@ -111,6 +111,19 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
         stream_index = my_stream.idx
         logging.info(f"TX stream index: {stream_index}")
 
+        eth = headers.Ethernet()
+        eth.dst_mac = "aaaa.aaaa.aaaa"
+        eth.src_mac = "bbbb.bbbb.bbbb"
+        eth.ethertype = headers.EtherType.VLAN
+        vlan = headers.VLAN()
+        vlan.id = 100
+        vlan.type = headers.EtherType.IPv4
+        ip = headers.IPV4()
+        ip.proto = headers.IPProtocol.NONE
+        ip.src = "10.10.10.10"
+        ip.dst = "11.11.11.11"
+        ip.total_length = 1000 - int(len(str(eth))/2) - int(len(str(vlan))/2) - 4
+
         # Simple batch configure the stream on the TX port
         await utils.apply(
             my_stream.tpld_id.set(test_payload_identifier=0),
@@ -123,7 +136,7 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
                 enums.ProtocolOption.ETHERNET,
                 enums.ProtocolOption.VLAN,
                 enums.ProtocolOption.IP]),
-            my_stream.packet.header.data.set(hex_data=Hex("AAAAAAAAAAAABBBBBBBBBBBB8100006408004500002A000000007FFF10AC0A0A0A0A0B0B0B0B"))
+            my_stream.packet.header.data.set(hex_data=Hex(str(eth)+str(vlan)+str(ip)))
             # for more stream configuration, please go to https://docs.xenanetworks.com/projects/xoa-python-api
         )
 

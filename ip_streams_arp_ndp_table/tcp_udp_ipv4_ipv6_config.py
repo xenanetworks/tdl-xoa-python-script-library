@@ -175,11 +175,11 @@ async def tcp_udp_ipv4_ipv6_config_func(chassis: str, username: str, port_str1: 
     eth = headers.Ethernet()
     eth.src_mac = mac_base1
     eth.dst_mac = mac_base2
-    eth.ethertype = "0800"
+    eth.ethertype = headers.EtherType.IPv4
     ipv4 = headers.IPV4()
     ipv4.src = ipv4_base1
     ipv4.dst = ipv4_base2
-    ipv4.proto = 255
+    ipv4.proto = headers.IPProtocol.NONE
     ipv6 = headers.IPV6()
     ipv6.src = ipv6_base1
     ipv6.dst = ipv6_base2
@@ -301,11 +301,11 @@ async def tcp_udp_ipv4_ipv6_config_func(chassis: str, username: str, port_str1: 
     eth = headers.Ethernet()
     eth.src_mac = mac_base2
     eth.dst_mac = mac_base1
-    eth.ethertype = "0800"
+    eth.ethertype = headers.EtherType.IPv4
     ipv4 = headers.IPV4()
     ipv4.src = ipv4_base2
     ipv4.dst = ipv4_base1
-    ipv4.proto = 255
+    ipv4.proto = headers.IPProtocol.NONE
     ipv6 = headers.IPV6()
     ipv6.src = ipv6_base2
     ipv6.dst = ipv6_base1

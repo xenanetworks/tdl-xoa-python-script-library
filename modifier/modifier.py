@@ -55,7 +55,7 @@ async def modifier(chassis: str, username: str, port_str: str):
     eth = headers.Ethernet()
     eth.dst_mac = "0000.0000.0002"
     eth.src_mac = "0000.0000.0001"
-    eth.ethertype = "0800"
+    eth.ethertype = headers.EtherType.IPv4
 
     await utils.apply(
         # Create the TPLD index of stream

@@ -114,16 +114,17 @@ async def build_udp_stream(chassis: str, username: str, port_str: str, should_bu
         eth = headers.Ethernet()
         eth.src_mac = "aaaa.aaaa.0005"
         eth.dst_mac = "bbbb.bbbb.0005"
-        eth.ethertype = "0800"
+        eth.ethertype = headers.EtherType.IPv4
 
         ipv4 = headers.IPV4()
         ipv4.src = "1.1.1.5"
         ipv4.dst = "2.2.2.5"
-        ipv4.proto = 17
+        ipv4.proto = headers.IPProtocol.UDP
 
         ipv6 = headers.IPV6()
         ipv6.src = "2001::5"
         ipv6.dst = "2002::5"
+        ipv6.next_header = headers.IPProtocol.UDP
 
         udp = headers.UDP()
         udp.src_port = 4791

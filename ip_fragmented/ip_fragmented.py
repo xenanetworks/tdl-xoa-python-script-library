@@ -113,12 +113,12 @@ async def ip_fragmentation(chassis: str, username: str, port_str: str) -> None:
         eth = headers.Ethernet()
         eth.src_mac = "aaaa.aaaa.0005"
         eth.dst_mac = "bbbb.bbbb.0005"
-        eth.ethertype = "0800"
+        eth.ethertype = headers.EtherType.IPv4
 
         ipv4 = headers.IPV4()
         ipv4.src = "1.1.1.5"
         ipv4.dst = "2.2.2.5"
-        ipv4.proto = 255
+        ipv4.proto = headers.IPProtocol.NONE
 
         await utils.apply(
             ip_stream.enable.set_on(),

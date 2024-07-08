@@ -69,7 +69,7 @@ async def freya_tx_tune(
         _serdes_cnt = resp.serdes_count
 
         if serdes_id+1>_serdes_cnt:
-            logging.info(f"Serdes lane {serdes} doesn't exit. There are {_serdes_cnt} serdes lanes on this port.")
+            logging.info(f"Serdes lane {serdes_id} doesn't exit. There are {_serdes_cnt} serdes lanes on this port.")
             return None
 
         # set using NATIVE

@@ -86,10 +86,10 @@ async def port_filter(chassis: str, username: str, port_str1: str, port_str2: st
         eth = headers.Ethernet()
         eth.dst_mac = "0001.0100.0100"
         eth.src_mac = "aaaa.aaaa.aaaa"
-        eth.ethertype = "8100"
+        eth.ethertype = headers.EtherType.VLAN
         vlan = headers.VLAN()
         vlan.id = 100
-        vlan.type = "0800"
+        vlan.type = headers.EtherType.IPv4
         ip = headers.IPV4()
         ip.src = "1.1.1.1"
         ip.dst = "2.2.2.2"

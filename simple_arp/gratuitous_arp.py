@@ -89,7 +89,9 @@ async def gratuitous_arp(chassis: str, username: str, port_str: str, fps: int):
         eth = headers.Ethernet()
         eth.src_mac = "0000.0000.0002"
         eth.dst_mac = "0000.0000.0003"
+        eth.ethertype = headers.EtherType.ARP
         arp = headers.ARP()
+        arp.opcode = headers.ARPOpcode.Request
         arp.sender_mac = eth.src_mac
         arp.sender_ip = "1.1.1.2"
         arp.target_mac = eth.dst_mac

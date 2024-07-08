@@ -433,7 +433,7 @@ async def thor_ppm_anlt_stream(chassis: str, username: str, duration: int, cool_
                     eth = headers.Ethernet()                    
                     eth.dst_mac = dst_mac
                     eth.src_mac = src_mac
-                    eth.ethertype = "0800"
+                    eth.ethertype = headers.EtherType.IPv4
 
                     ip = headers.IPV4()
                     ip.src = src_ip

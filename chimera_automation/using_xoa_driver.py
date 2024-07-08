@@ -386,7 +386,7 @@ async def chimera_using_xoa_driver_func(chassis: str, username: str, port_str: s
 
         # Poisson distribution for impairment Drop
         await utils.apply(
-            flow.impairment_distribution.drop_type_config.poison.set(mean=9),
+            flow.impairment_distribution.drop_type_config.poisson.set(mean=9),
             flow.impairment_distribution.drop_type_config.schedule.set(duration=1, period=1), # repeat pattern
             flow.impairment_distribution.drop_type_config.schedule.set(duration=0, period=0), #continuous
         )
@@ -574,7 +574,7 @@ async def chimera_using_xoa_driver_func(chassis: str, username: str, port_str: s
 
         # Poisson distribution for impairment Duplication
         await utils.apply(
-            flow.impairment_distribution.duplication_type_config.poison.set(mean=9),
+            flow.impairment_distribution.duplication_type_config.poisson.set(mean=9),
             flow.impairment_distribution.duplication_type_config.schedule.set(duration=1, period=1), # repeat pattern
             flow.impairment_distribution.duplication_type_config.schedule.set(duration=0, period=0), #continuous
         )
@@ -667,7 +667,7 @@ async def chimera_using_xoa_driver_func(chassis: str, username: str, port_str: s
 
         # Poisson distribution for impairment Corruption
         await utils.apply(
-            flow.impairment_distribution.corruption_type_config.poison.set(mean=9),
+            flow.impairment_distribution.corruption_type_config.poisson.set(mean=9),
             flow.impairment_distribution.corruption_type_config.schedule.set(duration=1, period=1), # repeat pattern
             flow.impairment_distribution.corruption_type_config.schedule.set(duration=0, period=0), #continuous
         )

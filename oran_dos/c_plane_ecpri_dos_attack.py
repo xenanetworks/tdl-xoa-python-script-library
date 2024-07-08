@@ -89,7 +89,7 @@ async def c_plane_ecpri_dos(chassis_ip: str, port_str: str, username: str, xpc_m
             eth = headers.Ethernet()
             eth.dst_mac = "0080.1600.0000"
             eth.src_mac = "0030.051d.1e27"
-            eth.ethertype = "AEFE"
+            eth.ethertype = headers.EtherType.eCPRI
 
             ecpri = headers.eCPRIGeneralDataTransfer()
             
