@@ -7,8 +7,8 @@ This example demonstrates how to run RFC 2544/2889/3918 tests using XOA RFC test
 ```run_gui_config.py``` script does the following:
 
 1. Add tester into framework resource inventory and connect to it
-2. Convert the GUI config file (```rfc2544.v2544```) into XOA json config file (```rfc2544.json```)
-3. Run the test configuration file ```rfc2544.json```
+2. Convert the GUI config file (```demo.x2544``` or ```demo.v2544```) into XOA json config file (```demo.json```)
+3. Run the test configuration file ```demo.json```
 4. Subscribe to result
 5. Write final results into csv
 
@@ -16,6 +16,6 @@ This example demonstrates how to run RFC 2544/2889/3918 tests using XOA RFC test
 ```run_xoa_json.py``` script does the following:
 
 1. Add tester into framework resource inventory and connect to it
-2. Run the test configuration file ```rfc2544.json```
+2. Run the test configuration file ```demo.json```
 3. Subscribe to result
 4. Write final results into csv
