@@ -3,8 +3,8 @@
     "EntityList": [
       {
         "PortRef": {
-          "ChassisId": "ee0f129a-5552-4729-84db-53ff1bf0d7ea",
-          "ModuleIndex": 2,
+          "ChassisId": "ce8512c8-48cc-4e6d-a4dd-a637b5a40b6d",
+          "ModuleIndex": 0,
           "PortIndex": 4
         },
         "PortGroup": "UNDEFINED",
@@ -42,15 +42,15 @@
         "PortRateCapProfile": "Physical Port Rate",
         "PortRateCapUnit": "Mbps",
         "MultiStreamMap": null,
-        "ItemID": "654ad540-7d38-414a-ad77-bde35dd4ffb5",
+        "ItemID": "60521c34-188f-4a02-bb82-614f1fc2b871",
         "ParentID": "",
         "Label": ""
       },
       {
         "PortRef": {
-          "ChassisId": "ee0f129a-5552-4729-84db-53ff1bf0d7ea",
-          "ModuleIndex": 3,
-          "PortIndex": 4
+          "ChassisId": "ce8512c8-48cc-4e6d-a4dd-a637b5a40b6d",
+          "ModuleIndex": 0,
+          "PortIndex": 5
         },
         "PortGroup": "UNDEFINED",
         "PairPeerRef": null,
@@ -87,7 +87,7 @@
         "PortRateCapProfile": "Physical Port Rate",
         "PortRateCapUnit": "Mbps",
         "MultiStreamMap": null,
-        "ItemID": "b62ac583-d347-4920-8ec7-dd0f3c3c4ab7",
+        "ItemID": "c88cdf25-1830-4616-949c-f08b6b000064",
         "ParentID": "",
         "Label": ""
       }
@@ -97,11 +97,11 @@
     "StreamConnectionList": [
       {
         "ConnectionId": 0,
-        "Port1Id": "654ad540-7d38-414a-ad77-bde35dd4ffb5",
-        "Port2Id": "b62ac583-d347-4920-8ec7-dd0f3c3c4ab7",
+        "Port1Id": "60521c34-188f-4a02-bb82-614f1fc2b871",
+        "Port2Id": "c88cdf25-1830-4616-949c-f08b6b000064",
         "AddressOffset1": 2,
         "AddressOffset2": 3,
-        "ItemID": "71f7248c-2b5b-4478-ba0f-aaf8e2bba54b",
+        "ItemID": "338d1cbe-3034-45ff-bcd7-3692bd14fc2e",
         "ParentID": "",
         "Label": ""
       }
@@ -109,8 +109,8 @@
   },
   "StreamProfileHandler": {
     "ProfileAssignmentMap": {
-      "guid_654ad540-7d38-414a-ad77-bde35dd4ffb5": "11d8777d-628d-49ee-abdf-38cea6168f82",
-      "guid_b62ac583-d347-4920-8ec7-dd0f3c3c4ab7": "11d8777d-628d-49ee-abdf-38cea6168f82"
+      "guid_60521c34-188f-4a02-bb82-614f1fc2b871": "fae86ed0-bea0-4aa7-9e96-4ffd26f4d1da",
+      "guid_c88cdf25-1830-4616-949c-f08b6b000064": "fae86ed0-bea0-4aa7-9e96-4ffd26f4d1da"
     },
     "EntityList": [
       {
@@ -134,7 +134,7 @@
             {
               "SegmentType": "ETHERNET",
               "SegmentValue": "AAAAAAAAAAAAAAAA//8=",
-              "ItemID": "1bf542c4-8007-4b8a-a7e8-997dc2d51b75",
+              "ItemID": "6087450c-d50e-49d2-b895-3d2aa0026db5",
               "ParentID": "",
               "Label": ""
             }
@@ -149,7 +149,7 @@
           "ResourceUsed": false,
           "ChildResourceUsed": false
         },
-        "ItemID": "11d8777d-628d-49ee-abdf-38cea6168f82",
+        "ItemID": "fae86ed0-bea0-4aa7-9e96-4ffd26f4d1da",
         "ParentID": "",
         "Label": ""
       },
@@ -174,14 +174,14 @@
             {
               "SegmentType": "ETHERNET",
               "SegmentValue": "AAAAAAAAAAAAAAAAgQA=",
-              "ItemID": "8ae66c98-243f-4a5d-8fa3-4187f939ec1c",
+              "ItemID": "99852b70-b0e0-4116-8f4c-645ec994e9f1",
               "ParentID": "",
               "Label": ""
             },
             {
               "SegmentType": "VLAN",
               "SegmentValue": "AAD//w==",
-              "ItemID": "bac92295-33b7-45cd-abb3-0ce8f80053f4",
+              "ItemID": "6db19b94-6ce9-45b8-b061-06d76670f322",
               "ParentID": "",
               "Label": ""
             }
@@ -196,7 +196,7 @@
           "ResourceUsed": false,
           "ChildResourceUsed": false
         },
-        "ItemID": "d61e6291-e695-486e-b2fe-6461de667d3e",
+        "ItemID": "ab7eba0d-3c59-44fe-b3cc-3f85b7a01bce",
         "ParentID": "",
         "Label": ""
       },
@@ -221,21 +221,21 @@
             {
               "SegmentType": "ETHERNET",
               "SegmentValue": "AAAAAAAAAAAAAAAAkQA=",
-              "ItemID": "51b85eb7-a95d-41be-9104-c35b85e74dec",
+              "ItemID": "2a887a40-5619-4ef6-9273-a101609e3a2e",
               "ParentID": "",
               "Label": ""
             },
             {
               "SegmentType": "VLAN",
               "SegmentValue": "AACBAA==",
-              "ItemID": "4f34f919-6836-4a6b-88cd-dc92e406a74d",
+              "ItemID": "3b01e524-ad96-4366-aea1-9b85b50344c8",
               "ParentID": "",
               "Label": ""
             },
             {
               "SegmentType": "VLAN",
               "SegmentValue": "AAD//w==",
-              "ItemID": "c96cf834-4b3b-4909-bf92-6dadabbec24a",
+              "ItemID": "0ec09b39-aa24-40b6-9c01-799458743ce8",
               "ParentID": "",
               "Label": ""
             }
@@ -250,7 +250,7 @@
           "ResourceUsed": false,
           "ChildResourceUsed": false
         },
-        "ItemID": "e15bbc78-99d8-4e49-bd84-b733c327b30e",
+        "ItemID": "6cd6d284-69fb-46db-a658-60098dc33b7d",
         "ParentID": "",
         "Label": ""
       },
@@ -275,14 +275,14 @@
             {
               "SegmentType": "ETHERNET",
               "SegmentValue": "AAAAAAAAAAAAAAAACAA=",
-              "ItemID": "1089654b-39f1-4891-a4c4-f0a53bd1af6f",
+              "ItemID": "af5823aa-a9a8-4db6-a4bf-e6845c1b3b9f",
               "ParentID": "",
               "Label": ""
             },
             {
               "SegmentType": "IP",
               "SegmentValue": "RQAAFAAAAAB//wAAAAAAAAAAAAA=",
-              "ItemID": "41daef8a-1ef2-4798-a2f9-67ac26d64f0b",
+              "ItemID": "5b941a84-c3d7-4578-bfc0-84ed3328f9fb",
               "ParentID": "",
               "Label": ""
             }
@@ -297,7 +297,7 @@
           "ResourceUsed": false,
           "ChildResourceUsed": false
         },
-        "ItemID": "bdb97f2c-8c18-4f78-8bcc-5a009b59f2f4",
+        "ItemID": "4a3ab5b4-9e50-412b-9fb2-8e4fbfcd6e5a",
         "ParentID": "",
         "Label": ""
       },
@@ -322,21 +322,21 @@
             {
               "SegmentType": "ETHERNET",
               "SegmentValue": "AAAAAAAAAAAAAAAACAA=",
-              "ItemID": "31d16f3a-fde2-4d8b-873d-0dd5da5cd522",
+              "ItemID": "c90328aa-042a-42fa-afe3-bbe176224dfe",
               "ParentID": "",
               "Label": ""
             },
             {
               "SegmentType": "IP",
               "SegmentValue": "RQAAFAAAAAB/EQAAAAAAAAAAAAA=",
-              "ItemID": "ff90f8a7-95b7-412b-8e9a-b038b1844db0",
+              "ItemID": "d0169d7e-f523-4f1c-ba21-6f36d2f82f10",
               "ParentID": "",
               "Label": ""
             },
             {
               "SegmentType": "UDP",
               "SegmentValue": "AAAAAAAAAAA=",
-              "ItemID": "96145716-e4ef-476e-9f6c-3e7638c1842f",
+              "ItemID": "303d9f70-c907-4bd4-baf3-3ecffb9896bc",
               "ParentID": "",
               "Label": ""
             }
@@ -351,7 +351,7 @@
           "ResourceUsed": false,
           "ChildResourceUsed": false
         },
-        "ItemID": "7ca9fad5-b4b9-4454-9678-fd393d2db003",
+        "ItemID": "347b59d4-3cce-4af3-a407-7d574b1ce92e",
         "ParentID": "",
         "Label": ""
       },
@@ -376,14 +376,14 @@
             {
               "SegmentType": "ETHERNET",
               "SegmentValue": "AAAAAAAAAAAAAAAAht0=",
-              "ItemID": "daf0bf37-106a-42fd-959c-aab850f4d544",
+              "ItemID": "1ba92aa7-6b5f-4b9a-a96e-5a019187fdc7",
               "ParentID": "",
               "Label": ""
             },
             {
               "SegmentType": "IPv6",
               "SegmentValue": "YAAAAAAAO/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "ItemID": "8173b710-cd30-47dd-9bf7-f9cc39e121c2",
+              "ItemID": "582ca6ff-0c1c-4e7f-a66d-f8a9d5eee6c9",
               "ParentID": "",
               "Label": ""
             }
@@ -398,7 +398,7 @@
           "ResourceUsed": false,
           "ChildResourceUsed": false
         },
-        "ItemID": "9daa54cd-8f71-443f-9ded-f780d60251fd",
+        "ItemID": "03e3cf90-70bb-47ef-b483-a514a1097220",
         "ParentID": "",
         "Label": ""
       }
@@ -407,7 +407,7 @@
   "TestOptions": {
     "TestTypeOptionMap": {
       "Throughput": {
-        "$type": "XenaCommon.TestConfig.Valkyrie2544.TestTypeOptions.ThroughputTestOptions, Valkyrie2544",
+        "$type": "XenaCommon.TestConfig.Valkyrie2544.TestTypeOptions.ThroughputTestOptions, Xena2544",
         "RateIterationOptions": {
           "SearchType": "BinarySearch",
           "AcceptableLoss": 0.0,
@@ -424,19 +424,19 @@
         "TestType": "Throughput",
         "Enabled": true,
         "DurationType": "Seconds",
-        "Duration": 1.0,
+        "Duration": 10.0,
         "DurationTimeUnit": "Seconds",
         "DurationFrames": 1,
         "DurationFrameUnit": "Mframes",
         "Iterations": 1,
-        "ItemID": "7e9724e3-950b-49d7-a3af-f41adda140f4",
+        "ItemID": "f13729c2-cbcf-4be8-a673-82e006f3df5e",
         "ParentID": "",
         "Label": ""
       },
       "Latency": {
-        "$type": "XenaCommon.TestConfig.Valkyrie2544.TestTypeOptions.LatencyTestOptions, Valkyrie2544",
+        "$type": "XenaCommon.TestConfig.Valkyrie2544.TestTypeOptions.LatencyTestOptions, Xena2544",
         "RateSweepOptions": {
-          "StartValue": 50.0,
+          "StartValue": 100.0,
           "EndValue": 100.0,
           "StepValue": 50.0
         },
@@ -445,19 +445,19 @@
         "TestType": "Latency",
         "Enabled": true,
         "DurationType": "Seconds",
-        "Duration": 1.0,
+        "Duration": 10.0,
         "DurationTimeUnit": "Seconds",
         "DurationFrames": 1,
         "DurationFrameUnit": "Mframes",
         "Iterations": 1,
-        "ItemID": "c1eeeba3-94d1-4df8-96d4-7453cc86a703",
+        "ItemID": "7cfb608a-3f2b-4d65-9a59-29cad9824ce9",
         "ParentID": "",
         "Label": ""
       },
       "Loss": {
-        "$type": "XenaCommon.TestConfig.Valkyrie2544.TestTypeOptions.LossTestOptions, Valkyrie2544",
+        "$type": "XenaCommon.TestConfig.Valkyrie2544.TestTypeOptions.LossTestOptions, Xena2544",
         "RateSweepOptions": {
-          "StartValue": 50.0,
+          "StartValue": 100.0,
           "EndValue": 100.0,
           "StepValue": 50.0
         },
@@ -471,19 +471,19 @@
         "TestType": "Loss",
         "Enabled": true,
         "DurationType": "Seconds",
-        "Duration": 1.0,
+        "Duration": 10.0,
         "DurationTimeUnit": "Seconds",
         "DurationFrames": 1,
         "DurationFrameUnit": "Mframes",
         "Iterations": 1,
-        "ItemID": "8c198094-9011-42ab-89e2-e9caea9990bd",
+        "ItemID": "eacee3cf-f356-4a43-bd79-2440396ef66b",
         "ParentID": "",
         "Label": ""
       },
       "Back2Back": {
-        "$type": "XenaCommon.TestConfig.Valkyrie2544.TestTypeOptions.Back2BackTestOptions, Valkyrie2544",
+        "$type": "XenaCommon.TestConfig.Valkyrie2544.TestTypeOptions.Back2BackTestOptions, Xena2544",
         "RateSweepOptions": {
-          "StartValue": 50.0,
+          "StartValue": 100.0,
           "EndValue": 100.0,
           "StepValue": 50.0
         },
@@ -491,13 +491,13 @@
         "BurstResolution": 100.0,
         "TestType": "Back2Back",
         "Enabled": true,
-        "DurationType": "Seconds",
+        "DurationType": "Frames",
         "Duration": 1.0,
         "DurationTimeUnit": "Seconds",
         "DurationFrames": 1,
         "DurationFrameUnit": "Mframes",
         "Iterations": 1,
-        "ItemID": "a24c4546-ee6d-48d1-89ca-7891b6db6471",
+        "ItemID": "a25ce965-68ae-40e9-94ad-81e3cb8348f5",
         "ParentID": "",
         "Label": ""
       }
@@ -575,11 +575,11 @@
     "PortReset": true,
     "OuterLoopMode": "PacketSize"
   },
-  "CreationDate": "2024-01-17 09:50:55Z",
+  "CreationDate": "2024-07-16 09:40:19Z",
   "ChassisManager": {
     "ChassisList": [
       {
-        "ChassisID": "ee0f129a-5552-4729-84db-53ff1bf0d7ea",
+        "ChassisID": "ce8512c8-48cc-4e6d-a4dd-a637b5a40b6d",
         "HostName": "10.165.136.70",
         "PortNumber": 22606,
         "Password": "xena",
@@ -592,7 +592,7 @@
     ]
   },
   "ReportConfig": {
-    "CustomerName": "Xena Networks",
+    "CustomerName": "Teledyne LeCroy",
     "CustomerServiceID": "",
     "CustomerAccessID": "",
     "Comments": "",
@@ -610,10 +610,10 @@
     "SaveIntermediateResults": false,
     "AddPreciseTimestampForEachLine": false,
     "IntermediateResultsUseReportNamePrefix": false,
-    "ReportFilename": "valkyrie2544-Report",
+    "ReportFilename": "xena2544-Report",
     "AppendTimestamp": true
   },
   "TidAllocationScope": "ConfigScope",
   "FormatVersion": 10,
-  "ApplicationVersion": "2.90.8712.16099"
+  "ApplicationVersion": "2.91.8938.25264"
 }

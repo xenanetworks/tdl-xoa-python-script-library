@@ -19,11 +19,11 @@ except ImportError:
 
 PROJECT_PATH = Path(__file__).parent
 PLUGINS_PATH = PROJECT_PATH / "rfc_lib"
-XENA2544_CONFIG = PROJECT_PATH / "demo.v2544"
+XENA2544_CONFIG = PROJECT_PATH / "demo.x2544"
 XOA2544_CONFIG = PROJECT_PATH / "demo.json"
 DATA_FILE = PROJECT_PATH / "data_file.csv"
 
-CHASSIS_IP = "demo.xenanetworks.com"
+CHASSIS_IP = "10.165.136.70"
 
 def normalize_json(data: dict) -> dict: 
 
