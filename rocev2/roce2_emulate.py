@@ -619,7 +619,7 @@ async def rocev2_ud_send(chassis: str, username: str, port_str: str, frame_size:
 
 
 async def main():
-    stop_event =asyncio.Event()
+    stop_event = asyncio.Event()
     try:
         await rocev2_rc_send(
             chassis=CHASSIS_IP,
@@ -641,25 +641,25 @@ async def main():
             dst_ipv6=DST_IPV6,
             dst_qp=4
         )
-        await rocev2_ud_send(
-            chassis=CHASSIS_IP,
-            username=USERNAME,
-            port_str=PORT,
-            frame_size=FRAME_SIZE_BYTES,
-            frame_count=FRAME_COUNT,
-            repetitions=REPETITION,
-            traffic_rate=TRAFFIC_RATE_PERCENT,
-            should_burst=SHOULD_BURST,
-            burst_size=BURST_SIZE_FRAMES,
-            src_mac=SRC_MAC,
-            dst_mac=DST_MAC,
-            src_ipv4=SRC_IPV4,
-            dst_ipv4=DST_IPV4,
-            src_ipv6=SRC_IPV6,
-            dst_ipv6=DST_IPV6,
-            dst_qp=4,
-            src_qp=1
-        )
+        # await rocev2_ud_send(
+        #     chassis=CHASSIS_IP,
+        #     username=USERNAME,
+        #     port_str=PORT,
+        #     frame_size=FRAME_SIZE_BYTES,
+        #     frame_count=FRAME_COUNT,
+        #     repetitions=REPETITION,
+        #     traffic_rate=TRAFFIC_RATE_PERCENT,
+        #     should_burst=SHOULD_BURST,
+        #     burst_size=BURST_SIZE_FRAMES,
+        #     src_mac=SRC_MAC,
+        #     dst_mac=DST_MAC,
+        #     src_ipv4=SRC_IPV4,
+        #     dst_ipv4=DST_IPV4,
+        #     src_ipv6=SRC_IPV6,
+        #     dst_ipv6=DST_IPV6,
+        #     dst_qp=4,
+        #     src_qp=1
+        # )
     except KeyboardInterrupt:
         stop_event.set()
 
