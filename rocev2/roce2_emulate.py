@@ -4,6 +4,9 @@
 #
 # This script shows you how to simulate a RoCEv2 flow
 # between two test ports.
+# 
+# rocev2_rc_send emulates RoCEv2 RC SEND
+# rocev2_ud_send emulates RoCEv2 UD SEND
 #
 ################################################################
 import asyncio
