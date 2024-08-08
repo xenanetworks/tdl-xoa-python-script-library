@@ -503,6 +503,9 @@ async def rocev2_rc_send(chassis: str, username: str, port_str: str, frame_size:
             await stream_2.burst.burstiness.set(size=1, density=100)
             await stream_2.burst.gap.set(inter_packet_gap=0, inter_burst_gap=0)
 
+        # free the port
+        await mgmt.free_port(port_obj)
+
 
 
 #------------------------------
@@ -618,6 +621,9 @@ async def rocev2_ud_send(chassis: str, username: str, port_str: str, frame_size:
         modifier = stream_0.packet.header.modifiers.obtain(0)
         await modifier.specification.set(position=72, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
         await modifier.range.set(min_val=0, step=1, max_val=frame_count-1)
+
+        # free the port
+        await mgmt.free_port(port_obj)
 
 
 
