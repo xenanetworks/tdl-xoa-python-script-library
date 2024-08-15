@@ -3,10 +3,12 @@
 #                   ROCEV2 EMULATION
 #
 # This script shows you how to simulate a RoCEv2 flow
-# between two test ports.
+# on a port.
 # 
-# rocev2_rc_send emulates RoCEv2 RC SEND
-# rocev2_ud_send emulates RoCEv2 UD SEND
+# ipv6_rocev2_rc_send() emulates RoCEv2 RC SEND (IPv6)
+# ipv6_rocev2_ud_send() emulates RoCEv2 UD SEND (IPv6)
+# ipv4_rocev2_rc_send() emulates RoCEv2 RC SEND (IPv4)
+# ipv4_rocev2_ud_send() emulates RoCEv2 UD SEND (IPv4)
 #
 ################################################################
 import asyncio
@@ -21,323 +23,90 @@ from ipaddress import IPv4Address, IPv6Address
 from xoa_driver.misc import Hex
 from xoa_driver.hlfuncs import mgmt, headers
 import logging
+from headers import *
 
 #---------------------------
 # Global parameters
 #---------------------------
 
-CHASSIS_IP = "10.165.136.60"      # Chassis IP address or hostname
-USERNAME = "XOA"                # Username
-PORT = "3/0"
+CHASSIS_IP = "10.165.136.66"       # Chassis IP address or hostname
+USERNAME = "XOA"                    # Username
+PORT = "0/0"
 
-FRAME_SIZE_BYTES = 4178         # Frame size on wire including the FCS.
-FRAME_COUNT = 8                 # The number of frames including the first, the middle, and the last.
-REPETITION = 1                  # The number of repetitions of the frame sequence, set to 0 if you want the port to repeat over and over
-TRAFFIC_RATE_FPS = 100          # Traffic rate in frames per second
-TRAFFIC_RATE_PERCENT = 0.4
+FRAME_SIZE_BYTES = 4500             # Frame size on wire including the FCS.
+FRAMES_PER_ROCEV2_FLOW = 20        # The number of frames including the first, the middle, and the last.
+FLOW_REPEAT = 0                     # The number of repetitions of the frame sequence, set to 0 if you want the port to repeat over and over
+RATE_FPS = 100                      # Traffic rate in frames per second
+RATE_PERCENT = 0.4                  # Traffic rate in percent
 
 SHOULD_BURST = False            # Whether the middle frames should be bursty
 BURST_SIZE_FRAMES = 9           # Burst size in frames for the middle frames
 INTER_BURST_GAP_BYTES = 3000    # The inter-burst gap in bytes
-INTRA_BURST_GAP_BYTES = 1000    # The inter-frame gap within a burst, aka. intra-burst gap, in bytes
+INTER_PACKET_GAP = 1000         # The inter-frame gap within a burst, aka. intra-burst gap, in bytes
 
 SRC_MAC = "aaaa.0a0a.0a0a"
 DST_MAC = "aaaa.0a0a.0a14"
+
 SRC_IPV4 = "10.10.10.10"
 DST_IPV4 = "10.10.10.20"
+
 SRC_IPV6 = "2000::10"
 DST_IPV6 = "2000::20"
 
-from enum import Enum
-class IB:
-    def __init__(self):
-        self.bth = self.BTH()
-        self.reth = self.RETH()
-        self.aeth = self.AETH()
-        self.rdeth = self.RDETH()
-        self.deth = self.DETH()
+RC_SEND_DST_QP = 5
 
-    def __str__(self):
-        if self.bth.opcode == self.BTHOpcode.RC_SEND_FIRST or self.bth.opcode == self.BTHOpcode.RC_SEND_MIDDLE or self.bth.opcode == self.BTHOpcode.RC_SEND_LAST:
-            return str(self.bth)
-        if self.bth.opcode == self.BTHOpcode.RC_RDMA_WRITE_FIRST:
-            return str(self.bth)+str(self.reth)
-        if self.bth.opcode == self.BTHOpcode.RC_RDMA_WRITE_MIDDLE or self.bth.opcode == self.BTHOpcode.RC_RDMA_WRITE_LAST:
-            return str(self.bth)
-        if self.bth.opcode == self.BTHOpcode.RC_RDMA_READ_RESPONSE_FIRST or self.bth.opcode == self.BTHOpcode.RC_RDMA_READ_RESPONSE_LAST:
-            return str(self.bth)+str(self.aeth)
-        if self.bth.opcode == self.BTHOpcode.RC_RDMA_READ_RESPONSE_MIDDLE:
-            return str(self.bth)
-        if self.bth.opcode == self.BTHOpcode.RD_SEND_FIRST or self.bth.opcode == self.BTHOpcode.RD_SEND_MIDDLE or self.bth.opcode == self.BTHOpcode.RD_SEND_LAST:
-            return str(self.bth)+str(self.rdeth)+str(self.deth)
-        if self.bth.opcode == self.BTHOpcode.RD_RDMA_WRITE_FIRST:
-            return str(self.bth)+str(self.rdeth)+str(self.deth)+str(self.reth)
-        if self.bth.opcode == self.BTHOpcode.RD_RDMA_WRITE_MIDDLE or self.bth.opcode == self.BTHOpcode.RD_RDMA_WRITE_LAST:
-            return str(self.bth)+str(self.rdeth)+str(self.deth)
-        if self.bth.opcode == self.BTHOpcode.RD_RDMA_READ_RESPONSE_FIRST or self.bth.opcode == self.BTHOpcode.RD_RDMA_READ_RESPONSE_LAST:
-            return str(self.bth)+str(self.rdeth)+str(self.aeth)
-        if self.bth.opcode == self.BTHOpcode.RD_RDMA_READ_RESPONSE_MIDDLE:
-            return str(self.bth)+str(self.rdeth)
-        if self.bth.opcode == self.BTHOpcode.UD_SEND_ONLY:
-            return str(self.bth)+str(self.deth)
+UD_SEND_SRC_QP = 10
+UD_SEND_DST_QP = 11
+UD_SEND_Q_KEY = 1234
 
-    class BTH:
-        """BASE TRANSPORT HEADER (BTH) - 12 BYTES
-        
-        Base Transport Header contains the fields for IBA transports.
-        """
-        def __init__(self):
-            self.opcode: IB.BTHOpcode = IB.BTHOpcode.RC_SEND_FIRST
-            """OpCode indicates the IBA packet type. It also
-            specifies which extension headers follow the BTH
-            """
-            self.se = 0
-            """Solicited Event, this bit indicates that an event
-            should be generated by the responder
-            """
-            self.migreq = 0
-            """This bit is used to communicate migration state
-            """
-            self.padcnt = 1
-            """Pad Count indicates how many extra bytes are added
-            to the payload to align to a 4 byte boundary
-            """
-            self.tver = 0
-            """Transport Header Version indicates the version of
-            the IBA Transport Headers
-            """ 
-            self.pkey = 65535
-            """Partition Key indicates which logical Partition is
-            associated with this packet
-            """
-            self.reserved = 7
-            """Reserved
-            """
-            self.destqp = 2
-            """Destination QP indicates the Work Queue Pair Number
-            (QP) at the destination
-            """
-            self.ackreq = 0
-            """Acknowledge Request, this bit is used to indicate
-            that an acknowledge (for this packet) should be
-            scheduled by the responder
-            """
-            self.reserved_7bits = 0
-            """Reserved
-            """
-            self.psn =0
-            """Packet Sequence Number is used to detect a missing
-            or duplicate Packet
-            """
-
-        def __str__(self):
-            _opcode = '{:02X}'.format(self.opcode.value)
-            _combo_1 = '{:02X}'.format((self.se<<7)+(self.migreq<<6)+(self.padcnt<<4)+self.tver)
-            _pk = '{:04X}'.format(self.pkey)
-            _reserved = '{:02X}'.format(self.reserved)
-            _qp = '{:06X}'.format(self.destqp)
-            _combo_2 = '{:02X}'.format((self.ackreq<<7)+self.reserved_7bits)
-            _ps = '{:06X}'.format(self.psn)
-            return f"{_opcode}{_combo_1}{_pk}{_reserved}{_qp}{_combo_2}{_ps}".upper()
-    
-    class RETH:
-        """RDMA EXTENDED TRANSPORT HEADER (RETH) - 16 BYTES
-
-        RDMA Extended Transport Header contains the additional transport fields
-        for RDMA operations. The RETH is present in only the first (or only)
-        packet of an RDMA Request as indicated by the Base Transport Header
-        OpCode field.
-        """
-        def __init__(self):
-            self.va = 0
-            """Virtual Address of the RDMA operation
-            """
-            self.r_key = 0
-            """Remote Key that authorizes access for the RDMA operation
-            """
-            self.dma_len = 0
-            """DMA Length indicates the length (in Bytes) of the DMA operation.
-            """
-
-        def __str__(self):
-            _va = '{:016X}'.format(self.va)
-            _r_key = '{:08X}'.format(self.r_key)
-            _dma_len = '{:08X}'.format(self.dma_len)
-            return f"{_va}{_r_key}{_dma_len}".upper()
-        
-    class AETH:
-        """ACK EXTENDED TRANSPORT HEADER (AETH) - 4 BYTES
-
-        ACK Extended Transport Header contains the additional transport fields
-        for ACK packets. The AETH is only in Acknowledge, RDMA READ Response
-        First, RDMA READ Response Last, and RDMA READ Response Only packets
-        as indicated by the Base Transport Header OpCode field.
-        """
-        def __init__(self):
-            self.syndrome = 0
-            """Syndrome indicates if this is an ACK or NAK
-            packet plus additional information about the
-            ACK or NAK
-            """
-            self.msn = 0
-            """Message Sequence Number indicates the sequence
-            number of the last message completed at the
-            responder
-            """
-
-        def __str__(self):
-            _syndrome = '{:02X}'.format(self.syndrome)
-            _msn = '{:06X}'.format(self.msn)
-            return f"{_syndrome}{_msn}".upper()
-        
-    class RDETH:
-        """RELIABLE DATAGRAM EXTENDED TRANSPORT HEADER (RDETH) - 4 BYTES
-
-        Reliable Datagram Extended Transport Header contains the additional
-        transport fields for reliable datagram service. The RDETH is only
-        in Reliable Datagram packets as indicated by the Base Transport Header
-        OpCode field.
-        """
-        def __init__(self):
-            self.reserved = 0
-            """Reserved
-            """
-            self.ee_context = 0
-            """EE-Context indicates which End-to-End Context
-            should be used for this Reliable Datagram packet
-            """
-
-        def __str__(self):
-            _reserved = '{:02X}'.format(self.reserved)
-            _ee_context = '{:06X}'.format(self.ee_context)
-            return f"{_reserved}{_ee_context}".upper()
-        
-    class DETH:
-        """DATAGRAM EXTENDED TRANSPORT HEADER (DETH) - 8 BYTES
-
-        Datagram Extended Transport Header contains the additional transport
-        fields for datagram service. The DETH is only in datagram packets if
-        indicated by the Base Transport Header OpCode field.
-        """
-        def __init__(self):
-            self.q_key = 0
-            """Queue Key is required to authorize access to the receive queue
-            """
-            self.reserved = 0
-            """Reserved
-            """
-            self.src_qp = 0
-            """Source QP indicates the Work Queue Pair Number (QP) at the source.
-            """
-
-        def __str__(self):
-            _q_key = '{:08X}'.format(self.q_key)
-            _reserved = '{:02X}'.format(self.reserved)
-            _src_qp = '{:06X}'.format(self.src_qp)
-            return f"{_q_key}{_reserved}{_src_qp}".upper()
-
-    class BTHOpcode(Enum):
-        # OpCodeValues
-        # Code Bits [7-5] Connection Type
-        #           [4-0] Message Type
-
-        # Reliable Connection (RC)
-        # [7-5] = 000
-        RC_SEND_FIRST                  = 0 # /*0x00000000 */ "RC Send First " 
-        RC_SEND_MIDDLE                 = 1 # /*0x00000001 */ "RC Send Middle "
-        RC_SEND_LAST                   = 2 # /*0x00000010 */ "RC Send Last " 
-        RC_SEND_LAST_IMM               = 3 # /*0x00000011 */ "RC Send Last Immediate "
-        RC_SEND_ONLY                   = 4 # /*0x00000100 */ "RC Send Only "
-        RC_SEND_ONLY_IMM               = 5 # /*0x00000101 */ "RC Send Only Immediate "
-        RC_RDMA_WRITE_FIRST            = 6 # /*0x00000110 */ "RC RDMA Write First " 
-        RC_RDMA_WRITE_MIDDLE           = 7 # /*0x00000111 */ "RC RDMA Write Middle "
-        RC_RDMA_WRITE_LAST             = 8 # /*0x00001000 */ "RC RDMA Write Last "
-        RC_RDMA_WRITE_LAST_IMM         = 9 # /*0x00001001 */ "RC RDMA Write Last Immediate "
-        RC_RDMA_WRITE_ONLY             = 10 # /*0x00001010 */ "RC RDMA Write Only " 
-        RC_RDMA_WRITE_ONLY_IMM         = 11 # /*0x00001011 */ "RC RDMA Write Only Immediate " 
-        RC_RDMA_READ_REQUEST           = 12 # /*0x00001100 */ "RC RDMA Read Request " 
-        RC_RDMA_READ_RESPONSE_FIRST    = 13 # /*0x00001101 */ "RC RDMA Read Response First " 
-        RC_RDMA_READ_RESPONSE_MIDDLE   = 14 # /*0x00001110 */ "RC RDMA Read Response Middle " 
-        RC_RDMA_READ_RESPONSE_LAST     = 15 # /*0x00001111 */ "RC RDMA Read Response Last " 
-        RC_RDMA_READ_RESPONSE_ONLY     = 16 # /*0x00010000 */ "RC RDMA Read Response Only " 
-        RC_ACKNOWLEDGE                 = 17 # /*0x00010001 */ "RC Acknowledge " 
-        RC_ATOMIC_ACKNOWLEDGE          = 18 # /*0x00010010 */ "RC Atomic Acknowledge "
-        RC_CMP_SWAP                    = 19 # /*0x00010011 */ "RC Compare Swap " 
-        RC_FETCH_ADD                   = 20 # /*0x00010100 */ "RC Fetch Add "
-        RC_SEND_LAST_INVAL             = 22 # /*0x00010110 */ "RC Send Last Invalidate "
-        RC_SEND_ONLY_INVAL             = 23 # /*0x00010111 */ "RC Send Only Invalidate "
-
-        # Reliable Datagram (RD)
-        # [7-5] = 010
-        RD_SEND_FIRST                  = 64 # /*0x01000000 */ "RD Send First "
-        RD_SEND_MIDDLE                 = 65 # /*0x01000001 */ "RD Send Middle "
-        RD_SEND_LAST                   = 66 # /*0x01000010 */ "RD Send Last "
-        RD_SEND_LAST_IMM               = 67 # /*0x01000011 */ "RD Send Last Immediate "
-        RD_SEND_ONLY                   = 68 # /*0x01000100 */ "RD Send Only "
-        RD_SEND_ONLY_IMM               = 69 # /*0x01000101 */ "RD Send Only Immediate "
-        RD_RDMA_WRITE_FIRST            = 70 # /*0x01000110 */ "RD RDMA Write First "
-        RD_RDMA_WRITE_MIDDLE           = 71 # /*0x01000111 */ "RD RDMA Write Middle "
-        RD_RDMA_WRITE_LAST             = 72 # /*0x01001000 */ "RD RDMA Write Last "
-        RD_RDMA_WRITE_LAST_IMM         = 73 # /*0x01001001 */ "RD RDMA Write Last Immediate "
-        RD_RDMA_WRITE_ONLY             = 74 # /*0x01001010 */ "RD RDMA Write Only "
-        RD_RDMA_WRITE_ONLY_IMM         = 75 # /*0x01001011 */ "RD RDMA Write Only Immediate "
-        RD_RDMA_READ_REQUEST           = 76 # /*0x01001100 */ "RD RDMA Read Request "
-        RD_RDMA_READ_RESPONSE_FIRST    = 77 # /*0x01001101 */ "RD RDMA Read Response First "
-        RD_RDMA_READ_RESPONSE_MIDDLE   = 78 # /*0x01001110 */ "RD RDMA Read Response Middle "
-        RD_RDMA_READ_RESPONSE_LAST     = 79 # /*0x01001111 */ "RD RDMA Read Response Last "
-        RD_RDMA_READ_RESPONSE_ONLY     = 80 # /*0x01010000 */ "RD RDMA Read Response Only "
-        RD_ACKNOWLEDGE                 = 81 # /*0x01010001 */ "RD Acknowledge "
-        RD_ATOMIC_ACKNOWLEDGE          = 82 # /*0x01010010 */ "RD Atomic Acknowledge "
-        RD_CMP_SWAP                    = 83 # /*0x01010011 */ "RD Compare Swap "
-        RD_FETCH_ADD                   = 84 # /*0x01010100 */ "RD Fetch Add "
-        RD_RESYNC                      = 85 # /*0x01010101 */ "RD RESYNC "
-
-        # Unreliable Datagram (UD)
-        # [7-5] = 011
-        UD_SEND_ONLY                  = 100 # /*0x01100100 */ "UD Send Only "
-        UD_SEND_ONLY_IMM              = 101 # /*0x01100101 */ "UD Send Only Immediate "
-
-        # Unreliable Connection (UC)
-        # [7-5] = 001
-        UC_SEND_FIRST                  = 32 # /*0x00100000 */ "UC Send First "
-        UC_SEND_MIDDLE                 = 33 # /*0x00100001 */ "UC Send Middle  "
-        UC_SEND_LAST                   = 34 # /*0x00100010 */ "UC Send Last "
-        UC_SEND_LAST_IMM               = 35 # /*0x00100011 */ "UC Send Last Immediate "
-        UC_SEND_ONLY                   = 36 # /*0x00100100 */ "UC Send Only "
-        UC_SEND_ONLY_IMM               = 37 # /*0x00100101 */ "UC Send Only Immediate "
-        UC_RDMA_WRITE_FIRST            = 38 # /*0x00100110 */ "UC RDMA Write First"
-        UC_RDMA_WRITE_MIDDLE           = 39 # /*0x00100111 */ "UC RDMA Write Middle "
-        UC_RDMA_WRITE_LAST             = 40 # /*0x00101000 */ "UC RDMA Write Last "
-        UC_RDMA_WRITE_LAST_IMM         = 41 # /*0x00101001 */ "UC RDMA Write Last Immediate"
-        UC_RDMA_WRITE_ONLY             = 42 # /*0x00101010 */ "UC RDMA Write Only "
-        UC_RDMA_WRITE_ONLY_IMM         = 43 # /*0x00101011 */ "UC RDMA Write Only Immediate"
-
-
+DELAY_AFTER_RESET = 2
 
 #------------------------------
-# rocev2_rc_send
+# ipv6_rocev2_rc_send
 #------------------------------
-async def rocev2_rc_send(chassis: str, username: str, port_str: str, frame_size: int, frame_count: int, repetitions: int, traffic_rate: float, should_burst: bool, burst_size: int, inter_burst_gap: int, inter_pkt_gap: int, src_mac: str, dst_mac: str, src_ipv4: str, dst_ipv4: str, src_ipv6: str, dst_ipv6: str, dst_qp: int) -> None:
+async def ipv6_rocev2_rc_send(chassis: str, username: str, port_str: str, frame_size: int, frames_per_flow: int, flow_repeat: int, traffic_rate_percent: float, should_burst: bool, burst_size: int, inter_burst_gap: int, inter_pkt_gap: int, src_mac: str, dst_mac: str, src_ipv6: str, dst_ipv6: str, dst_qp: int, delay_after_reset: int) -> None:
 
     # configure basic logger
     logging.basicConfig(
         format="%(asctime)s  %(message)s",
         level=logging.DEBUG,
         handlers=[
-            logging.FileHandler(filename="test.log", mode="a"),
+            logging.FileHandler(filename="ipv6_rocev2_rc_send.log", mode="a"),
             logging.StreamHandler()]
         )
     
     # create tester instance and establish connection
     async with testers.L23Tester(host=chassis, username=username, password="xena", port=22606, enable_logging=False) as tester:
 
+        logging.info(f"#####################################################################")
+        logging.info(f"Chassis:                 {chassis}")
+        logging.info(f"Username:                {username}")
+        logging.info(f"Port:                    {port_str}")
+        logging.info(f"Port Traffic Rate:       {traffic_rate_percent*100}%")
+        logging.info(f"Delay After Reset:       {delay_after_reset} seconds")
+        logging.info(f"RoCEv2 Flow Type:        RC SEND")
+        logging.info(f"Frames Per Flow:         {frames_per_flow}")
+        logging.info(f"Frame Size:              {frame_size} bytes (incl. FCS)")
+        logging.info(f"Flow Repeat:             {flow_repeat}")
+        logging.info(f"Burst Traffic:           {should_burst}")
+        logging.info(f"Burst Size:              {burst_size} frames")
+        logging.info(f"Inter-burst Gap:         {inter_burst_gap} bytes")
+        logging.info(f"Inter-packet Gap:        {inter_pkt_gap} bytes")
+        logging.info(f"RoCEv2 Flow MAC (Src):   {src_mac}")
+        logging.info(f"RoCEv2 Flow MAC (Dst):   {dst_mac}")
+        logging.info(f"RoCEv2 Flow IPv6 (Src):  {src_ipv6}")
+        logging.info(f"RoCEv2 Flow IPv6 (Dst):  {dst_ipv6}")
+        logging.info(f"RoCEv2 QP (Dst):         {dst_qp}")
+        logging.info(f"#####################################################################")
+
         # access the module and port on the tester
         _mid = int(port_str.split("/")[0])
         _pid = int(port_str.split("/")[1])
         module_obj = tester.modules.obtain(_mid)
 
-        # check if the module is of type Loki-100G-5S-2P
+        # check if the module is of type Chimera
         if isinstance(module_obj, modules.E100ChimeraModule):
+            logging.warning(f"Module {_mid} is E100 Chimera module. Abort.")
             return
         
         port_obj = module_obj.ports.obtain(_pid)
@@ -347,15 +116,17 @@ async def rocev2_rc_send(chassis: str, username: str, port_str: str, frame_size:
         await mgmt.reserve_port(port_obj)
         await mgmt.reset_port(port_obj)
 
-        logging.info(f"Configure the port")
+        await asyncio.sleep(delay_after_reset)
+
+        logging.info(f"Configure port {port_str}")
         await utils.apply(
             # txport.speed.mode.selection.set(mode=enums.PortSpeedMode.F100G),
-            port_obj.comment.set(comment="RoCEv2 flow emulation"),
+            port_obj.comment.set(comment="IPv6 RoCEv2 RC SEND"),
             port_obj.tx_config.enable.set_on(),
             port_obj.latency_config.offset.set(offset=0),
             port_obj.latency_config.mode.set(mode=enums.LatencyMode.LAST2LAST),
             port_obj.tx_config.burst_period.set(burst_period=0),
-            port_obj.tx_config.packet_limit.set(packet_count_limit=frame_count*repetitions),
+            port_obj.tx_config.packet_limit.set(packet_count_limit=int(frames_per_flow*flow_repeat)),
             port_obj.max_header_length.set(max_header_length=128),
             port_obj.autotrain.set(interval=0),
             port_obj.loop_back.set_none(), # If you want loopback the port TX to its own RX, change it to set_txoff2rx()
@@ -364,7 +135,7 @@ async def rocev2_rc_send(chassis: str, username: str, port_str: str, frame_size:
             port_obj.tpld_mode.set_normal(),
             port_obj.payload_mode.set_normal(),
             #port_obj.rate.pps.set(port_rate_pps=1_000), # If you want to control traffic rate with FPS, uncomment this.
-            port_obj.rate.fraction.set(int(traffic_rate*1_000_000)),  # If you want to control traffic rate with fraction, uncomment this. 1,000,000 = 100%
+            port_obj.rate.fraction.set(int(traffic_rate_percent*1_000_000)),  # If you want to control traffic rate with fraction, uncomment this. 1,000,000 = 100%
         )
         if should_burst:
             await port_obj.tx_config.mode.set_burst()
@@ -374,17 +145,13 @@ async def rocev2_rc_send(chassis: str, username: str, port_str: str, frame_size:
         #--------------------------------------
         # Configure stream_0 on the txport
         #--------------------------------------
-        logging.info(f"   Configure first-packet stream on the tx port")
+        logging.info(f"   Configure RC SEND FIRST stream on port {port_str}")
 
         stream_0 = await port_obj.streams.create()
         eth = headers.Ethernet()
         eth.src_mac = src_mac
         eth.dst_mac = dst_mac
         eth.ethertype = headers.EtherType.IPv6
-        ipv4 = headers.IPV4()
-        ipv4.src = src_ipv4
-        ipv4.dst = dst_ipv4
-        ipv4.proto = headers.IPProtocol.UDP
         ipv6 = headers.IPV6()
         ipv6.src = src_ipv6
         ipv6.dst = dst_ipv6
@@ -393,7 +160,7 @@ async def rocev2_rc_send(chassis: str, username: str, port_str: str, frame_size:
         udp.src_port = 4791
         udp.dst_port = 4791
         ib = IB()
-        ib.bth.opcode = ib.BTHOpcode.RC_SEND_FIRST
+        ib.bth.opcode = BTHOpcode.RC_SEND_FIRST
         ib.bth.destqp = dst_qp
         ib.bth.psn = 0
         _raw_header = "RAW_"+str(int(len(str(ib))/2))
@@ -401,7 +168,7 @@ async def rocev2_rc_send(chassis: str, username: str, port_str: str, frame_size:
         await utils.apply(
             stream_0.enable.set_on(),
             stream_0.packet.limit.set(packet_count=1),
-            stream_0.comment.set(f"First packet"),
+            stream_0.comment.set(f"IPV6 RC SEND FIRST"),
             stream_0.rate.fraction.set(stream_rate_ppm=10000),
             stream_0.packet.header.protocol.set(segments=[
                 enums.ProtocolOption.ETHERNET,
@@ -415,7 +182,7 @@ async def rocev2_rc_send(chassis: str, username: str, port_str: str, frame_size:
                 payload_type=enums.PayloadType.PATTERN, 
                 hex_data=Hex("AABBCCDD")
                 ),
-            stream_0.tpld_id.set(test_payload_identifier = 0),
+            stream_0.tpld_id.set(test_payload_identifier = stream_0.kind.index_id),
             stream_0.insert_packets_checksum.set_on()
         )
         if should_burst:
@@ -425,19 +192,19 @@ async def rocev2_rc_send(chassis: str, username: str, port_str: str, frame_size:
         #--------------------------------------
         # Configure stream_1 on the txport
         #--------------------------------------
-        logging.info(f"   Configure middle-packets stream on the txport")
+        logging.info(f"   Configure RC SEND MIDDLE stream on port {port_str}")
 
         stream_1 = await port_obj.streams.create()
 
-        ib.bth.opcode = ib.BTHOpcode.RC_SEND_MIDDLE
+        ib.bth.opcode = BTHOpcode.RC_SEND_MIDDLE
         ib.bth.destqp = dst_qp
         ib.bth.psn = 1
         _raw_header = "RAW_"+str(int(len(str(ib))/2))
 
         await utils.apply(
             stream_1.enable.set_on(),
-            stream_1.packet.limit.set(packet_count=frame_count-2),
-            stream_1.comment.set(f"Middle packets"),
+            stream_1.packet.limit.set(packet_count=frames_per_flow-2),
+            stream_1.comment.set(f"IPV6 RC SEND MIDDLE"),
             stream_1.rate.fraction.set(stream_rate_ppm=10000),
             stream_1.packet.header.protocol.set(segments=[
                 enums.ProtocolOption.ETHERNET,
@@ -451,7 +218,7 @@ async def rocev2_rc_send(chassis: str, username: str, port_str: str, frame_size:
                 payload_type=enums.PayloadType.PATTERN, 
                 hex_data=Hex("AABBCCDD")
                 ),
-            stream_1.tpld_id.set(test_payload_identifier = 0),
+            stream_1.tpld_id.set(test_payload_identifier = stream_1.kind.index_id),
             stream_1.insert_packets_checksum.set_on()
         )
         if should_burst:
@@ -463,26 +230,27 @@ async def rocev2_rc_send(chassis: str, username: str, port_str: str, frame_size:
 
         # Modifier on the SQN
         modifier = stream_1.packet.header.modifiers.obtain(0)
-        await modifier.specification.set(position=72, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
-        await modifier.range.set(min_val=1, step=1, max_val=frame_count-2)
+        sqn_pos = int(len(str(eth)+str(ipv6)+str(udp))/2)+10
+        await modifier.specification.set(position=sqn_pos, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
+        await modifier.range.set(min_val=1, step=1, max_val=frames_per_flow-2)
 
 
         #--------------------------------------
         # Configure stream_2 on the txport
         #--------------------------------------
-        logging.info(f"   Configure last-packet stream on the txport")
+        logging.info(f"   Configure RC SEND LAST stream on port {port_str}")
 
         stream_2 = await port_obj.streams.create()
 
-        ib.bth.opcode = ib.BTHOpcode.RC_SEND_LAST
+        ib.bth.opcode = BTHOpcode.RC_SEND_LAST
         ib.bth.destqp = dst_qp
-        ib.bth.psn = frame_count-1
+        ib.bth.psn = frames_per_flow-1
         _raw_header = "RAW_"+str(int(len(str(ib))/2))
 
         await utils.apply(
             stream_2.enable.set_on(),
             stream_2.packet.limit.set(packet_count=1),
-            stream_2.comment.set(f"Last packet"),
+            stream_2.comment.set(f"IPV6 RC SEND LAST"),
             stream_2.rate.fraction.set(stream_rate_ppm=10000),
             stream_2.packet.header.protocol.set(segments=[
                 enums.ProtocolOption.ETHERNET,
@@ -496,7 +264,7 @@ async def rocev2_rc_send(chassis: str, username: str, port_str: str, frame_size:
                 payload_type=enums.PayloadType.PATTERN, 
                 hex_data=Hex("AABBCCDD")
                 ),
-            stream_2.tpld_id.set(test_payload_identifier = 0),
+            stream_2.tpld_id.set(test_payload_identifier = stream_2.kind.index_id),
             stream_2.insert_packets_checksum.set_on()
         )
         if should_burst:
@@ -505,33 +273,55 @@ async def rocev2_rc_send(chassis: str, username: str, port_str: str, frame_size:
 
         # free the port
         await mgmt.free_port(port_obj)
+        logging.info(f"Configuration complete")
 
 
-
+#-----------------------------
+# ipv4_rocev2_rc_send
 #------------------------------
-# rocev2_ud_send
-#------------------------------
-async def rocev2_ud_send(chassis: str, username: str, port_str: str, frame_size: int, frame_count: int, repetitions: int, traffic_rate: float, should_burst: bool, burst_size: int, src_mac: str, dst_mac: str, src_ipv4: str, dst_ipv4: str, src_ipv6: str, dst_ipv6: str, dst_qp: int, src_qp: int) -> None:
+async def ipv4_rocev2_rc_send(chassis: str, username: str, port_str: str, frame_size: int, frames_per_flow: int, flow_repeat: int, traffic_rate_percent: float, should_burst: bool, burst_size: int, inter_burst_gap: int, inter_pkt_gap: int, src_mac: str, dst_mac: str, src_ipv4: str, dst_ipv4: str, dst_qp: int, delay_after_reset: int) -> None:
 
     # configure basic logger
     logging.basicConfig(
         format="%(asctime)s  %(message)s",
         level=logging.DEBUG,
         handlers=[
-            logging.FileHandler(filename="test.log", mode="a"),
+            logging.FileHandler(filename="ipv4_rocev2_rc_send.log", mode="a"),
             logging.StreamHandler()]
         )
     
     # create tester instance and establish connection
     async with testers.L23Tester(host=chassis, username=username, password="xena", port=22606, enable_logging=False) as tester:
 
+        logging.info(f"#####################################################################")
+        logging.info(f"Chassis:                 {chassis}")
+        logging.info(f"Username:                {username}")
+        logging.info(f"Port:                    {port_str}")
+        logging.info(f"Port Traffic Rate:       {traffic_rate_percent*100}%")
+        logging.info(f"Delay After Reset:       {delay_after_reset} seconds")
+        logging.info(f"RoCEv2 Flow Type:        RC SEND")
+        logging.info(f"Frames Per Flow:         {frames_per_flow}")
+        logging.info(f"Frame Size:              {frame_size} bytes (incl. FCS)")
+        logging.info(f"Flow Repeat:             {flow_repeat}")
+        logging.info(f"Burst Traffic:           {should_burst}")
+        logging.info(f"Burst Size:              {burst_size} frames")
+        logging.info(f"Inter-burst Gap:         {inter_burst_gap} bytes")
+        logging.info(f"Inter-packet Gap:        {inter_pkt_gap} bytes")
+        logging.info(f"RoCEv2 Flow MAC (Src):   {src_mac}")
+        logging.info(f"RoCEv2 Flow MAC (Dst):   {dst_mac}")
+        logging.info(f"RoCEv2 Flow IPv4 (Src):  {src_ipv4}")
+        logging.info(f"RoCEv2 Flow IPv4 (Dst):  {dst_ipv4}")
+        logging.info(f"RoCEv2 QP (Dst):         {dst_qp}")
+        logging.info(f"#####################################################################")
+
         # access the module and port on the tester
         _mid = int(port_str.split("/")[0])
         _pid = int(port_str.split("/")[1])
         module_obj = tester.modules.obtain(_mid)
 
-        # check if the module is of type Loki-100G-5S-2P
+        # check if the module is of type Chimera
         if isinstance(module_obj, modules.E100ChimeraModule):
+            logging.warning(f"Module {_mid} is E100 Chimera module. Abort.")
             return
         
         port_obj = module_obj.ports.obtain(_pid)
@@ -541,15 +331,17 @@ async def rocev2_ud_send(chassis: str, username: str, port_str: str, frame_size:
         await mgmt.reserve_port(port_obj)
         await mgmt.reset_port(port_obj)
 
-        logging.info(f"Configure the port")
+        await asyncio.sleep(delay_after_reset)
+
+        logging.info(f"Configure port {port_str}")
         await utils.apply(
             # txport.speed.mode.selection.set(mode=enums.PortSpeedMode.F100G),
-            port_obj.comment.set(comment="RoCEv2 flow emulation"),
+            port_obj.comment.set(comment="IPv4 RoCEv2 RC SEND"),
             port_obj.tx_config.enable.set_on(),
             port_obj.latency_config.offset.set(offset=0),
             port_obj.latency_config.mode.set(mode=enums.LatencyMode.LAST2LAST),
             port_obj.tx_config.burst_period.set(burst_period=0),
-            port_obj.tx_config.packet_limit.set(packet_count_limit=frame_count*repetitions),
+            port_obj.tx_config.packet_limit.set(packet_count_limit=int(frames_per_flow*flow_repeat)),
             port_obj.max_header_length.set(max_header_length=128),
             port_obj.autotrain.set(interval=0),
             port_obj.loop_back.set_none(), # If you want loopback the port TX to its own RX, change it to set_txoff2rx()
@@ -558,24 +350,234 @@ async def rocev2_ud_send(chassis: str, username: str, port_str: str, frame_size:
             port_obj.tpld_mode.set_normal(),
             port_obj.payload_mode.set_normal(),
             #port_obj.rate.pps.set(port_rate_pps=1_000), # If you want to control traffic rate with FPS, uncomment this.
-            port_obj.rate.fraction.set(int(traffic_rate*1_000_000)),  # If you want to control traffic rate with fraction, uncomment this. 1,000,000 = 100%
+            port_obj.rate.fraction.set(int(traffic_rate_percent*1_000_000)),  # If you want to control traffic rate with fraction, uncomment this. 1,000,000 = 100%
+        )
+        if should_burst:
+            await port_obj.tx_config.mode.set_burst()
+        else:
+            await port_obj.tx_config.mode.set_sequential()
+        
+        #--------------------------------------
+        # Configure stream_0 on the txport
+        #--------------------------------------
+        logging.info(f"   Configure RC SEND FIRST stream on port {port_str}")
+
+        stream_0 = await port_obj.streams.create()
+        eth = headers.Ethernet()
+        eth.src_mac = src_mac
+        eth.dst_mac = dst_mac
+        eth.ethertype = headers.EtherType.IPv4
+        ipv4 = headers.IPV4()
+        ipv4.src = src_ipv4
+        ipv4.dst = dst_ipv4
+        ipv4.proto = headers.IPProtocol.UDP
+        udp = headers.UDP()
+        udp.src_port = 4791
+        udp.dst_port = 4791
+        ib = IB()
+        ib.bth.opcode = BTHOpcode.RC_SEND_FIRST
+        ib.bth.destqp = dst_qp
+        ib.bth.psn = 0
+        _raw_header = "RAW_"+str(int(len(str(ib))/2))
+        
+        await utils.apply(
+            stream_0.enable.set_on(),
+            stream_0.packet.limit.set(packet_count=1),
+            stream_0.comment.set(f"IPV4 RC SEND FIRST"),
+            stream_0.rate.fraction.set(stream_rate_ppm=10000),
+            stream_0.packet.header.protocol.set(segments=[
+                enums.ProtocolOption.ETHERNET,
+                enums.ProtocolOption.IP,
+                enums.ProtocolOption.UDP,
+                enums.ProtocolOption[_raw_header],
+                ]),
+            stream_0.packet.header.data.set(hex_data=Hex(str(eth)+str(ipv4)+str(udp)+str(ib))),
+            stream_0.packet.length.set(length_type=enums.LengthType.FIXED, min_val=frame_size, max_val=frame_size),
+            stream_0.payload.content.set(
+                payload_type=enums.PayloadType.PATTERN, 
+                hex_data=Hex("AABBCCDD")
+                ),
+            stream_0.tpld_id.set(test_payload_identifier = stream_0.kind.index_id),
+            stream_0.insert_packets_checksum.set_on()
+        )
+        if should_burst:
+            await stream_0.burst.burstiness.set(size=1, density=100)
+            await stream_0.burst.gap.set(inter_packet_gap=0, inter_burst_gap=0)
+
+        #--------------------------------------
+        # Configure stream_1 on the txport
+        #--------------------------------------
+        logging.info(f"   Configure RC SEND MIDDLE stream on port {port_str}")
+
+        stream_1 = await port_obj.streams.create()
+
+        ib.bth.opcode = BTHOpcode.RC_SEND_MIDDLE
+        ib.bth.destqp = dst_qp
+        ib.bth.psn = 1
+        _raw_header = "RAW_"+str(int(len(str(ib))/2))
+
+        await utils.apply(
+            stream_1.enable.set_on(),
+            stream_1.packet.limit.set(packet_count=frames_per_flow-2),
+            stream_1.comment.set(f"IPV4 RC SEND MIDDLE"),
+            stream_1.rate.fraction.set(stream_rate_ppm=10000),
+            stream_1.packet.header.protocol.set(segments=[
+                enums.ProtocolOption.ETHERNET,
+                enums.ProtocolOption.IP,
+                enums.ProtocolOption.UDP,
+                enums.ProtocolOption[_raw_header],
+                ]),
+            stream_1.packet.header.data.set(hex_data=Hex(str(eth)+str(ipv4)+str(udp)+str(ib))),
+            stream_1.packet.length.set(length_type=enums.LengthType.FIXED, min_val=frame_size, max_val=frame_size),
+            stream_1.payload.content.set(
+                payload_type=enums.PayloadType.PATTERN, 
+                hex_data=Hex("AABBCCDD")
+                ),
+            stream_1.tpld_id.set(test_payload_identifier = stream_1.kind.index_id),
+            stream_1.insert_packets_checksum.set_on()
+        )
+        if should_burst:
+            await stream_1.burst.burstiness.set(size=burst_size, density=100)
+            await stream_1.burst.gap.set(inter_packet_gap=inter_pkt_gap, inter_burst_gap=inter_burst_gap)
+
+        # Configure a modifier on the stream_1
+        await stream_1.packet.header.modifiers.configure(1)
+
+        # Modifier on the SQN
+        modifier = stream_1.packet.header.modifiers.obtain(0)
+        sqn_pos = int(len(str(eth)+str(ipv4)+str(udp))/2)+10
+        await modifier.specification.set(position=sqn_pos, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
+        await modifier.range.set(min_val=1, step=1, max_val=frames_per_flow-2)
+
+
+        #--------------------------------------
+        # Configure stream_2 on the txport
+        #--------------------------------------
+        logging.info(f"   Configure RC SEND LAST stream on port {port_str}")
+
+        stream_2 = await port_obj.streams.create()
+
+        ib.bth.opcode = BTHOpcode.RC_SEND_LAST
+        ib.bth.destqp = dst_qp
+        ib.bth.psn = frames_per_flow-1
+        _raw_header = "RAW_"+str(int(len(str(ib))/2))
+
+        await utils.apply(
+            stream_2.enable.set_on(),
+            stream_2.packet.limit.set(packet_count=1),
+            stream_2.comment.set(f"IPV4 RC SEND LAST"),
+            stream_2.rate.fraction.set(stream_rate_ppm=10000),
+            stream_2.packet.header.protocol.set(segments=[
+                enums.ProtocolOption.ETHERNET,
+                enums.ProtocolOption.IP,
+                enums.ProtocolOption.UDP,
+                enums.ProtocolOption[_raw_header],
+                ]),
+            stream_2.packet.header.data.set(hex_data=Hex(str(eth)+str(ipv4)+str(udp)+str(ib))),
+            stream_2.packet.length.set(length_type=enums.LengthType.FIXED, min_val=frame_size, max_val=frame_size),
+            stream_2.payload.content.set(
+                payload_type=enums.PayloadType.PATTERN, 
+                hex_data=Hex("AABBCCDD")
+                ),
+            stream_2.tpld_id.set(test_payload_identifier = stream_2.kind.index_id),
+            stream_2.insert_packets_checksum.set_on()
+        )
+        if should_burst:
+            await stream_2.burst.burstiness.set(size=1, density=100)
+            await stream_2.burst.gap.set(inter_packet_gap=0, inter_burst_gap=0)
+
+        # free the port
+        await mgmt.free_port(port_obj)
+        logging.info(f"Configuration complete")
+
+
+#------------------------------
+# ipv6_rocev2_ud_send
+#------------------------------
+async def ipv6_rocev2_ud_send(chassis: str, username: str, port_str: str, frame_size: int, frames_per_flow: int, flow_repeat: int, traffic_rate_percent: float, should_burst: bool, burst_size: int, src_mac: str, dst_mac: str, src_ipv6: str, dst_ipv6: str, dst_qp: int, src_qp: int, q_key: int, delay_after_reset: int) -> None:
+
+    # configure basic logger
+    logging.basicConfig(
+        format="%(asctime)s  %(message)s",
+        level=logging.DEBUG,
+        handlers=[
+            logging.FileHandler(filename="ipv6_rocev2_ud_send.log", mode="a"),
+            logging.StreamHandler()]
+        )
+    
+    # create tester instance and establish connection
+    async with testers.L23Tester(host=chassis, username=username, password="xena", port=22606, enable_logging=False) as tester:
+
+        logging.info(f"#####################################################################")
+        logging.info(f"Chassis:                 {chassis}")
+        logging.info(f"Username:                {username}")
+        logging.info(f"Port:                    {port_str}")
+        logging.info(f"Port Traffic Rate:       {traffic_rate_percent*100}%")
+        logging.info(f"Delay After Reset:       {delay_after_reset} seconds")
+        logging.info(f"RoCEv2 Flow Type:        UD SEND")
+        logging.info(f"Frames Per Flow:         {frames_per_flow}")
+        logging.info(f"Frame Size:              {frame_size} bytes (incl. FCS)")
+        logging.info(f"Flow Repeat:             {flow_repeat}")
+        logging.info(f"Burst Traffic:           {should_burst}")
+        logging.info(f"Burst Size:              {burst_size} frames")
+        logging.info(f"RoCEv2 Flow MAC (Src):   {src_mac}")
+        logging.info(f"RoCEv2 Flow MAC (Dst):   {dst_mac}")
+        logging.info(f"RoCEv2 Flow IPv6 (Src):  {src_ipv6}")
+        logging.info(f"RoCEv2 Flow IPv6 (Dst):  {dst_ipv6}")
+        logging.info(f"RoCEv2 QP (Src):         {src_qp}")
+        logging.info(f"RoCEv2 QP (Dst):         {dst_qp}")
+        logging.info(f"#####################################################################")
+
+        # access the module and port on the tester
+        _mid = int(port_str.split("/")[0])
+        _pid = int(port_str.split("/")[1])
+        module_obj = tester.modules.obtain(_mid)
+
+        # check if the module is of type Chimera
+        if isinstance(module_obj, modules.E100ChimeraModule):
+            logging.warning(f"Module {_mid} is E100 Chimera module. Abort.")
+            return
+        
+        port_obj = module_obj.ports.obtain(_pid)
+
+        # reserve ports
+        await mgmt.free_module(module_obj)
+        await mgmt.reserve_port(port_obj)
+        await mgmt.reset_port(port_obj)
+
+        await asyncio.sleep(delay_after_reset)
+
+        logging.info(f"Configure port {port_str}")
+        await utils.apply(
+            # txport.speed.mode.selection.set(mode=enums.PortSpeedMode.F100G),
+            port_obj.comment.set(comment="IPv6 RoCEv2 UD SEND emulation"),
+            port_obj.tx_config.enable.set_on(),
+            port_obj.latency_config.offset.set(offset=0),
+            port_obj.latency_config.mode.set(mode=enums.LatencyMode.LAST2LAST),
+            port_obj.tx_config.burst_period.set(burst_period=0),
+            # port_obj.tx_config.packet_limit.set(packet_count_limit=int(frames_per_flow*flow_repeat)),
+            port_obj.max_header_length.set(max_header_length=128),
+            port_obj.autotrain.set(interval=0),
+            port_obj.loop_back.set_none(), # If you want loopback the port TX to its own RX, change it to set_txoff2rx()
+            port_obj.checksum.set(offset=0),
+            port_obj.tx_config.delay.set(delay_val=0),
+            port_obj.tpld_mode.set_normal(),
+            port_obj.payload_mode.set_normal(),
+            #port_obj.rate.pps.set(port_rate_pps=1_000), # If you want to control traffic rate with FPS, uncomment this.
+            # port_obj.rate.fraction.set(int(traffic_rate_percent*1_000_000)),  # If you want to control traffic rate with fraction, uncomment this. 1,000,000 = 100%
             port_obj.tx_config.mode.set_normal(),
         )
         
         #--------------------------------------
         # Configure stream_0 on the txport
         #--------------------------------------
-        logging.info(f"   Configure UD SEND stream on the tx port")
+        logging.info(f"   Configure UD SEND on port {port_str}")
 
         stream_0 = await port_obj.streams.create()
         eth = headers.Ethernet()
         eth.src_mac = src_mac
         eth.dst_mac = dst_mac
         eth.ethertype = headers.EtherType.IPv6
-        ipv4 = headers.IPV4()
-        ipv4.src = src_ipv4
-        ipv4.dst = dst_ipv4
-        ipv4.proto = headers.IPProtocol.UDP
         ipv6 = headers.IPV6()
         ipv6.src = src_ipv6
         ipv6.dst = dst_ipv6
@@ -584,18 +586,18 @@ async def rocev2_ud_send(chassis: str, username: str, port_str: str, frame_size:
         udp.src_port = 4791
         udp.dst_port = 4791
         ib = IB()
-        ib.bth.opcode = ib.BTHOpcode.UD_SEND_ONLY
+        ib.bth.opcode = BTHOpcode.UD_SEND_ONLY
         ib.bth.destqp = dst_qp
         ib.bth.psn = 0
         ib.deth.src_qp = src_qp
-        ib.deth.q_key = 12345
+        ib.deth.q_key = q_key
         _raw_header = "RAW_"+str(int(len(str(ib))/2))
         
         await utils.apply(
             stream_0.enable.set_on(),
-            stream_0.packet.limit.set(packet_count=frame_count),
-            stream_0.comment.set(f"First packet"),
-            stream_0.rate.fraction.set(stream_rate_ppm=10000),
+            stream_0.packet.limit.set(packet_count=int(frames_per_flow*flow_repeat)),
+            stream_0.comment.set(f"IPV6 UD SEND"),
+            stream_0.rate.fraction.set(stream_rate_ppm=int(traffic_rate_percent*1_000_000)),
             stream_0.packet.header.protocol.set(segments=[
                 enums.ProtocolOption.ETHERNET,
                 enums.ProtocolOption.IPV6,
@@ -608,7 +610,7 @@ async def rocev2_ud_send(chassis: str, username: str, port_str: str, frame_size:
                 payload_type=enums.PayloadType.PATTERN, 
                 hex_data=Hex("AABBCCDD")
                 ),
-            stream_0.tpld_id.set(test_payload_identifier = 0),
+            stream_0.tpld_id.set(test_payload_identifier = stream_0.kind.index_id),
             stream_0.insert_packets_checksum.set_on()
         )
         if should_burst:
@@ -619,55 +621,233 @@ async def rocev2_ud_send(chassis: str, username: str, port_str: str, frame_size:
 
         # Modifier on the SQN
         modifier = stream_0.packet.header.modifiers.obtain(0)
-        await modifier.specification.set(position=72, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
-        await modifier.range.set(min_val=0, step=1, max_val=frame_count-1)
+        sqn_pos = int(len(str(eth)+str(ipv6)+str(udp))/2)+10
+        await modifier.specification.set(position=sqn_pos, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
+        await modifier.range.set(min_val=0, step=1, max_val=frames_per_flow-1)
 
         # free the port
         await mgmt.free_port(port_obj)
+        logging.info(f"Configuration complete")
+
+
+#------------------------------
+# ipv4_rocev2_ud_send
+#------------------------------
+async def ipv4_rocev2_ud_send(chassis: str, username: str, port_str: str, frame_size: int, frames_per_flow: int, flow_repeat: int, traffic_rate_percent: float, should_burst: bool, burst_size: int, src_mac: str, dst_mac: str, src_ipv4: str, dst_ipv4: str, dst_qp: int, src_qp: int, q_key: int, delay_after_reset: int) -> None:
+
+    # configure basic logger
+    logging.basicConfig(
+        format="%(asctime)s  %(message)s",
+        level=logging.DEBUG,
+        handlers=[
+            logging.FileHandler(filename="ipv4_rocev2_ud_send.log", mode="a"),
+            logging.StreamHandler()]
+        )
+    
+    # create tester instance and establish connection
+    async with testers.L23Tester(host=chassis, username=username, password="xena", port=22606, enable_logging=False) as tester:
+
+        logging.info(f"#####################################################################")
+        logging.info(f"Chassis:                 {chassis}")
+        logging.info(f"Username:                {username}")
+        logging.info(f"Port:                    {port_str}")
+        logging.info(f"Port Traffic Rate:       {traffic_rate_percent*100}%")
+        logging.info(f"Delay After Reset:       {delay_after_reset} seconds")
+        logging.info(f"RoCEv2 Flow Type:        UD SEND")
+        logging.info(f"Frames Per Flow:         {frames_per_flow}")
+        logging.info(f"Frame Size:              {frame_size} bytes (incl. FCS)")
+        logging.info(f"Flow Repeat:             {flow_repeat}")
+        logging.info(f"Burst Traffic:           {should_burst}")
+        logging.info(f"Burst Size:              {burst_size} frames")
+        logging.info(f"RoCEv2 Flow MAC (Src):   {src_mac}")
+        logging.info(f"RoCEv2 Flow MAC (Dst):   {dst_mac}")
+        logging.info(f"RoCEv2 Flow IPv4 (Src):  {src_ipv4}")
+        logging.info(f"RoCEv2 Flow IPv4 (Dst):  {dst_ipv4}")
+        logging.info(f"RoCEv2 QP (Src):         {src_qp}")
+        logging.info(f"RoCEv2 QP (Dst):         {dst_qp}")
+        logging.info(f"#####################################################################")
+
+        # access the module and port on the tester
+        _mid = int(port_str.split("/")[0])
+        _pid = int(port_str.split("/")[1])
+        module_obj = tester.modules.obtain(_mid)
+
+        # check if the module is of type Chimera
+        if isinstance(module_obj, modules.E100ChimeraModule):
+            logging.warning(f"Module {_mid} is E100 Chimera module. Abort.")
+            return
+        
+        port_obj = module_obj.ports.obtain(_pid)
+
+        # reserve ports
+        await mgmt.free_module(module_obj)
+        await mgmt.reserve_port(port_obj)
+        await mgmt.reset_port(port_obj)
+
+        await asyncio.sleep(delay_after_reset)
+
+        logging.info(f"Configure port {port_str}")
+        await utils.apply(
+            # txport.speed.mode.selection.set(mode=enums.PortSpeedMode.F100G),
+            port_obj.comment.set(comment="IPv4 RoCEv2 UD SEND emulation"),
+            port_obj.tx_config.enable.set_on(),
+            port_obj.latency_config.offset.set(offset=0),
+            port_obj.latency_config.mode.set(mode=enums.LatencyMode.LAST2LAST),
+            port_obj.tx_config.burst_period.set(burst_period=0),
+            # port_obj.tx_config.packet_limit.set(packet_count_limit=int(frames_per_flow*flow_repeat)),
+            port_obj.max_header_length.set(max_header_length=128),
+            port_obj.autotrain.set(interval=0),
+            port_obj.loop_back.set_none(), # If you want loopback the port TX to its own RX, change it to set_txoff2rx()
+            port_obj.checksum.set(offset=0),
+            port_obj.tx_config.delay.set(delay_val=0),
+            port_obj.tpld_mode.set_normal(),
+            port_obj.payload_mode.set_normal(),
+            #port_obj.rate.pps.set(port_rate_pps=1_000), # If you want to control traffic rate with FPS, uncomment this.
+            # port_obj.rate.fraction.set(int(traffic_rate_percent*1_000_000)),  # If you want to control traffic rate with fraction, uncomment this. 1,000,000 = 100%
+            port_obj.tx_config.mode.set_normal(),
+        )
+        
+        #--------------------------------------
+        # Configure stream_0 on the txport
+        #--------------------------------------
+        logging.info(f"   Configure UD SEND on port {port_str}")
+
+        stream_0 = await port_obj.streams.create()
+        eth = headers.Ethernet()
+        eth.src_mac = src_mac
+        eth.dst_mac = dst_mac
+        eth.ethertype = headers.EtherType.IPv4
+        ipv4 = headers.IPV4()
+        ipv4.src = src_ipv4
+        ipv4.dst = dst_ipv4
+        ipv4.proto = headers.IPProtocol.UDP
+        udp = headers.UDP()
+        udp.src_port = 4791
+        udp.dst_port = 4791
+        ib = IB()
+        ib.bth.opcode = BTHOpcode.UD_SEND_ONLY
+        ib.bth.destqp = dst_qp
+        ib.bth.psn = 0
+        ib.deth.src_qp = src_qp
+        ib.deth.q_key = q_key
+        _raw_header = "RAW_"+str(int(len(str(ib))/2))
+        
+        await utils.apply(
+            stream_0.enable.set_on(),
+            stream_0.packet.limit.set(packet_count=int(frames_per_flow*flow_repeat)),
+            stream_0.comment.set(f"IPV4 UD SEND"),
+            stream_0.rate.fraction.set(stream_rate_ppm=int(traffic_rate_percent*1_000_000)),
+            stream_0.packet.header.protocol.set(segments=[
+                enums.ProtocolOption.ETHERNET,
+                enums.ProtocolOption.IP,
+                enums.ProtocolOption.UDP,
+                enums.ProtocolOption[_raw_header],
+                ]),
+            stream_0.packet.header.data.set(hex_data=Hex(str(eth)+str(ipv4)+str(udp)+str(ib))),
+            stream_0.packet.length.set(length_type=enums.LengthType.FIXED, min_val=frame_size, max_val=frame_size),
+            stream_0.payload.content.set(
+                payload_type=enums.PayloadType.PATTERN, 
+                hex_data=Hex("AABBCCDD")
+                ),
+            stream_0.tpld_id.set(test_payload_identifier = stream_0.kind.index_id),
+            stream_0.insert_packets_checksum.set_on()
+        )
+        if should_burst:
+            await stream_0.burst.burstiness.set(size=burst_size, density=100)
+
+        # Configure a modifier on the stream_0
+        await stream_0.packet.header.modifiers.configure(1)
+
+        # Modifier on the SQN
+        modifier = stream_0.packet.header.modifiers.obtain(0)
+        sqn_pos = int(len(str(eth)+str(ipv4)+str(udp))/2)+10
+        await modifier.specification.set(position=sqn_pos, mask=Hex("FFFF0000"), action=enums.ModifierAction.INC, repetition=1)
+        await modifier.range.set(min_val=0, step=1, max_val=frames_per_flow-1)
+
+        # free the port
+        await mgmt.free_port(port_obj)
+        logging.info(f"Configuration complete")
 
 
 
 async def main():
     stop_event = asyncio.Event()
     try:
-        await rocev2_rc_send(
+        await ipv6_rocev2_rc_send(
             chassis=CHASSIS_IP,
             username=USERNAME,
             port_str=PORT,
             frame_size=FRAME_SIZE_BYTES,
-            frame_count=FRAME_COUNT,
-            repetitions=REPETITION,
-            traffic_rate=TRAFFIC_RATE_PERCENT,
+            frames_per_flow=FRAMES_PER_ROCEV2_FLOW,
+            flow_repeat=FLOW_REPEAT,
+            traffic_rate_percent=RATE_PERCENT,
             should_burst=SHOULD_BURST,
             burst_size=BURST_SIZE_FRAMES,
             inter_burst_gap=INTER_BURST_GAP_BYTES,
-            inter_pkt_gap=INTRA_BURST_GAP_BYTES,
+            inter_pkt_gap=INTER_PACKET_GAP,
             src_mac=SRC_MAC,
             dst_mac=DST_MAC,
-            src_ipv4=SRC_IPV4,
-            dst_ipv4=DST_IPV4,
             src_ipv6=SRC_IPV6,
             dst_ipv6=DST_IPV6,
-            dst_qp=4
+            dst_qp=RC_SEND_DST_QP,
+            delay_after_reset = DELAY_AFTER_RESET,
         )
-        # await rocev2_ud_send(
+        # await ipv6_rocev2_ud_send(
         #     chassis=CHASSIS_IP,
         #     username=USERNAME,
         #     port_str=PORT,
         #     frame_size=FRAME_SIZE_BYTES,
-        #     frame_count=FRAME_COUNT,
-        #     repetitions=REPETITION,
-        #     traffic_rate=TRAFFIC_RATE_PERCENT,
+        #     frames_per_flow=FRAMES_PER_ROCEV2_FLOW,
+        #     flow_repeat=FLOW_REPEAT,
+        #     traffic_rate_percent=RATE_PERCENT,
+        #     should_burst=SHOULD_BURST,
+        #     burst_size=BURST_SIZE_FRAMES,
+        #     src_mac=SRC_MAC,
+        #     dst_mac=DST_MAC,
+        #     src_ipv6=SRC_IPV6,
+        #     dst_ipv6=DST_IPV6,
+        #     src_qp=UD_SEND_SRC_QP,
+        #     dst_qp=UD_SEND_DST_QP,
+        #     q_key = UD_SEND_Q_KEY,
+        #     delay_after_reset = DELAY_AFTER_RESET,
+        # )
+        # await ipv4_rocev2_rc_send(
+        #     chassis=CHASSIS_IP,
+        #     username=USERNAME,
+        #     port_str=PORT,
+        #     frame_size=FRAME_SIZE_BYTES,
+        #     frames_per_flow=FRAMES_PER_ROCEV2_FLOW,
+        #     flow_repeat=FLOW_REPEAT,
+        #     traffic_rate_percent=RATE_PERCENT,
+        #     should_burst=SHOULD_BURST,
+        #     burst_size=BURST_SIZE_FRAMES,
+        #     inter_burst_gap=INTER_BURST_GAP_BYTES,
+        #     inter_pkt_gap=INTER_PACKET_GAP,
+        #     src_mac=SRC_MAC,
+        #     dst_mac=DST_MAC,
+        #     src_ipv4=SRC_IPV4,
+        #     dst_ipv4=DST_IPV4,
+        #     dst_qp=RC_SEND_DST_QP,
+        #     delay_after_reset = DELAY_AFTER_RESET,
+        # )
+        # await ipv4_rocev2_ud_send(
+        #     chassis=CHASSIS_IP,
+        #     username=USERNAME,
+        #     port_str=PORT,
+        #     frame_size=FRAME_SIZE_BYTES,
+        #     frames_per_flow=FRAMES_PER_ROCEV2_FLOW,
+        #     flow_repeat=FLOW_REPEAT,
+        #     traffic_rate_percent=RATE_PERCENT,
         #     should_burst=SHOULD_BURST,
         #     burst_size=BURST_SIZE_FRAMES,
         #     src_mac=SRC_MAC,
         #     dst_mac=DST_MAC,
         #     src_ipv4=SRC_IPV4,
         #     dst_ipv4=DST_IPV4,
-        #     src_ipv6=SRC_IPV6,
-        #     dst_ipv6=DST_IPV6,
-        #     dst_qp=4,
-        #     src_qp=1
+        #     src_qp=UD_SEND_SRC_QP,
+        #     dst_qp=UD_SEND_DST_QP,
+        #     q_key = UD_SEND_Q_KEY,
+        #     delay_after_reset = DELAY_AFTER_RESET,
         # )
     except KeyboardInterrupt:
         stop_event.set()
