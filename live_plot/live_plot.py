@@ -65,13 +65,10 @@ async def live_plot(chassis: str, username: str, port_str: str, filter_idx: int,
         _pid = int(port_str.split("/")[1])
         module_obj = tester.modules.obtain(_mid)
 
-        if isinstance(module_obj, modules.E100ChimeraModule):
-            logging.info(f"FEC not supported on E100 Chimera modules")
+        if isinstance(module_obj, modules.E100ChimeraModule) or isinstance(module_obj, modules.Z10OdinModule):
+            logging.info(f"Module {_mid} must not be Chimera or Odin")
             return None
-        
-        if isinstance(module_obj, modules.Z10OdinModule):
-            logging.info(f"FEC not supported on Z10 Odin modules")
-            return None 
+
 
         # Get the port on module as TX port
         port_obj = module_obj.ports.obtain(_pid)
