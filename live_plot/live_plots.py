@@ -4,7 +4,7 @@
 #
 # What this script example does:
 # 1. Connect to a tester
-# 2. Reserve a port. Must be Freya.
+# 2. Reserve a port. Must not be Chimera or Odin.
 # 3. Sync the port filter from chassis to script
 # 4. Read the traffic stats of a filter
 # 5. Plot the number of packets from the filter
