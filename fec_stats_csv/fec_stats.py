@@ -120,16 +120,32 @@ async def fec_stats(chassis: str, username: str, port_str: str):
                 dat.append(_total_status.total_corrected_codeword_count)
                 dat.append(_total_status.total_uncorrectable_codeword_count)
                 dat.append(_total_status.total_corrected_symbol_count)
-                dat.append(1/_total_status.total_pre_fec_ber)
-                dat.append(1/_total_status.total_post_fec_ber)
+                if _total_status.total_pre_fec_ber == 0:
+                    dat.append(0)
+                else:
+                    dat.append(abs(1/_total_status.total_pre_fec_ber))
+                if _total_status.total_post_fec_ber == 0:
+                    dat.append(0)
+                else:
+                    dat.append(abs(1/_total_status.total_post_fec_ber))
                 writer.writerow(dat)
                 logging.info(f"total_rx_bit_count: {_total_status.total_rx_bit_count}")
                 logging.info(f"total_rx_codeword_count: {_total_status.total_rx_codeword_count}")
                 logging.info(f"total_corrected_codeword_count: {_total_status.total_corrected_codeword_count}")
                 logging.info(f"total_uncorrectable_codeword_count: {_total_status.total_uncorrectable_codeword_count}")
                 logging.info(f"total_corrected_symbol_count: {_total_status.total_corrected_symbol_count}")
-                logging.info(f"total_pre_fec_ber: {1/_total_status.total_pre_fec_ber}")
-                logging.info(f"total_post_fec_ber: {1/_total_status.total_post_fec_ber}")
+                if _total_status.total_pre_fec_ber == 0:
+                    logging.info(f"total_pre_fec_ber: 0")
+                elif _total_status.total_pre_fec_ber == -1:
+                    logging.info(f"total_pre_fec_ber: N/A")
+                else:
+                    logging.info(f"total_pre_fec_ber: {abs(1/_total_status.total_pre_fec_ber)}")
+                if _total_status.total_post_fec_ber == 0:
+                    logging.info(f"total_post_fec_ber: 0")
+                elif _total_status.total_post_fec_ber == 0:
+                    logging.info(f"total_post_fec_ber: N/A")
+                else:
+                    logging.info(f"total_post_fec_ber: {abs(1/_total_status.total_post_fec_ber)}")
                 await asyncio.sleep(1)
 
 async def main():
