@@ -20,14 +20,7 @@ from xoa_driver import enums
 from xoa_driver import utils
 from xoa_driver.hlfuncs import mgmt
 from xoa_driver.misc import Hex
-import ipaddress
-import csv
-import time
 import logging
-
-import matplotlib.pyplot as plt
-import numpy as np
-from collections import deque
 
 #---------------------------
 # GLOBAL PARAMS

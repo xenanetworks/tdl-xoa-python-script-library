@@ -1,3 +1,2 @@
 xoa-driver>=2.7.0
 matplotlib
-numpy
