@@ -108,7 +108,7 @@ async def siv_plot(
         fig = plt.figure(constrained_layout=True)
         fig.suptitle(f"{figure_title} D={density}, L={lanes}")
 
-        # grid spec: 4 rows and 2 columns
+        # grid spec
         if serdes_cnt_to_show == 1:
             gs = fig.add_gridspec(nrows=1, ncols=1)
         if serdes_cnt_to_show > 1:
