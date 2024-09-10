@@ -37,6 +37,11 @@ MODULE = "4"
 FIGURE_TITLE = "Pre-FEC Error Distribution Plot (log10)"
 PLOTTING_INTERVAL = 1 # plots refreshed every n second
 PLOTTING_DURATION = 120 # number of seconds for plotting
+
+# Enable the FEC mode you want
+FEC_MODE = enums.FECMode.ON # either RS FEC KR or KP. Determined by the port automatically
+# FEC_MODE = enums.FECMode.FC_FEC
+# FEC_MODE = enums.FECMode.RS_FEC_INT
         
 #---------------------------
 # pre_fec_error_dist_plot
@@ -48,6 +53,7 @@ async def pre_fec_error_dist_plot(
         figure_title: str,
         plotting_interval: int,
         plotting_duration: int,
+        fec_mode: enums.FECMode
         ):
     # configure basic logger
     logging.basicConfig(
@@ -89,10 +95,7 @@ async def pre_fec_error_dist_plot(
         port_objs = [x for x in module_obj.ports]
         port_cnt = len(port_objs)
 
-        # Get the port on module as TX port
-        # port_obj = module_obj.ports.obtain(_pid)
-
-        # Forcibly reserve the port and reset it.
+        # Forcibly reserve the port
         await mgmt.free_module(module=module_obj, should_free_ports=False)
         resp = await module_obj.revision.get()
         module_module_name = resp.revision
@@ -122,9 +125,9 @@ async def pre_fec_error_dist_plot(
             pre_fec_subplots[i].set(xlabel=f"Symbol Errors", ylabel=f"FEC Codewords ({module_str}/{i}) (log10)")
 
         # set FEC mode on
-        logging.info(f"Set FEC Mode = ON")
+        logging.info(f"Set FEC Mode = {fec_mode.name}")
         for p in port_objs:
-            await p.fec_mode.set(mode=enums.FECMode.ON)
+            await p.fec_mode.set(mode=fec_mode)
 
         # clear FEC counter
         logging.info(f"Clear FEC counter")
@@ -187,7 +190,8 @@ async def main():
             module_str=MODULE,
             figure_title=FIGURE_TITLE,
             plotting_interval=PLOTTING_INTERVAL,
-            plotting_duration=PLOTTING_DURATION
+            plotting_duration=PLOTTING_DURATION,
+            fec_mode=FEC_MODE
             )
     except KeyboardInterrupt:
         stop_event.set()
