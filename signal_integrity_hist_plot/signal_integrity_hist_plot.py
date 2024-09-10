@@ -31,7 +31,7 @@ from collections import deque
 #---------------------------
 CHASSIS_IP = "10.165.136.60"
 USERNAME = "xoa"
-PORT = "3/0"
+PORT = "6/0"
 FIGURE_TITLE = "Z800 Freya Signal Integrity Histogram Plot"
 DENSITY = 1 # how many batches of siv data to show on the plot. A higher density means more data and slower plotting.
 LANES = [0,1,2,3,4,5,6,7] # select lanes to display, ranging from 0 to 7
@@ -146,18 +146,19 @@ async def siv_plot(
             while True:
                 # get responses from all lanes
                 resp_group = await utils.apply(*get_cmd_group)
-                if 0 in resp_group:
+                result_flags = [x.result for x in resp_group]
+                if 0 in result_flags:
                     # if not all lanes are ready in data, query again.
                     continue
                 else:
                     for i in range(serdes_cnt_to_show):
-                        siv_raw_levels = resp_group[i].value[0:12]
+                        siv_raw_slicers = resp_group[i].value[0:12]
                         siv_raw_values = resp_group[i].value[12:]
 
                         # convert from 12 raw bytes into 6 signed int
-                        siv_int_levels = []
-                        for x in zip(siv_raw_levels[0::2], siv_raw_levels[1::2]):
-                            siv_int_levels.append(int.from_bytes(bytes(x), byteorder='big', signed=True))
+                        siv_int_slicers = []
+                        for x in zip(siv_raw_slicers[0::2], siv_raw_slicers[1::2]):
+                            siv_int_slicers.append(int.from_bytes(bytes(x), byteorder='big', signed=True))
                         # Please note: only the first slicer data is used here.
 
                         # convert from 4000 bytes into 2000 signed int
@@ -168,15 +169,16 @@ async def siv_plot(
                         data_queue[i].extend(tuple(siv_int_values))
 
                         # siv data ranges from -64 to 63, thus 128 bins in total.
+                        siv_subplots[i].cla()
                         siv_subplots[i].relim()
                         siv_subplots[i].autoscale_view()
                         siv_subplots[i].hist(x=[*data_queue[i]], bins=128, range=(-64, 63), density=False, color="blue", orientation="horizontal")
                         # add base slicer
                         siv_subplots[i].axhline(0, color='black', linestyle='dashed', linewidth=0.1)
                         # add upper slicer
-                        siv_subplots[i].axhline(siv_int_levels[1], color='black', linestyle='dashed', linewidth=0.1)
+                        siv_subplots[i].axhline(siv_int_slicers[1], color='black', linestyle='dashed', linewidth=0.1)
                         # add lower slicer
-                        siv_subplots[i].axhline(siv_int_levels[4], color='black', linestyle='dashed', linewidth=0.1)
+                        siv_subplots[i].axhline(siv_int_slicers[4], color='black', linestyle='dashed', linewidth=0.1)
 
                     plt.show()
                     plt.pause(plotting_interval)
