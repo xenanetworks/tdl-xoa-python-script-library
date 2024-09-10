@@ -172,6 +172,7 @@ async def siv_plot(
                         siv_subplots[i].cla()
                         siv_subplots[i].relim()
                         siv_subplots[i].autoscale_view()
+                        siv_subplots[i].set(xlabel=f"Value", ylabel=f"Lane {lanes[i]}")
                         siv_subplots[i].hist(x=[*data_queue[i]], bins=128, range=(-64, 63), density=False, color="blue", orientation="horizontal")
 
                         # levels contains 6 values, 4 average pam4 levels and 2 slicers, (<p1> <p2> <p3> <m1> <m2> <m3>)
