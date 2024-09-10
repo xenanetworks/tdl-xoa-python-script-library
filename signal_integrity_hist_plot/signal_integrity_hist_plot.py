@@ -106,7 +106,7 @@ async def siv_plot(
         # figure config
         plt.ion()
         fig = plt.figure(constrained_layout=True)
-        fig.suptitle(f"{figure_title} ({port_str}) D={density}, L={lanes}")
+        fig.suptitle(f"{figure_title}\nChassis {chassis}, Port {port_str}, L={lanes}, D={density}")
 
         # grid spec
         if serdes_cnt_to_show == 1:

@@ -94,6 +94,8 @@ async def pre_fec_error_dist_plot(
 
         # Forcibly reserve the port and reset it.
         await mgmt.free_module(module=module_obj, should_free_ports=False)
+        resp = await module_obj.revision.get()
+        module_module_name = resp.revision
         for p in port_objs:
             await mgmt.reserve_port(p)
 
@@ -102,7 +104,7 @@ async def pre_fec_error_dist_plot(
         # figure config
         plt.ion()
         fig = plt.figure(constrained_layout=True)
-        fig.suptitle(f"{figure_title}, module {module_str}")
+        fig.suptitle(f"{figure_title}\nChassis {chassis}, Module {module_str}, {module_module_name}")
         
         # grid spec
         if port_cnt == 1:
@@ -117,7 +119,7 @@ async def pre_fec_error_dist_plot(
 
         # set x and y label for each subplot
         for i in range(port_cnt):
-            pre_fec_subplots[i].set(xlabel=f"Symbol Errors", ylabel=f"FEC Codewords ({module_str}/{i})")
+            pre_fec_subplots[i].set(xlabel=f"Symbol Errors", ylabel=f"FEC Codewords ({module_str}/{i}) (log10)")
 
         # set FEC mode on
         logging.info(f"Set FEC Mode = ON")
