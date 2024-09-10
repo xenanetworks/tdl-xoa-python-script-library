@@ -152,13 +152,13 @@ async def siv_plot(
                     continue
                 else:
                     for i in range(serdes_cnt_to_show):
-                        siv_raw_slicers = resp_group[i].value[0:12]
+                        siv_raw_levels = resp_group[i].value[0:12]
                         siv_raw_values = resp_group[i].value[12:]
 
                         # convert from 12 raw bytes into 6 signed int
-                        siv_int_slicers = []
-                        for x in zip(siv_raw_slicers[0::2], siv_raw_slicers[1::2]):
-                            siv_int_slicers.append(int.from_bytes(bytes(x), byteorder='big', signed=True))
+                        siv_int_levels = []
+                        for x in zip(siv_raw_levels[0::2], siv_raw_levels[1::2]):
+                            siv_int_levels.append(int.from_bytes(bytes(x), byteorder='big', signed=True))
                         # Please note: only the first slicer data is used here.
 
                         # convert from 4000 bytes into 2000 signed int
@@ -173,12 +173,37 @@ async def siv_plot(
                         siv_subplots[i].relim()
                         siv_subplots[i].autoscale_view()
                         siv_subplots[i].hist(x=[*data_queue[i]], bins=128, range=(-64, 63), density=False, color="blue", orientation="horizontal")
-                        # add base slicer
-                        siv_subplots[i].axhline(0, color='black', linestyle='dashed', linewidth=0.1)
-                        # add upper slicer
-                        siv_subplots[i].axhline(siv_int_slicers[1], color='black', linestyle='dashed', linewidth=0.1)
-                        # add lower slicer
-                        siv_subplots[i].axhline(siv_int_slicers[4], color='black', linestyle='dashed', linewidth=0.1)
+
+                        # levels contains 6 values, 4 average pam4 levels and 2 slicers, (<p1> <p2> <p3> <m1> <m2> <m3>)
+                        # add base slicer (this is always at 0)
+                        y = 0
+                        siv_subplots[i].axhline(y, color='black', linestyle='-', linewidth=0.5)
+                        siv_subplots[i].text(siv_subplots[i].get_xlim()[1] + 0.1, y, f'base={y}', fontsize="small")
+                        # add upper slicer <p2>
+                        y = siv_int_levels[1]
+                        siv_subplots[i].axhline(y, color='green', linestyle='dashed', linewidth=0.5)
+                        siv_subplots[i].text(siv_subplots[i].get_xlim()[1] + 0.1, y, f'slicer={y}', fontsize="small")
+                        # add lower slicer <m2>
+                        y = siv_int_levels[4]
+                        siv_subplots[i].axhline(y, color='green', linestyle='dashed', linewidth=0.5)
+                        siv_subplots[i].text(siv_subplots[i].get_xlim()[1] + 0.1, y, f'slicer={y}', fontsize="small")
+                        # add average level 3 <p3>
+                        y = siv_int_levels[2]
+                        siv_subplots[i].axhline(y, color='black', linestyle='dashed', linewidth=0.1)
+                        siv_subplots[i].text(siv_subplots[i].get_xlim()[1] + 0.1, y, f'level3={y}', fontsize="small")
+                        # add average level 2 <p1>
+                        y = siv_int_levels[0]
+                        siv_subplots[i].axhline(y, color='black', linestyle='dashed', linewidth=0.1)
+                        siv_subplots[i].text(siv_subplots[i].get_xlim()[1] + 0.1, y, f'level2={y}', fontsize="small")
+                        # add average level 1 <m3>
+                        y = siv_int_levels[5]
+                        siv_subplots[i].axhline(y, color='black', linestyle='dashed', linewidth=0.1)
+                        siv_subplots[i].text(siv_subplots[i].get_xlim()[1] + 0.1, y, f'level1={y}', fontsize="small")
+                        # add average level 0 <m1>
+                        y = siv_int_levels[3]
+                        siv_subplots[i].axhline(y, color='black', linestyle='dashed', linewidth=0.1)
+                        siv_subplots[i].text(siv_subplots[i].get_xlim()[1] + 0.1, y, f'level0={y}', fontsize="small")
+                        
 
                     plt.show()
                     plt.pause(plotting_interval)
