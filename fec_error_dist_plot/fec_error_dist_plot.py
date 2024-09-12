@@ -159,7 +159,12 @@ async def pre_fec_error_dist_plot(
                 color_array.insert(0, 'g')
                 color_array.append('r')
 
-                pre_fec_error_dist_data[i] = [x + y for x, y in zip(pre_fec_error_dist_data[i], _fec_status.stats[0:n+1])] 
+                pre_fec_error_dist_data[i] = [x + y for x, y in zip(pre_fec_error_dist_data[i], _fec_status.stats[0:n+1])]
+                pre_fec_ber_str = ""
+                if _total_status.total_pre_fec_ber == 0:
+                    pre_fec_ber_str = f"Pre-FEC BER = 0"
+                else:
+                    pre_fec_ber_str = f"Pre-FEC BER = {abs(1/_total_status.total_pre_fec_ber)}"
 
                 pre_fec_subplots[i].cla()
                 pre_fec_subplots[i].relim()
@@ -174,11 +179,17 @@ async def pre_fec_error_dist_plot(
                 # print(pre_fec_error_dist_data_log10)
                 tmp = pre_fec_subplots[i].bar(x=x_axis, height=pre_fec_error_dist_data_log10, color=color_array,)
                 pre_fec_subplots[i].bar_label(container=tmp, fmt='%.1f')
+                x0, xmax = pre_fec_subplots[i].get_xbound()
+                y0, ymax = pre_fec_subplots[i].get_ybound()
+
+                pre_fec_subplots[i].text((x0+xmax)*0.7, (y0+ymax)*0.9, pre_fec_ber_str, fontsize="small")
 
             plt.show()
-            plt.pause(plotting_interval)
+            logging.info(f"Clear FEC counter")
             for p in port_objs:
                 await p.pcs_pma.rx.clear.set()
+            plt.pause(plotting_interval)
+            
 
 
 async def main():
