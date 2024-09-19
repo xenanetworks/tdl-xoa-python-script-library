@@ -62,7 +62,7 @@ async def prbs_ber_stats(chassis: str, username: str, port_str1: str, port_str2:
         if isinstance(module_obj1, modules.Z10OdinModule) or isinstance(module_obj1, modules.E100ChimeraModule):
             logging.info(f"Not Freya or Thor or Loki module")
             return None
-        if isinstance(module_obj2, modules.Z10OdinModule) or isinstance(module_obj2, modules.E100ChimeraModule)
+        if isinstance(module_obj2, modules.Z10OdinModule) or isinstance(module_obj2, modules.E100ChimeraModule):
             logging.info(f"Not Freya or Thor or Loki module")
             return None 
 
