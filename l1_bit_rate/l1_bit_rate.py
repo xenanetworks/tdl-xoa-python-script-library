@@ -38,12 +38,13 @@ import logging
 #---------------------------
 # GLOBAL PARAMS
 #---------------------------
-CHASSIS_IP = "demo.xenanetworks.com"
+CHASSIS_IP = "10.165.136.70"
 USERNAME = "XOA"
-TX_PORT = "0/0"
-RX_PORT = "0/1"
+TX_PORT = "0/4"
+RX_PORT = "0/5"
+FIXED_PACKET_SIZE_BYTE = 100
 
-async def l1_bit_rate(chassis: str, username: str, tx_port_str: str, rx_port_str: str):
+async def l1_bit_rate(chassis: str, username: str, tx_port_str: str, rx_port_str: str, fixed_packet_size_byte :int):
 
     # configure basic logger
     logging.basicConfig(
@@ -105,7 +106,7 @@ async def l1_bit_rate(chassis: str, username: str, tx_port_str: str, rx_port_str
             stream.enable.set_on(),
             stream.comment.set(comment="my stream"),
             stream.rate.fraction.set(1_000_000),
-            stream.packet.length.set(length_type=enums.LengthType.FIXED, min_val=1000, max_val=1000)
+            stream.packet.length.set(length_type=enums.LengthType.FIXED, min_val=fixed_packet_size_byte, max_val=fixed_packet_size_byte)
         )
         
         # Configure RX Port
@@ -127,47 +128,72 @@ async def l1_bit_rate(chassis: str, username: str, tx_port_str: str, rx_port_str
         await asyncio.sleep(1)
 
         #################################################
-        #         TX Port Traffic Rate Statistics       #
+        #     TX & RX Port Traffic Rate Statistics      #
         #################################################
 
+        # get TX port IFG_min
         resp = await tx_port.interframe_gap.get()
         tx_ifg = resp.min_byte_count
-        logging.info(f"TX port inter-frame gap: {tx_ifg} bytes")
+        logging.info(f"{tx_port_str} TX port inter-frame gap: {tx_ifg} bytes")
 
-        resp = await stream.packet.length.get()
-        tx_frame_size = resp.min_val
-        logging.info(f"TX port frame size: {tx_frame_size} bytes")
-
+        # get RX port IFG_min
         resp = await rx_port.interframe_gap.get()
         rx_ifg = resp.min_byte_count
-        logging.info(f"RX port inter-frame gap: {rx_ifg} bytes")
+        logging.info(f"{rx_port_str} RX port inter-frame gap: {rx_ifg} bytes")
+
+        # get stream packet size
+        resp = await stream.packet.length.get()
+        tx_frame_size = resp.min_val
+        logging.info(f"{tx_port_str} TX port frame size: {tx_frame_size} bytes")
+
+        # calculate the TX effective port speed from nominal speed and reduction ppm
+        resp = await tx_port.speed.current.get()
+        tx_port_nominal_speed_Mbps = resp.port_speed
+        resp = await tx_port.speed.reduction.get()
+        tx_port_speed_reduction_ppm = resp.ppm
+        tx_port_effective_speed = tx_port_nominal_speed_Mbps*(1 - tx_port_speed_reduction_ppm/1_000_000)*1_000_000
+        logging.info(f"{tx_port_str} TX port effective speed: {tx_port_effective_speed/1_000_000_000} Gbps")
+
+        # calculate the RX effective port speed from nominal speed and reduction ppm
+        resp = await rx_port.speed.current.get()
+        rx_port_nominal_speed_Mbps = resp.port_speed
+        resp = await rx_port.speed.reduction.get()
+        rx_port_speed_reduction_ppm = resp.ppm
+        rx_port_effective_speed = rx_port_nominal_speed_Mbps*(1 - rx_port_speed_reduction_ppm/1_000_000)*1_000_000
+        logging.info(f"{rx_port_str} RX port effective speed: {rx_port_effective_speed/1_000_000_000} Gbps")
+
 
         for i in range(10):
             # Query port-level traffic statistics
-            resp1, resp2 = await asyncio.gather(
+            tx_resp, rx_resp = await asyncio.gather(
                 tx_port.statistics.tx.total.get(),
                 rx_port.statistics.rx.total.get()
             )
-            # resp = await tx_port.statistics.tx.total.get()
 
-            tx_bps_l2 = resp1.bit_count_last_sec
-            tx_fps = resp1.packet_count_last_sec
+            tx_bps_l2 = tx_resp.bit_count_last_sec
+            tx_fps = tx_resp.packet_count_last_sec
+            tx_byteps = tx_resp.packet_count_last_sec*fixed_packet_size_byte
             tx_bps_l1 = tx_fps*(tx_ifg+tx_frame_size)*8
+            tx_rate_percent = tx_bps_l1/tx_port_effective_speed
 
-            logging.info("*"*(i+1))
-            logging.info(f"TX bits per second (L1): {tx_bps_l1} bps")
-            logging.info(f"TX bits per second (L2): {tx_bps_l2} bps")
-            logging.info(f"TX frames per second: {tx_fps} fps")
-
-            # resp = await rx_port.statistics.rx.total.get()
-            
-            rx_bps_l2 = resp2.bit_count_last_sec
-            rx_fps = resp2.packet_count_last_sec
+            rx_bps_l2 = rx_resp.bit_count_last_sec
+            rx_byteps = rx_resp.packet_count_last_sec*fixed_packet_size_byte
+            rx_fps = rx_resp.packet_count_last_sec
             rx_bps_l1 = rx_fps*rx_ifg*8 + rx_bps_l2
+            rx_rate_percent = rx_bps_l1/rx_port_effective_speed
 
-            logging.info(f"RX bits per second (L1): {rx_bps_l1} bps")
-            logging.info(f"RX bits per second (L2): {rx_bps_l2} bps")
-            logging.info(f"RX frames per second: {rx_fps} fps")
+            logging.info(f"{i}")
+            logging.info(f"{tx_port_str} TX rate percentage (%) : {tx_rate_percent*100}%")
+            logging.info(f"{tx_port_str} TX bits per second (L1): {tx_bps_l1} bps")
+            logging.info(f"{tx_port_str} TX bits per second (L1): {tx_bps_l1} bps")
+            logging.info(f"{tx_port_str} TX bits per second (L2): {tx_bps_l2} bps")
+            logging.info(f"{tx_port_str} TX bytes per second    : {tx_byteps} bytes/s")
+            logging.info(f"{tx_port_str} TX frames per second   : {tx_fps} pps")
+            logging.info(f"{tx_port_str} RX rate percentage (%) : {rx_rate_percent*100}%")
+            logging.info(f"{rx_port_str} RX bits per second (L1): {rx_bps_l1} bits/s")
+            logging.info(f"{rx_port_str} RX bits per second (L2): {rx_bps_l2} bits/s")
+            logging.info(f"{rx_port_str} RX bytes per second    : {rx_byteps} bytes/s")
+            logging.info(f"{rx_port_str} RX frames per second   : {rx_fps} pps")
 
             await asyncio.sleep(1)
 
@@ -188,7 +214,8 @@ async def main():
             chassis=CHASSIS_IP,
             username=USERNAME,
             tx_port_str=TX_PORT,
-            rx_port_str=RX_PORT
+            rx_port_str=RX_PORT,
+            fixed_packet_size_byte=FIXED_PACKET_SIZE_BYTE
         )
     except KeyboardInterrupt:
         stop_event.set()
