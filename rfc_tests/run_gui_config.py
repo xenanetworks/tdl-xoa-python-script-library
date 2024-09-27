@@ -1,9 +1,27 @@
+################################################################
+#
+#                   RFC TEST SUITE USING GUI CONFIG
+#
+# This script shows you how to run Xena 2544/2889/3918 
+# configurations using xoa-core
+# 
+# The latest 2544/2889/3918 plugins are already included in rfc_lib/
+
+# 1. The script first convert the Xena test suite GUI configuration 
+# files (.v2544, .v2889, .v3918, .x2544, .x2889, .x3918) into .json, 
+# which is used by the xoa-core.
+# 
+# 2. Then run the test configuration on the specified chassis given 
+# by CHASSIS_IP.
+# 
+# 3. The script saves the final results into the specified csv file, 
+# given by DATA_FILE.
+# 
+#
+################################################################
 from __future__ import annotations
 import sys
-from xoa_core import (
-    controller,
-    types,
-)
+from xoa_core import controller, types
 import asyncio
 import json
 import csv
@@ -19,14 +37,18 @@ except ImportError:
 
 PROJECT_PATH = Path(__file__).parent
 PLUGINS_PATH = PROJECT_PATH / "rfc_lib"
-XENA2544_CONFIG = PROJECT_PATH / "demo.x2544"
-XOA2544_CONFIG = PROJECT_PATH / "demo.json"
-DATA_FILE = PROJECT_PATH / "data_file.csv"
 
+#---------------------------
+# Global parameters
+#---------------------------
+RFC_TYPE = TestSuiteType.RFC2544 # allowed values: "RFC2544", "RFC2889", "RFC3918"
+GUI_CONFIG = PROJECT_PATH / "demo.x2544"
+XOA_CONFIG = PROJECT_PATH / "demo.json"
+DATA_FILE = PROJECT_PATH / "demo.csv"
 CHASSIS_IP = "10.165.136.70"
 
-def normalize_json(data: dict) -> dict: 
 
+def normalize_json(data: dict) -> dict: 
     new_data = dict() 
     for key, value in data.items(): 
         if not isinstance(value, dict): 
@@ -34,46 +56,48 @@ def normalize_json(data: dict) -> dict:
         else: 
             for k, v in value.items(): 
                 new_data[key + "_" + k] = v 
-
     return new_data
 
-async def main() -> None:
+#---------------------------
+# run_xoa_rfc
+#---------------------------
+async def run_xoa_rfc(chassis: str, plugin_path: Path, gui_config: Path, rfc_type: TestSuiteType) -> None:
     # Define your tester login credentials
     my_tester_credential = types.Credentials(
         product=types.EProductType.VALKYRIE,
-        host=CHASSIS_IP
+        host=chassis
     )
 
     # Create a default instance of the controller class.
     ctrl = await controller.MainController()
 
     # Register the plugins folder.
-    ctrl.register_lib(str(PLUGINS_PATH))
+    ctrl.register_lib(str(plugin_path))
 
     # Add tester credentials into teh controller. If already added, it will be ignored.
     # If you want to add a list of testers, you need to iterate through the list.
     await ctrl.add_tester(my_tester_credential)
 
-    # Convert Valkyrie 2544 config into XOA 2544 config and run.
-    with open(XENA2544_CONFIG, "r") as f:
-        # get rfc2544 test suite information from the core's registration
-        info = ctrl.get_test_suite_info("RFC-2544")
+    # Convert GUI config into XOA config and run.
+    with open(gui_config, "r") as f:
+        # get test suite information from the core's registration
+        info = ctrl.get_test_suite_info(rfc_type.value)
         if not info:
             print("Test suite is not recognized.")
             return None
 
-        # convert the old config file into new config file
-        new_data = converter(TestSuiteType.RFC2544, f.read())
+        # convert the GUI config file into XOA config file
+        xoa_config = converter(rfc_type, f.read())
 
         # save new data in xoa json
-        with open(XOA2544_CONFIG, "w") as f:
-            f.write(new_data)
+        with open(XOA_CONFIG, "w") as f:
+            f.write(xoa_config)
 
         # you can use the config file below to start the test
-        new_config = json.loads(new_data)
+        xoa_config_json = json.loads(xoa_config)
 
-        # Test suite name: "RFC-2544" is received from call of c.get_available_test_suites()
-        execution_id = ctrl.start_test_suite("RFC-2544", new_config)
+        # Test suite name is received from call of c.get_available_test_suites()
+        execution_id = ctrl.start_test_suite(rfc_type.value, xoa_config_json)
 
         # The example here only shows a print of test result data.
         async for msg in ctrl.listen_changes(execution_id, _filter={types.EMsgType.STATISTICS}):
@@ -94,6 +118,18 @@ async def main() -> None:
     # terminated as the test execution and subscription are non blockable, and they ran asynchronously,
     # await asyncio.Event().wait()
 
+async def main():
+    stop_event =asyncio.Event()
+    try:
+        await run_xoa_rfc(
+            chassis=CHASSIS_IP,
+            plugin_path=PLUGINS_PATH,
+            gui_config=GUI_CONFIG,
+            rfc_type=RFC_TYPE,
+        )
+    except KeyboardInterrupt:
+        stop_event.set()
 
-if __name__ == "__main__":
+
+if __name__=="__main__":
     asyncio.run(main())

@@ -13,11 +13,3 @@ This example demonstrates how to run RFC 2544/2889/3918 tests using XOA RFC test
 5. Write final results into csv
 
 > In the script example, it uses the ```demo.x2544``` file. The only difference between the ```demo.x2544``` and the ```demo.v2544``` file is the file extension name. If you want to run the ```demo.v2544```, simply change line 22 ```XENA2544_CONFIG = PROJECT_PATH / "demo.x2544"``` to ```XENA2544_CONFIG = PROJECT_PATH / "demo.v2544"```
-
-
-```run_xoa_json.py``` script does the following:
-
-1. Add tester into framework resource inventory and connect to it
-2. Run the test configuration file ```demo.json```
-3. Subscribe to result
-4. Write final results into csv
