@@ -888,9 +888,9 @@ class HwModifier(BaseModel):
     position: NonNegativeInt = 0  # byte position from all segment start
 
     @validator("mask", pre=True, always=True)
-    def set_mask(cls, v):
+    def set_(cls, v):
         v = v[2:6] if v.startswith("0x") else v
-        return f"{v}0000"
+        return f"{v}"
 
 
 class FieldValueRange(BaseModel):

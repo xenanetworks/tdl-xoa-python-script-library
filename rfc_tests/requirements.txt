@@ -1,3 +1,3 @@
-xoa-converter
-xoa-core
-xoa-driver
+xoa-converter>=2.0.2
+xoa-core>=2.0.3
+xoa-driver>=2.7.0
