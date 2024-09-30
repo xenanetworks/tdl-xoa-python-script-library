@@ -14,8 +14,7 @@
 # 2. Then run the test configuration on the specified chassis given 
 # by CHASSIS_IP.
 # 
-# 3. The script saves the final results into the specified csv file, 
-# given by DATA_FILE.
+# 3. The script prints out the test data
 # 
 #
 ################################################################
@@ -42,9 +41,9 @@ PLUGINS_PATH = PROJECT_PATH / "rfc_lib"
 # Global parameters
 #---------------------------
 RFC_TYPE = TestSuiteType.RFC2544 # allowed values: "RFC2544", "RFC2889", "RFC3918"
-GUI_CONFIG = PROJECT_PATH / "demo.x2544"
+GUI_CONFIG = PROJECT_PATH / "demo.v2544"
 XOA_CONFIG = PROJECT_PATH / "demo.json"
-DATA_FILE = PROJECT_PATH / "demo.csv"
+# DATA_FILE = PROJECT_PATH / "demo.csv"
 CHASSIS_IP = "10.165.136.70"
 
 
@@ -102,17 +101,9 @@ async def run_xoa_rfc(chassis: str, plugin_path: Path, gui_config: Path, rfc_typ
         # The example here only shows a print of test result data.
         async for msg in ctrl.listen_changes(execution_id, _filter={types.EMsgType.STATISTICS}):
             result_data = json.loads(msg.payload.json())
-            if result_data["is_final"] == True:
-                if result_data["result_state"] == "done":
-                    print(result_data)
-
-                    # open a file for writing
-                    with open(DATA_FILE, 'a') as data_file:
-                        # create the csv writer object
-                        csv_writer = csv.writer(data_file)
-                        header = result_data.keys()
-                        csv_writer.writerow(header)
-                        csv_writer.writerow(result_data.values())
+            print(result_data)
+            # It is up to the user to decide how to process and store the test result data.
+            # Different RFC test suite plugin has different test result data structure.
                         
     # By the next line, we prevent the script from being immediately
     # terminated as the test execution and subscription are non blockable, and they ran asynchronously,
