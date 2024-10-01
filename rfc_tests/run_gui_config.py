@@ -31,7 +31,7 @@ try:
     from xoa_converter.entry import converter
     from xoa_converter.types import TestSuiteType
 except ImportError:
-    print("XOA Converter is an independent module and it needs to be installed via `pip install xoa-converter`")
+    print("XOA Converter is an independent module and it needs to be installed via `pip install -U xoa-converter`")
     sys.exit()
 
 PROJECT_PATH = Path(__file__).parent
@@ -40,13 +40,15 @@ PLUGINS_PATH = PROJECT_PATH / "rfc_lib"
 #---------------------------
 # Global parameters
 #---------------------------
-RFC_TYPE = TestSuiteType.RFC2544 # allowed values: "RFC2544", "RFC2889", "RFC3918"
 GUI_CONFIG = PROJECT_PATH / "demo.v2544"
 XOA_CONFIG = PROJECT_PATH / "demo.json"
 # DATA_FILE = PROJECT_PATH / "demo.csv"
 CHASSIS_IP = "10.165.136.70"
 
 
+#---------------------------
+# internal functions
+#---------------------------
 def normalize_json(data: dict) -> dict: 
     new_data = dict() 
     for key, value in data.items(): 
@@ -57,10 +59,20 @@ def normalize_json(data: dict) -> dict:
                 new_data[key + "_" + k] = v 
     return new_data
 
+def read_rfc_type(gui_config: Path) -> TestSuiteType:
+    file_extension = Path(gui_config).suffix
+    if file_extension == ".v2544" or file_extension == ".x2544":
+        return TestSuiteType.RFC2544
+    elif file_extension == ".v2889" or file_extension == ".x2889":
+        return TestSuiteType.RFC2889
+    else:
+        return TestSuiteType.RFC3918
+        
+
 #---------------------------
 # run_xoa_rfc
 #---------------------------
-async def run_xoa_rfc(chassis: str, plugin_path: Path, gui_config: Path, rfc_type: TestSuiteType) -> None:
+async def run_xoa_rfc(chassis: str, plugin_path: Path, gui_config: Path) -> None:
     # Define your tester login credentials
     my_tester_credential = types.Credentials(
         product=types.EProductType.VALKYRIE,
@@ -79,6 +91,10 @@ async def run_xoa_rfc(chassis: str, plugin_path: Path, gui_config: Path, rfc_typ
 
     # Convert GUI config into XOA config and run.
     with open(gui_config, "r") as f:
+        
+        # get the rfc type from the filename
+        rfc_type = read_rfc_type(gui_config)
+
         # get test suite information from the core's registration
         info = ctrl.get_test_suite_info(rfc_type.value)
         if not info:
@@ -116,7 +132,6 @@ async def main():
             chassis=CHASSIS_IP,
             plugin_path=PLUGINS_PATH,
             gui_config=GUI_CONFIG,
-            rfc_type=RFC_TYPE,
         )
     except KeyboardInterrupt:
         stop_event.set()
