@@ -73,8 +73,8 @@ async def freya_tx_tune(
             return None
 
         # set using NATIVE
-        logging.info(f"Write (native): pre3=0, pre2=0, pre=21, main=77, post=13")
-        await port_obj.l1.serdes[serdes_id].medium.tx.native.set(pre3=0, pre2=0, pre=21, main=77, post=13)
+        logging.info(f"Write (native): pre3=0, pre2=0, pre=3, main=42, post=0")
+        await port_obj.l1.serdes[serdes_id].medium.tx.native.set(pre3=0, pre2=0, pre=3, main=42, post=3)
 
         # get using NATIVE, LEVEL, and IEEE
         resp = await port_obj.l1.serdes[serdes_id].medium.tx.native.get()
@@ -85,8 +85,8 @@ async def freya_tx_tune(
         logging.info(f"Read (IEEE):  pre3 = {resp.pre3/1000}, pre2 = {resp.pre2/1000}, pre = {resp.pre/1000}, main = {resp.main/1000}, post = {resp.post/1000}")
 
         # set using LEVEL
-        logging.info(f"Write (level): pre3=0.0 dB, pre2=0.0 dB, pre=5.7 dB, main=900 mV, post=3.0 dB")
-        await port_obj.l1.serdes[serdes_id].medium.tx.level.set(pre3=0, pre2=0, pre=57, main=900, post=30)
+        logging.info(f"Write (level): pre3=0.0 dB, pre2=0.0 dB, pre=1.2 dB, main=483 mV, post=0.0 dB")
+        await port_obj.l1.serdes[serdes_id].medium.tx.level.set(pre3=0, pre2=0, pre=12, main=483, post=0)
 
         # get using NATIVE, LEVEL, and IEEE
         resp = await port_obj.l1.serdes[serdes_id].medium.tx.native.get()
@@ -97,8 +97,8 @@ async def freya_tx_tune(
         logging.info(f"Read (IEEE):  pre3 = {resp.pre3/1000}, pre2 = {resp.pre2/1000}, pre = {resp.pre/1000}, main = {resp.main/1000}, post = {resp.post/1000}")
 
         # set using IEEE
-        logging.info(f"Write (level): pre3=0.0, pre2=0.0, pre=-0.362, main=1.125, post=-0.199")
-        await port_obj.l1.serdes[serdes_id].medium.tx.ieee.set(pre3=0, pre2=0, pre=-361, main=1125, post=-199)
+        logging.info(f"Write (level): pre3=0.0, pre2=0.0, pre=-0.034, main=0.483, post=0")
+        await port_obj.l1.serdes[serdes_id].medium.tx.ieee.set(pre3=0, pre2=0, pre=-34, main=483, post=0)
 
         # get using NATIVE, LEVEL, and IEEE
         resp = await port_obj.l1.serdes[serdes_id].medium.tx.native.get()
