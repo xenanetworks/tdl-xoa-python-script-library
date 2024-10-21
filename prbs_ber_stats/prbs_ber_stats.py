@@ -28,10 +28,10 @@ import logging
 #---------------------------
 # GLOBAL PARAMS
 #---------------------------
-CHASSIS_IP = "10.165.136.70"
+CHASSIS_IP = "10.165.136.60"
 USERNAME = "XOA"
-PORT1 = "4/0"       
-PORT2 = "4/1"
+PORT1 = "3/0"       
+PORT2 = "6/0"
 DURATION = 20
 
 #---------------------------
@@ -66,7 +66,7 @@ async def prbs_ber_stats(chassis: str, username: str, port_str1: str, port_str2:
             logging.info(f"Not Freya or Thor or Loki module")
             return None 
 
-        # Get the port as TX port
+        # Get the port objects
         port_obj1 = module_obj1.ports.obtain(_pid1)
         port_obj2 = module_obj2.ports.obtain(_pid2)
 
@@ -86,30 +86,31 @@ async def prbs_ber_stats(chassis: str, username: str, port_str1: str, port_str2:
         _serdes_count2 = _p_capability2.serdes_count
         logging.info(f"Port {_mid2}/{_pid2} Serdes Count: {_serdes_count2}")
 
-        # Set PRBS TX Config
+        # Set PRBS Config on the TX port
         await port_obj1.pcs_pma.prbs_config.type.set(
             prbs_inserted_type=enums.PRBSInsertedType.PHY_LINE,
-            polynomial=enums.PRBSPolynomial.PRBS31,
-            invert=enums.PRBSInvertState.NON_INVERTED,
+            polynomial=enums.PRBSPolynomial.PRBS13,
+            invert=enums.PRBSInvertState.INVERTED,
             statistics_mode=enums.PRBSStatisticsMode.PERSECOND)
+        # Set PRBS Config on the RX port
         await port_obj2.pcs_pma.prbs_config.type.set(
             prbs_inserted_type=enums.PRBSInsertedType.PHY_LINE,
-            polynomial=enums.PRBSPolynomial.PRBS31,
-            invert=enums.PRBSInvertState.NON_INVERTED,
+            polynomial=enums.PRBSPolynomial.PRBS13,
+            invert=enums.PRBSInvertState.INVERTED,
             statistics_mode=enums.PRBSStatisticsMode.PERSECOND)
 
-        # Enable PRBS on all serdes
+        # Enable PRBS on all serdes on the Tx port
         for i in range(_serdes_count1):
             await port_obj1.serdes[i].prbs.tx_config.set(prbs_seed=0, prbs_on_off=enums.PRBSOnOff.PRBSON, error_on_off=enums.ErrorOnOff.ERRORSOFF)
 
-        _list = []
-        for i in range(_serdes_count1):
-            _list.append(port_obj1.serdes[i].prbs.tx_config.set(prbs_seed=0, prbs_on_off=enums.PRBSOnOff.PRBSON, error_on_off=enums.ErrorOnOff.ERRORSOFF))
-        await utils.apply(*_list)
+        # _list = []
+        # for i in range(_serdes_count1):
+        #     _list.append(port_obj1.serdes[i].prbs.tx_config.set(prbs_seed=0, prbs_on_off=enums.PRBSOnOff.PRBSON, error_on_off=enums.ErrorOnOff.ERRORSOFF))
+        # await utils.apply(*_list)
 
         await asyncio.sleep(2.0)
 
-        # clear counters
+        # clear counters on the Rx port
         await port_obj2.pcs_pma.rx.clear.set()
 
         # Sample PRBS status counter on the other port every second for 20 secs.
