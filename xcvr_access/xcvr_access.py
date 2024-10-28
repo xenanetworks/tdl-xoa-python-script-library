@@ -94,6 +94,10 @@ async def xcvr_access(chassis: str, username: str, port_str: str):
         # Write transceiver's register value (sequential write)
         await port_obj.transceiver.access_rw_seq(page_address=0xA2, register_address=0x69, byte_count=16).set(Hex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"))
 
+        # Read transceiver's register value (sequential read with bank)
+        i2c_read_bank = await port_obj.transceiver.access_rw_seq_bank(bank_address=0x00, page_address=0x20, register_address=0x80, byte_count=1).get()
+        logging.info(i2c_read_bank.value)
+
         # Release the port
         await port_obj.reservation.set_release()
 
