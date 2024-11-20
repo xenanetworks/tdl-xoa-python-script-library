@@ -16,6 +16,14 @@ This repository includes examples of using [XOA Python API](https://docs.xenanet
 
 * [async_wrapper](https://github.com/xenanetworks/open-automation-script-library/tree/main/async_wrapper): The APIs provided by xoa-driver are **async** functions. This means any function that uses the xoa-driver must be declared as **async**. This might be a problem for you if your existing framework doesn't support async functions. To solve this "incompatibility" issue, we have made an async wrapper class **XenaAsyncWrapper** for you to wrap xoa-driver's async function inside and use it as a regular Python function.
 
+  **With XenaAsyncWrapper, you can develop your own Robot Framework library using APIs from the xoa-driver**.
+
+---
+
+### Robot Framework Library Example
+
+* [robot_framework](https://github.com/xenanetworks/open-automation-script-library/tree/main/robot_framework): You can develop your own Robot Framework library using APIs from xoa-driver to communicate with the test equipment. In this example, we are **demonstrating how you can use xoa-driver and XenaAsyncWrapper to develop a simple library for Robot**.
+
 ---
 
 ### Automated Test Suite
