@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 7.1 (Python 3.11.4 on darwin)" generated="2024-11-21T19:07:15.433866" rpa="false" schemaversion="5">
+<suite id="s1" name="Test" source="/Users/leonardyu/GitHub/open-automation-script-library/robot_framework/test.robot">
+<test id="s1-t1" name="Just to Try" line="17">
+<kw name="Log" owner="BuiltIn">
+<msg time="2024-11-21T19:07:15.649953" level="INFO">this is just a message</msg>
+<arg>this is just a message</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2024-11-21T19:07:15.649866" elapsed="0.000118"/>
+</kw>
+<kw name="Connect Chassis" owner="XOARobot">
+<arg>${CHASSIS}</arg>
+<status status="PASS" start="2024-11-21T19:07:15.650071" elapsed="0.984261"/>
+</kw>
+<kw name="Reserve Port" owner="XOARobot">
+<arg>${PORT}</arg>
+<status status="PASS" start="2024-11-21T19:07:16.634538" elapsed="0.287700"/>
+</kw>
+<kw name="Reset Port" owner="XOARobot">
+<arg>${PORT}</arg>
+<status status="PASS" start="2024-11-21T19:07:16.922481" elapsed="0.614005"/>
+</kw>
+<kw name="Release Port" owner="XOARobot">
+<arg>${PORT}</arg>
+<status status="PASS" start="2024-11-21T19:07:17.536812" elapsed="0.172016"/>
+</kw>
+<kw name="Read Port Description">
+<kw name="Get Port Description" owner="XOARobot">
+<msg time="2024-11-21T19:07:17.764160" level="INFO">${value} = Port number 0</msg>
+<var>${value}</var>
+<arg>${port}</arg>
+<status status="PASS" start="2024-11-21T19:07:17.709517" elapsed="0.054694"/>
+</kw>
+<return>
+<value>${value}</value>
+<status status="PASS" start="2024-11-21T19:07:17.764275" elapsed="0.000077"/>
+</return>
+<msg time="2024-11-21T19:07:17.764502" level="INFO">${x} = Port number 0</msg>
+<var>${x}</var>
+<doc>This performs a read</doc>
+<status status="PASS" start="2024-11-21T19:07:17.709187" elapsed="0.055332"/>
+</kw>
+<kw name="Log To Console" owner="BuiltIn">
+<arg>${x}</arg>
+<doc>Logs the given message to the console.</doc>
+<status status="PASS" start="2024-11-21T19:07:17.764740" elapsed="0.000161"/>
+</kw>
+<kw name="Disconnect Chassis" owner="XOARobot">
+<status status="PASS" start="2024-11-21T19:07:17.765026" elapsed="0.055454"/>
+</kw>
+<doc>This is just a test</doc>
+<status status="PASS" start="2024-11-21T19:07:15.649452" elapsed="2.171174"/>
+</test>
+<doc>This is a test</doc>
+<status status="PASS" start="2024-11-21T19:07:15.434492" elapsed="2.386364"/>
+</suite>
+<statistics>
+<total>
+<stat pass="1" fail="0" skip="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat pass="1" fail="0" skip="0" id="s1" name="Test">Test</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>

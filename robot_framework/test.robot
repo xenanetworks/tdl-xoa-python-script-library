@@ -3,8 +3,8 @@ Documentation   This is a test
 Library    XOARobot.py
 
 *** Variables ***
-${CHASSIS}      10.165.136.66
-${PORT}         8/0
+${CHASSIS}      10.165.136.70
+${PORT}         0/0
 
 *** Keywords ***
 Read Port Description
