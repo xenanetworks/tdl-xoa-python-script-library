@@ -1,0 +1,1474 @@
+2024-11-27 10:23:29,631  #####################################################################
+2024-11-27 10:23:29,631  Tester credential:
+2024-11-27 10:23:29,631    Chassis:            10.165.136.70
+2024-11-27 10:23:29,631  #####################################################################
+2024-11-27 10:23:30,039  Create XOA core controller
+2024-11-27 10:23:30,164  Register plugin path: /Users/leonardyu/GitHub/open-automation-script-library/rfc_tests/rfc_lib
+2024-11-27 10:23:30,165  Add tester to controller
+2024-11-27 10:23:30,165  Get the RFC type from the config filename
+2024-11-27 10:23:30,179  Convert /Users/leonardyu/GitHub/open-automation-script-library/rfc_tests/demo.x2544 into /Users/leonardyu/GitHub/open-automation-script-library/rfc_tests/demo.json
+2024-11-27 10:23:30,180  Execute the RFC test. (Execution ID: 2fbe2b8e-3fe6-49e8-9469-dddb06dc62e4)
+2024-11-27 10:24:11,400  RFC-2544 THROUGHPUT test result (final)
+2024-11-27 10:24:11,401  {
+    "frame_size": 512.0,
+    "is_final": true,
+    "loop": 1,
+    "port_data": [
+        {
+            "actual_rate_percent": 99.99986976,
+            "burst_bytes_count": 1203005952,
+            "burst_frames": 0,
+            "duration": 10.0,
+            "fcs_error_frames": 0,
+            "frame_size": 512.0,
+            "gap_count": 0,
+            "gap_duration": 0,
+            "interframe_gap": 20.0,
+            "is_final": true,
+            "jitter": {
+                "average": 59,
+                "maximum": 88,
+                "minimum": 0
+            },
+            "latency": {
+                "average": 154,
+                "maximum": 207,
+                "minimum": 95
+            },
+            "loss_frames": 0,
+            "loss_ratio": 0.0,
+            "port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+            "port_speed": 1000000000.0,
+            "rate_percent": 100.0,
+            "rx_counter": {
+                "bps": 0,
+                "bytes_count": 1203005952,
+                "counter_type": 1,
+                "fps": 234962,
+                "frame_rate": 234962.1,
+                "frames": 2349621,
+                "l1_bit_rate": 999998697.6,
+                "l1_bps": 999998696,
+                "l2_bit_rate": 962404761.6,
+                "l2_bps": 962404761,
+                "pps": 0,
+                "tx_l1_bps": 999998697.6
+            },
+            "stream_statistic": [
+                {
+                    "burst_frames": 0,
+                    "dest_port_addr": "04F4BCB967F5",
+                    "dest_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+                    "jitter": {
+                        "average": 12,
+                        "maximum": 88,
+                        "minimum": 0
+                    },
+                    "latency": {
+                        "average": 143,
+                        "maximum": 167,
+                        "minimum": 55
+                    },
+                    "live_loss_frames": 0,
+                    "rx_counter": {
+                        "bps": 0,
+                        "bytes_count": 1203005952,
+                        "frame_rate": 0.0,
+                        "frames": 2349621,
+                        "l1_bit_rate": 0.0,
+                        "l2_bit_rate": 0.0,
+                        "pps": 0,
+                        "tx_l1_bps": 0.0
+                    },
+                    "src_port_addr": "04F4BCB967F4",
+                    "src_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+                    "tx_counter": {
+                        "bps": 0,
+                        "bytes_count": 0,
+                        "frame_rate": 234962.1,
+                        "frames": 2349621,
+                        "l1_bit_rate": 999998697.6,
+                        "l2_bit_rate": 962404761.6,
+                        "pps": 0,
+                        "tx_l1_bps": 999998697.6
+                    }
+                }
+            ],
+            "tx_counter": {
+                "bps": 0,
+                "bytes_count": 0,
+                "counter_type": 0,
+                "fps": 234962,
+                "frame_rate": 234962.1,
+                "frames": 2349621,
+                "l1_bit_rate": 999998697.6,
+                "l1_bps": 999998697,
+                "l2_bit_rate": 962404761.6,
+                "l2_bps": 962404761,
+                "pps": 0,
+                "tx_l1_bps": 999998697.6
+            },
+            "tx_rate_fps_theor": 234962,
+            "tx_rate_l1_bps_theor": 1000000000
+        },
+        {
+            "actual_rate_percent": 99.99986976,
+            "burst_bytes_count": 1203005952,
+            "burst_frames": 0,
+            "duration": 10.0,
+            "fcs_error_frames": 0,
+            "frame_size": 512.0,
+            "gap_count": 0,
+            "gap_duration": 0,
+            "interframe_gap": 20.0,
+            "is_final": true,
+            "jitter": {
+                "average": 12,
+                "maximum": 88,
+                "minimum": 0
+            },
+            "latency": {
+                "average": 143,
+                "maximum": 167,
+                "minimum": 55
+            },
+            "loss_frames": 0,
+            "loss_ratio": 0.0,
+            "port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+            "port_speed": 1000000000.0,
+            "rate_percent": 100.0,
+            "rx_counter": {
+                "bps": 0,
+                "bytes_count": 1203005952,
+                "counter_type": 1,
+                "fps": 234962,
+                "frame_rate": 234962.1,
+                "frames": 2349621,
+                "l1_bit_rate": 999998697.6,
+                "l1_bps": 999998696,
+                "l2_bit_rate": 962404761.6,
+                "l2_bps": 962404761,
+                "pps": 0,
+                "tx_l1_bps": 999998697.6
+            },
+            "stream_statistic": [
+                {
+                    "burst_frames": 0,
+                    "dest_port_addr": "04F4BCB967F4",
+                    "dest_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+                    "jitter": {
+                        "average": 59,
+                        "maximum": 88,
+                        "minimum": 0
+                    },
+                    "latency": {
+                        "average": 154,
+                        "maximum": 207,
+                        "minimum": 95
+                    },
+                    "live_loss_frames": 0,
+                    "rx_counter": {
+                        "bps": 0,
+                        "bytes_count": 1203005952,
+                        "frame_rate": 0.0,
+                        "frames": 2349621,
+                        "l1_bit_rate": 0.0,
+                        "l2_bit_rate": 0.0,
+                        "pps": 0,
+                        "tx_l1_bps": 0.0
+                    },
+                    "src_port_addr": "04F4BCB967F5",
+                    "src_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+                    "tx_counter": {
+                        "bps": 0,
+                        "bytes_count": 0,
+                        "frame_rate": 234962.1,
+                        "frames": 2349621,
+                        "l1_bit_rate": 999998697.6,
+                        "l2_bit_rate": 962404761.6,
+                        "pps": 0,
+                        "tx_l1_bps": 999998697.6
+                    }
+                }
+            ],
+            "tx_counter": {
+                "bps": 0,
+                "bytes_count": 0,
+                "counter_type": 0,
+                "fps": 234962,
+                "frame_rate": 234962.1,
+                "frames": 2349621,
+                "l1_bit_rate": 999998697.6,
+                "l1_bps": 999998697,
+                "l2_bit_rate": 962404761.6,
+                "l2_bps": 962404761,
+                "pps": 0,
+                "tx_l1_bps": 999998697.6
+            },
+            "tx_rate_fps_theor": 234962,
+            "tx_rate_l1_bps_theor": 1000000000
+        }
+    ],
+    "rate_result_scope": "common_result",
+    "repetition": 1,
+    "result_state": "pending",
+    "test_case_type": "throughput",
+    "test_suite_type": "RFC-2544",
+    "total": {
+        "ber_percent": 0.0,
+        "fcs_error_frames": 0,
+        "gap_count": 0,
+        "gap_duration": 0,
+        "jitter": {
+            "average": 35,
+            "maximum": 88,
+            "minimum": 0
+        },
+        "latency": {
+            "average": 148,
+            "maximum": 187,
+            "minimum": 75
+        },
+        "rx_counter": {
+            "bytes_count": 2406011904,
+            "fps": 469924,
+            "frames": 4699242,
+            "l1_bps": 1999997392,
+            "l2_bps": 1924809522
+        },
+        "rx_loss_frames": 0,
+        "rx_loss_percent": 0.0,
+        "tx_burst_bytes": 2406011904,
+        "tx_burst_frames": 0,
+        "tx_counter": {
+            "bytes_count": 0,
+            "fps": 469924,
+            "frames": 4699242,
+            "l1_bps": 1999997394,
+            "l2_bps": 1924809522
+        },
+        "tx_rate_fps_theor": 469924,
+        "tx_rate_l1_bps_theor": 2000000000
+    },
+    "tx_rate_percent": 100.0
+}
+2024-11-27 10:24:16,413  RFC-2544 THROUGHPUT test result (final)
+2024-11-27 10:24:16,414  {
+    "frame_size": 512.0,
+    "is_final": true,
+    "loop": 1,
+    "port_data": [
+        {
+            "actual_rate_percent": 99.99986976,
+            "burst_bytes_count": 1203005952,
+            "burst_frames": 0,
+            "duration": 10.0,
+            "fcs_error_frames": 0,
+            "frame_size": 512.0,
+            "gap_count": 0,
+            "gap_duration": 0,
+            "interframe_gap": 20.0,
+            "is_final": true,
+            "jitter": {
+                "average": 59,
+                "maximum": 88,
+                "minimum": 0
+            },
+            "latency": {
+                "average": 154,
+                "maximum": 207,
+                "minimum": 95
+            },
+            "loss_frames": 0,
+            "loss_ratio": 0.0,
+            "port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+            "port_speed": 1000000000.0,
+            "rate_percent": 100.0,
+            "rx_counter": {
+                "bps": 0,
+                "bytes_count": 1203005952,
+                "counter_type": 1,
+                "fps": 234962,
+                "frame_rate": 234962.1,
+                "frames": 2349621,
+                "l1_bit_rate": 999998697.6,
+                "l1_bps": 999998696,
+                "l2_bit_rate": 962404761.6,
+                "l2_bps": 962404761,
+                "pps": 0,
+                "tx_l1_bps": 999998697.6
+            },
+            "stream_statistic": [
+                {
+                    "burst_frames": 0,
+                    "dest_port_addr": "04F4BCB967F5",
+                    "dest_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+                    "jitter": {
+                        "average": 12,
+                        "maximum": 88,
+                        "minimum": 0
+                    },
+                    "latency": {
+                        "average": 143,
+                        "maximum": 167,
+                        "minimum": 55
+                    },
+                    "live_loss_frames": 0,
+                    "rx_counter": {
+                        "bps": 0,
+                        "bytes_count": 1203005952,
+                        "frame_rate": 0.0,
+                        "frames": 2349621,
+                        "l1_bit_rate": 0.0,
+                        "l2_bit_rate": 0.0,
+                        "pps": 0,
+                        "tx_l1_bps": 0.0
+                    },
+                    "src_port_addr": "04F4BCB967F4",
+                    "src_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+                    "tx_counter": {
+                        "bps": 0,
+                        "bytes_count": 0,
+                        "frame_rate": 234962.1,
+                        "frames": 2349621,
+                        "l1_bit_rate": 999998697.6,
+                        "l2_bit_rate": 962404761.6,
+                        "pps": 0,
+                        "tx_l1_bps": 999998697.6
+                    }
+                }
+            ],
+            "tx_counter": {
+                "bps": 0,
+                "bytes_count": 0,
+                "counter_type": 0,
+                "fps": 234962,
+                "frame_rate": 234962.1,
+                "frames": 2349621,
+                "l1_bit_rate": 999998697.6,
+                "l1_bps": 999998697,
+                "l2_bit_rate": 962404761.6,
+                "l2_bps": 962404761,
+                "pps": 0,
+                "tx_l1_bps": 999998697.6
+            },
+            "tx_rate_fps_theor": 234962,
+            "tx_rate_l1_bps_theor": 1000000000
+        },
+        {
+            "actual_rate_percent": 99.99986976,
+            "burst_bytes_count": 1203005952,
+            "burst_frames": 0,
+            "duration": 10.0,
+            "fcs_error_frames": 0,
+            "frame_size": 512.0,
+            "gap_count": 0,
+            "gap_duration": 0,
+            "interframe_gap": 20.0,
+            "is_final": true,
+            "jitter": {
+                "average": 12,
+                "maximum": 88,
+                "minimum": 0
+            },
+            "latency": {
+                "average": 143,
+                "maximum": 167,
+                "minimum": 55
+            },
+            "loss_frames": 0,
+            "loss_ratio": 0.0,
+            "port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+            "port_speed": 1000000000.0,
+            "rate_percent": 100.0,
+            "rx_counter": {
+                "bps": 0,
+                "bytes_count": 1203005952,
+                "counter_type": 1,
+                "fps": 234962,
+                "frame_rate": 234962.1,
+                "frames": 2349621,
+                "l1_bit_rate": 999998697.6,
+                "l1_bps": 999998696,
+                "l2_bit_rate": 962404761.6,
+                "l2_bps": 962404761,
+                "pps": 0,
+                "tx_l1_bps": 999998697.6
+            },
+            "stream_statistic": [
+                {
+                    "burst_frames": 0,
+                    "dest_port_addr": "04F4BCB967F4",
+                    "dest_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+                    "jitter": {
+                        "average": 59,
+                        "maximum": 88,
+                        "minimum": 0
+                    },
+                    "latency": {
+                        "average": 154,
+                        "maximum": 207,
+                        "minimum": 95
+                    },
+                    "live_loss_frames": 0,
+                    "rx_counter": {
+                        "bps": 0,
+                        "bytes_count": 1203005952,
+                        "frame_rate": 0.0,
+                        "frames": 2349621,
+                        "l1_bit_rate": 0.0,
+                        "l2_bit_rate": 0.0,
+                        "pps": 0,
+                        "tx_l1_bps": 0.0
+                    },
+                    "src_port_addr": "04F4BCB967F5",
+                    "src_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+                    "tx_counter": {
+                        "bps": 0,
+                        "bytes_count": 0,
+                        "frame_rate": 234962.1,
+                        "frames": 2349621,
+                        "l1_bit_rate": 999998697.6,
+                        "l2_bit_rate": 962404761.6,
+                        "pps": 0,
+                        "tx_l1_bps": 999998697.6
+                    }
+                }
+            ],
+            "tx_counter": {
+                "bps": 0,
+                "bytes_count": 0,
+                "counter_type": 0,
+                "fps": 234962,
+                "frame_rate": 234962.1,
+                "frames": 2349621,
+                "l1_bit_rate": 999998697.6,
+                "l1_bps": 999998697,
+                "l2_bit_rate": 962404761.6,
+                "l2_bps": 962404761,
+                "pps": 0,
+                "tx_l1_bps": 999998697.6
+            },
+            "tx_rate_fps_theor": 234962,
+            "tx_rate_l1_bps_theor": 1000000000
+        }
+    ],
+    "rate_result_scope": "common_result",
+    "repetition": 1,
+    "result_state": "done",
+    "test_case_type": "throughput",
+    "test_suite_type": "RFC-2544",
+    "total": {
+        "ber_percent": 0.0,
+        "fcs_error_frames": 0,
+        "gap_count": 0,
+        "gap_duration": 0,
+        "jitter": {
+            "average": 35,
+            "maximum": 88,
+            "minimum": 0
+        },
+        "latency": {
+            "average": 148,
+            "maximum": 187,
+            "minimum": 75
+        },
+        "rx_counter": {
+            "bytes_count": 2406011904,
+            "fps": 469924,
+            "frames": 4699242,
+            "l1_bps": 1999997392,
+            "l2_bps": 1924809522
+        },
+        "rx_loss_frames": 0,
+        "rx_loss_percent": 0.0,
+        "tx_burst_bytes": 2406011904,
+        "tx_burst_frames": 0,
+        "tx_counter": {
+            "bytes_count": 0,
+            "fps": 469924,
+            "frames": 4699242,
+            "l1_bps": 1999997394,
+            "l2_bps": 1924809522
+        },
+        "tx_rate_fps_theor": 469924,
+        "tx_rate_l1_bps_theor": 2000000000
+    },
+    "tx_rate_percent": 100.0
+}
+2024-11-27 10:24:43,485  RFC-2544 LATENCY test result (final)
+2024-11-27 10:24:43,487  {
+    "frame_size": 512.0,
+    "is_final": true,
+    "loop": 1,
+    "port_data": [
+        {
+            "actual_rate_percent": 99.99986976,
+            "burst_bytes_count": 1203005952,
+            "burst_frames": 0,
+            "duration": 10.0,
+            "fcs_error_frames": 0,
+            "frame_size": 512.0,
+            "gap_count": 0,
+            "gap_duration": 0,
+            "interframe_gap": 20.0,
+            "is_final": true,
+            "jitter": {
+                "average": 59,
+                "maximum": 88,
+                "minimum": 0
+            },
+            "latency": {
+                "average": 154,
+                "maximum": 207,
+                "minimum": 95
+            },
+            "loss_frames": 0,
+            "loss_ratio": 0.0,
+            "port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+            "port_speed": 1000000000.0,
+            "rate_percent": 100.0,
+            "rx_counter": {
+                "bps": 0,
+                "bytes_count": 1203005952,
+                "counter_type": 1,
+                "fps": 234962,
+                "frame_rate": 234962.1,
+                "frames": 2349621,
+                "l1_bit_rate": 999998697.6,
+                "l1_bps": 999998696,
+                "l2_bit_rate": 962404761.6,
+                "l2_bps": 962404761,
+                "pps": 0,
+                "tx_l1_bps": 999998697.6
+            },
+            "stream_statistic": [
+                {
+                    "burst_frames": 0,
+                    "dest_port_addr": "04F4BCB967F5",
+                    "dest_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+                    "jitter": {
+                        "average": 12,
+                        "maximum": 88,
+                        "minimum": 0
+                    },
+                    "latency": {
+                        "average": 144,
+                        "maximum": 167,
+                        "minimum": 55
+                    },
+                    "live_loss_frames": 0,
+                    "rx_counter": {
+                        "bps": 0,
+                        "bytes_count": 1203005952,
+                        "frame_rate": 0.0,
+                        "frames": 2349621,
+                        "l1_bit_rate": 0.0,
+                        "l2_bit_rate": 0.0,
+                        "pps": 0,
+                        "tx_l1_bps": 0.0
+                    },
+                    "src_port_addr": "04F4BCB967F4",
+                    "src_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+                    "tx_counter": {
+                        "bps": 0,
+                        "bytes_count": 0,
+                        "frame_rate": 234962.1,
+                        "frames": 2349621,
+                        "l1_bit_rate": 999998697.6,
+                        "l2_bit_rate": 962404761.6,
+                        "pps": 0,
+                        "tx_l1_bps": 999998697.6
+                    }
+                }
+            ],
+            "tx_counter": {
+                "bps": 0,
+                "bytes_count": 0,
+                "counter_type": 0,
+                "fps": 234962,
+                "frame_rate": 234962.1,
+                "frames": 2349621,
+                "l1_bit_rate": 999998697.6,
+                "l1_bps": 999998697,
+                "l2_bit_rate": 962404761.6,
+                "l2_bps": 962404761,
+                "pps": 0,
+                "tx_l1_bps": 999998697.6
+            },
+            "tx_rate_fps_theor": 234962,
+            "tx_rate_l1_bps_theor": 1000000000
+        },
+        {
+            "actual_rate_percent": 99.99986976,
+            "burst_bytes_count": 1203005952,
+            "burst_frames": 0,
+            "duration": 10.0,
+            "fcs_error_frames": 0,
+            "frame_size": 512.0,
+            "gap_count": 0,
+            "gap_duration": 0,
+            "interframe_gap": 20.0,
+            "is_final": true,
+            "jitter": {
+                "average": 12,
+                "maximum": 88,
+                "minimum": 0
+            },
+            "latency": {
+                "average": 144,
+                "maximum": 167,
+                "minimum": 55
+            },
+            "loss_frames": 0,
+            "loss_ratio": 0.0,
+            "port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+            "port_speed": 1000000000.0,
+            "rate_percent": 100.0,
+            "rx_counter": {
+                "bps": 0,
+                "bytes_count": 1203005952,
+                "counter_type": 1,
+                "fps": 234962,
+                "frame_rate": 234962.1,
+                "frames": 2349621,
+                "l1_bit_rate": 999998697.6,
+                "l1_bps": 999998696,
+                "l2_bit_rate": 962404761.6,
+                "l2_bps": 962404761,
+                "pps": 0,
+                "tx_l1_bps": 999998697.6
+            },
+            "stream_statistic": [
+                {
+                    "burst_frames": 0,
+                    "dest_port_addr": "04F4BCB967F4",
+                    "dest_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+                    "jitter": {
+                        "average": 59,
+                        "maximum": 88,
+                        "minimum": 0
+                    },
+                    "latency": {
+                        "average": 154,
+                        "maximum": 207,
+                        "minimum": 95
+                    },
+                    "live_loss_frames": 0,
+                    "rx_counter": {
+                        "bps": 0,
+                        "bytes_count": 1203005952,
+                        "frame_rate": 0.0,
+                        "frames": 2349621,
+                        "l1_bit_rate": 0.0,
+                        "l2_bit_rate": 0.0,
+                        "pps": 0,
+                        "tx_l1_bps": 0.0
+                    },
+                    "src_port_addr": "04F4BCB967F5",
+                    "src_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+                    "tx_counter": {
+                        "bps": 0,
+                        "bytes_count": 0,
+                        "frame_rate": 234962.1,
+                        "frames": 2349621,
+                        "l1_bit_rate": 999998697.6,
+                        "l2_bit_rate": 962404761.6,
+                        "pps": 0,
+                        "tx_l1_bps": 999998697.6
+                    }
+                }
+            ],
+            "tx_counter": {
+                "bps": 0,
+                "bytes_count": 0,
+                "counter_type": 0,
+                "fps": 234962,
+                "frame_rate": 234962.1,
+                "frames": 2349621,
+                "l1_bit_rate": 999998697.6,
+                "l1_bps": 999998697,
+                "l2_bit_rate": 962404761.6,
+                "l2_bps": 962404761,
+                "pps": 0,
+                "tx_l1_bps": 999998697.6
+            },
+            "tx_rate_fps_theor": 234962,
+            "tx_rate_l1_bps_theor": 1000000000
+        }
+    ],
+    "rate_result_scope": "common_result",
+    "repetition": 1,
+    "result_state": "done",
+    "test_case_type": "latency",
+    "test_suite_type": "RFC-2544",
+    "total": {
+        "ber_percent": 0.0,
+        "fcs_error_frames": 0,
+        "gap_count": 0,
+        "gap_duration": 0,
+        "jitter": {
+            "average": 35,
+            "maximum": 88,
+            "minimum": 0
+        },
+        "latency": {
+            "average": 149,
+            "maximum": 187,
+            "minimum": 75
+        },
+        "rx_counter": {
+            "bytes_count": 2406011904,
+            "fps": 469924,
+            "frames": 4699242,
+            "l1_bps": 1999997392,
+            "l2_bps": 1924809522
+        },
+        "rx_loss_frames": 0,
+        "rx_loss_percent": 0.0,
+        "tx_burst_bytes": 2406011904,
+        "tx_burst_frames": 0,
+        "tx_counter": {
+            "bytes_count": 0,
+            "fps": 469924,
+            "frames": 4699242,
+            "l1_bps": 1999997394,
+            "l2_bps": 1924809522
+        },
+        "tx_rate_fps_theor": 469924,
+        "tx_rate_l1_bps_theor": 2000000000
+    },
+    "tx_rate_percent": 100.0
+}
+2024-11-27 10:25:10,463  RFC-2544 LOSS test result (final)
+2024-11-27 10:25:10,463  {
+    "frame_size": 512.0,
+    "is_final": true,
+    "loop": 1,
+    "port_data": [
+        {
+            "actual_rate_percent": 99.99986976,
+            "burst_bytes_count": 1203005952,
+            "burst_frames": 0,
+            "duration": 10.0,
+            "fcs_error_frames": 0,
+            "frame_size": 512.0,
+            "gap_count": 0,
+            "gap_duration": 0,
+            "interframe_gap": 20.0,
+            "is_final": true,
+            "jitter": {
+                "average": 59,
+                "maximum": 88,
+                "minimum": 0
+            },
+            "latency": {
+                "average": 154,
+                "maximum": 207,
+                "minimum": 95
+            },
+            "loss_frames": 0,
+            "loss_ratio": 0.0,
+            "port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+            "port_speed": 1000000000.0,
+            "rate_percent": 100.0,
+            "rx_counter": {
+                "bps": 0,
+                "bytes_count": 1203005952,
+                "counter_type": 1,
+                "fps": 234962,
+                "frame_rate": 234962.1,
+                "frames": 2349621,
+                "l1_bit_rate": 999998697.6,
+                "l1_bps": 999998696,
+                "l2_bit_rate": 962404761.6,
+                "l2_bps": 962404761,
+                "pps": 0,
+                "tx_l1_bps": 999998697.6
+            },
+            "stream_statistic": [
+                {
+                    "burst_frames": 0,
+                    "dest_port_addr": "04F4BCB967F5",
+                    "dest_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+                    "jitter": {
+                        "average": 12,
+                        "maximum": 88,
+                        "minimum": 0
+                    },
+                    "latency": {
+                        "average": 144,
+                        "maximum": 167,
+                        "minimum": 55
+                    },
+                    "live_loss_frames": 0,
+                    "rx_counter": {
+                        "bps": 0,
+                        "bytes_count": 1203005952,
+                        "frame_rate": 0.0,
+                        "frames": 2349621,
+                        "l1_bit_rate": 0.0,
+                        "l2_bit_rate": 0.0,
+                        "pps": 0,
+                        "tx_l1_bps": 0.0
+                    },
+                    "src_port_addr": "04F4BCB967F4",
+                    "src_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+                    "tx_counter": {
+                        "bps": 0,
+                        "bytes_count": 0,
+                        "frame_rate": 234962.1,
+                        "frames": 2349621,
+                        "l1_bit_rate": 999998697.6,
+                        "l2_bit_rate": 962404761.6,
+                        "pps": 0,
+                        "tx_l1_bps": 999998697.6
+                    }
+                }
+            ],
+            "tx_counter": {
+                "bps": 0,
+                "bytes_count": 0,
+                "counter_type": 0,
+                "fps": 234962,
+                "frame_rate": 234962.1,
+                "frames": 2349621,
+                "l1_bit_rate": 999998697.6,
+                "l1_bps": 999998697,
+                "l2_bit_rate": 962404761.6,
+                "l2_bps": 962404761,
+                "pps": 0,
+                "tx_l1_bps": 999998697.6
+            },
+            "tx_rate_fps_theor": 234962,
+            "tx_rate_l1_bps_theor": 1000000000
+        },
+        {
+            "actual_rate_percent": 99.99986976,
+            "burst_bytes_count": 1203005952,
+            "burst_frames": 0,
+            "duration": 10.0,
+            "fcs_error_frames": 0,
+            "frame_size": 512.0,
+            "gap_count": 0,
+            "gap_duration": 0,
+            "interframe_gap": 20.0,
+            "is_final": true,
+            "jitter": {
+                "average": 12,
+                "maximum": 88,
+                "minimum": 0
+            },
+            "latency": {
+                "average": 144,
+                "maximum": 167,
+                "minimum": 55
+            },
+            "loss_frames": 0,
+            "loss_ratio": 0.0,
+            "port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+            "port_speed": 1000000000.0,
+            "rate_percent": 100.0,
+            "rx_counter": {
+                "bps": 0,
+                "bytes_count": 1203005952,
+                "counter_type": 1,
+                "fps": 234962,
+                "frame_rate": 234962.1,
+                "frames": 2349621,
+                "l1_bit_rate": 999998697.6,
+                "l1_bps": 999998696,
+                "l2_bit_rate": 962404761.6,
+                "l2_bps": 962404761,
+                "pps": 0,
+                "tx_l1_bps": 999998697.6
+            },
+            "stream_statistic": [
+                {
+                    "burst_frames": 0,
+                    "dest_port_addr": "04F4BCB967F4",
+                    "dest_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+                    "jitter": {
+                        "average": 59,
+                        "maximum": 88,
+                        "minimum": 0
+                    },
+                    "latency": {
+                        "average": 154,
+                        "maximum": 207,
+                        "minimum": 95
+                    },
+                    "live_loss_frames": 0,
+                    "rx_counter": {
+                        "bps": 0,
+                        "bytes_count": 1203005952,
+                        "frame_rate": 0.0,
+                        "frames": 2349621,
+                        "l1_bit_rate": 0.0,
+                        "l2_bit_rate": 0.0,
+                        "pps": 0,
+                        "tx_l1_bps": 0.0
+                    },
+                    "src_port_addr": "04F4BCB967F5",
+                    "src_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+                    "tx_counter": {
+                        "bps": 0,
+                        "bytes_count": 0,
+                        "frame_rate": 234962.1,
+                        "frames": 2349621,
+                        "l1_bit_rate": 999998697.6,
+                        "l2_bit_rate": 962404761.6,
+                        "pps": 0,
+                        "tx_l1_bps": 999998697.6
+                    }
+                }
+            ],
+            "tx_counter": {
+                "bps": 0,
+                "bytes_count": 0,
+                "counter_type": 0,
+                "fps": 234962,
+                "frame_rate": 234962.1,
+                "frames": 2349621,
+                "l1_bit_rate": 999998697.6,
+                "l1_bps": 999998697,
+                "l2_bit_rate": 962404761.6,
+                "l2_bps": 962404761,
+                "pps": 0,
+                "tx_l1_bps": 999998697.6
+            },
+            "tx_rate_fps_theor": 234962,
+            "tx_rate_l1_bps_theor": 1000000000
+        }
+    ],
+    "rate_result_scope": "common_result",
+    "repetition": 1,
+    "result_state": "done",
+    "test_case_type": "loss",
+    "test_suite_type": "RFC-2544",
+    "total": {
+        "ber_percent": 0.0,
+        "fcs_error_frames": 0,
+        "gap_count": 0,
+        "gap_duration": 0,
+        "jitter": {
+            "average": 35,
+            "maximum": 88,
+            "minimum": 0
+        },
+        "latency": {
+            "average": 149,
+            "maximum": 187,
+            "minimum": 75
+        },
+        "rx_counter": {
+            "bytes_count": 2406011904,
+            "fps": 469924,
+            "frames": 4699242,
+            "l1_bps": 1999997392,
+            "l2_bps": 1924809522
+        },
+        "rx_loss_frames": 0,
+        "rx_loss_percent": 0.0,
+        "tx_burst_bytes": 2406011904,
+        "tx_burst_frames": 0,
+        "tx_counter": {
+            "bytes_count": 0,
+            "fps": 469924,
+            "frames": 4699242,
+            "l1_bps": 1999997394,
+            "l2_bps": 1924809522
+        },
+        "tx_rate_fps_theor": 469924,
+        "tx_rate_l1_bps_theor": 2000000000
+    },
+    "tx_rate_percent": 100.0
+}
+2024-11-27 10:25:35,275  RFC-2544 BACK_TO_BACK test result (final)
+2024-11-27 10:25:35,276  {
+    "frame_size": 512.0,
+    "is_final": true,
+    "loop": 1,
+    "port_data": [
+        {
+            "actual_rate_percent": 0.0004256,
+            "burst_bytes_count": 512000000,
+            "burst_frames": 1000000,
+            "duration": 1000000.0,
+            "fcs_error_frames": 0,
+            "frame_size": 512.0,
+            "gap_count": 0,
+            "gap_duration": 0,
+            "interframe_gap": 20.0,
+            "is_final": true,
+            "jitter": {
+                "average": 59,
+                "maximum": 88,
+                "minimum": 0
+            },
+            "latency": {
+                "average": 154,
+                "maximum": 207,
+                "minimum": 95
+            },
+            "loss_frames": 0,
+            "loss_ratio": 0.0,
+            "port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+            "port_speed": 1000000000.0,
+            "rate_percent": 100.0,
+            "rx_counter": {
+                "bps": 0,
+                "bytes_count": 512000000,
+                "counter_type": 1,
+                "fps": 1,
+                "frame_rate": 1.0,
+                "frames": 1000000,
+                "l1_bit_rate": 4256.0,
+                "l1_bps": 4256,
+                "l2_bit_rate": 4096.0,
+                "l2_bps": 4096,
+                "pps": 0,
+                "tx_l1_bps": 4256.0
+            },
+            "stream_statistic": [
+                {
+                    "burst_frames": 1000000,
+                    "dest_port_addr": "04F4BCB967F5",
+                    "dest_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+                    "jitter": {
+                        "average": 12,
+                        "maximum": 88,
+                        "minimum": 0
+                    },
+                    "latency": {
+                        "average": 144,
+                        "maximum": 167,
+                        "minimum": 55
+                    },
+                    "live_loss_frames": 0,
+                    "rx_counter": {
+                        "bps": 0,
+                        "bytes_count": 512000000,
+                        "frame_rate": 0.0,
+                        "frames": 1000000,
+                        "l1_bit_rate": 0.0,
+                        "l2_bit_rate": 0.0,
+                        "pps": 0,
+                        "tx_l1_bps": 0.0
+                    },
+                    "src_port_addr": "04F4BCB967F4",
+                    "src_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+                    "tx_counter": {
+                        "bps": 0,
+                        "bytes_count": 0,
+                        "frame_rate": 1.0,
+                        "frames": 1000000,
+                        "l1_bit_rate": 4256.0,
+                        "l2_bit_rate": 4096.0,
+                        "pps": 0,
+                        "tx_l1_bps": 4256.0
+                    }
+                }
+            ],
+            "tx_counter": {
+                "bps": 0,
+                "bytes_count": 0,
+                "counter_type": 0,
+                "fps": 1,
+                "frame_rate": 1.0,
+                "frames": 1000000,
+                "l1_bit_rate": 4256.0,
+                "l1_bps": 4256,
+                "l2_bit_rate": 4096.0,
+                "l2_bps": 4096,
+                "pps": 0,
+                "tx_l1_bps": 4256.0
+            },
+            "tx_rate_fps_theor": 234962,
+            "tx_rate_l1_bps_theor": 1000000000
+        },
+        {
+            "actual_rate_percent": 0.0004256,
+            "burst_bytes_count": 512000000,
+            "burst_frames": 1000000,
+            "duration": 1000000.0,
+            "fcs_error_frames": 0,
+            "frame_size": 512.0,
+            "gap_count": 0,
+            "gap_duration": 0,
+            "interframe_gap": 20.0,
+            "is_final": true,
+            "jitter": {
+                "average": 12,
+                "maximum": 88,
+                "minimum": 0
+            },
+            "latency": {
+                "average": 144,
+                "maximum": 167,
+                "minimum": 55
+            },
+            "loss_frames": 0,
+            "loss_ratio": 0.0,
+            "port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+            "port_speed": 1000000000.0,
+            "rate_percent": 100.0,
+            "rx_counter": {
+                "bps": 0,
+                "bytes_count": 512000000,
+                "counter_type": 1,
+                "fps": 1,
+                "frame_rate": 1.0,
+                "frames": 1000000,
+                "l1_bit_rate": 4256.0,
+                "l1_bps": 4256,
+                "l2_bit_rate": 4096.0,
+                "l2_bps": 4096,
+                "pps": 0,
+                "tx_l1_bps": 4256.0
+            },
+            "stream_statistic": [
+                {
+                    "burst_frames": 1000000,
+                    "dest_port_addr": "04F4BCB967F4",
+                    "dest_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+                    "jitter": {
+                        "average": 59,
+                        "maximum": 88,
+                        "minimum": 0
+                    },
+                    "latency": {
+                        "average": 154,
+                        "maximum": 207,
+                        "minimum": 95
+                    },
+                    "live_loss_frames": 0,
+                    "rx_counter": {
+                        "bps": 0,
+                        "bytes_count": 512000000,
+                        "frame_rate": 0.0,
+                        "frames": 1000000,
+                        "l1_bit_rate": 0.0,
+                        "l2_bit_rate": 0.0,
+                        "pps": 0,
+                        "tx_l1_bps": 0.0
+                    },
+                    "src_port_addr": "04F4BCB967F5",
+                    "src_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+                    "tx_counter": {
+                        "bps": 0,
+                        "bytes_count": 0,
+                        "frame_rate": 1.0,
+                        "frames": 1000000,
+                        "l1_bit_rate": 4256.0,
+                        "l2_bit_rate": 4096.0,
+                        "pps": 0,
+                        "tx_l1_bps": 4256.0
+                    }
+                }
+            ],
+            "tx_counter": {
+                "bps": 0,
+                "bytes_count": 0,
+                "counter_type": 0,
+                "fps": 1,
+                "frame_rate": 1.0,
+                "frames": 1000000,
+                "l1_bit_rate": 4256.0,
+                "l1_bps": 4256,
+                "l2_bit_rate": 4096.0,
+                "l2_bps": 4096,
+                "pps": 0,
+                "tx_l1_bps": 4256.0
+            },
+            "tx_rate_fps_theor": 234962,
+            "tx_rate_l1_bps_theor": 1000000000
+        }
+    ],
+    "rate_result_scope": "common_result",
+    "repetition": 1,
+    "result_state": "pending",
+    "test_case_type": "back_to_back",
+    "test_suite_type": "RFC-2544",
+    "total": {
+        "ber_percent": 0.0,
+        "fcs_error_frames": 0,
+        "gap_count": 0,
+        "gap_duration": 0,
+        "jitter": {
+            "average": 35,
+            "maximum": 88,
+            "minimum": 0
+        },
+        "latency": {
+            "average": 149,
+            "maximum": 187,
+            "minimum": 75
+        },
+        "rx_counter": {
+            "bytes_count": 1024000000,
+            "fps": 2,
+            "frames": 2000000,
+            "l1_bps": 8512,
+            "l2_bps": 8192
+        },
+        "rx_loss_frames": 0,
+        "rx_loss_percent": 0.0,
+        "tx_burst_bytes": 1024000000,
+        "tx_burst_frames": 2000000,
+        "tx_counter": {
+            "bytes_count": 0,
+            "fps": 2,
+            "frames": 2000000,
+            "l1_bps": 8512,
+            "l2_bps": 8192
+        },
+        "tx_rate_fps_theor": 469924,
+        "tx_rate_l1_bps_theor": 2000000000
+    },
+    "tx_rate_percent": 100.0
+}
+2024-11-27 10:25:40,280  RFC-2544 BACK_TO_BACK test result (final)
+2024-11-27 10:25:40,281  {
+    "frame_size": 512.0,
+    "is_final": true,
+    "loop": 1,
+    "port_data": [
+        {
+            "actual_rate_percent": 0.0004256,
+            "burst_bytes_count": 512000000,
+            "burst_frames": 1000000,
+            "duration": 1000000.0,
+            "fcs_error_frames": 0,
+            "frame_size": 512.0,
+            "gap_count": 0,
+            "gap_duration": 0,
+            "interframe_gap": 20.0,
+            "is_final": true,
+            "jitter": {
+                "average": 59,
+                "maximum": 88,
+                "minimum": 0
+            },
+            "latency": {
+                "average": 154,
+                "maximum": 207,
+                "minimum": 95
+            },
+            "loss_frames": 0,
+            "loss_ratio": 0.0,
+            "port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+            "port_speed": 1000000000.0,
+            "rate_percent": 100.0,
+            "rx_counter": {
+                "bps": 0,
+                "bytes_count": 512000000,
+                "counter_type": 1,
+                "fps": 1,
+                "frame_rate": 1.0,
+                "frames": 1000000,
+                "l1_bit_rate": 4256.0,
+                "l1_bps": 4256,
+                "l2_bit_rate": 4096.0,
+                "l2_bps": 4096,
+                "pps": 0,
+                "tx_l1_bps": 4256.0
+            },
+            "stream_statistic": [
+                {
+                    "burst_frames": 1000000,
+                    "dest_port_addr": "04F4BCB967F5",
+                    "dest_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+                    "jitter": {
+                        "average": 12,
+                        "maximum": 88,
+                        "minimum": 0
+                    },
+                    "latency": {
+                        "average": 144,
+                        "maximum": 167,
+                        "minimum": 55
+                    },
+                    "live_loss_frames": 0,
+                    "rx_counter": {
+                        "bps": 0,
+                        "bytes_count": 512000000,
+                        "frame_rate": 0.0,
+                        "frames": 1000000,
+                        "l1_bit_rate": 0.0,
+                        "l2_bit_rate": 0.0,
+                        "pps": 0,
+                        "tx_l1_bps": 0.0
+                    },
+                    "src_port_addr": "04F4BCB967F4",
+                    "src_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+                    "tx_counter": {
+                        "bps": 0,
+                        "bytes_count": 0,
+                        "frame_rate": 1.0,
+                        "frames": 1000000,
+                        "l1_bit_rate": 4256.0,
+                        "l2_bit_rate": 4096.0,
+                        "pps": 0,
+                        "tx_l1_bps": 4256.0
+                    }
+                }
+            ],
+            "tx_counter": {
+                "bps": 0,
+                "bytes_count": 0,
+                "counter_type": 0,
+                "fps": 1,
+                "frame_rate": 1.0,
+                "frames": 1000000,
+                "l1_bit_rate": 4256.0,
+                "l1_bps": 4256,
+                "l2_bit_rate": 4096.0,
+                "l2_bps": 4096,
+                "pps": 0,
+                "tx_l1_bps": 4256.0
+            },
+            "tx_rate_fps_theor": 234962,
+            "tx_rate_l1_bps_theor": 1000000000
+        },
+        {
+            "actual_rate_percent": 0.0004256,
+            "burst_bytes_count": 512000000,
+            "burst_frames": 1000000,
+            "duration": 1000000.0,
+            "fcs_error_frames": 0,
+            "frame_size": 512.0,
+            "gap_count": 0,
+            "gap_duration": 0,
+            "interframe_gap": 20.0,
+            "is_final": true,
+            "jitter": {
+                "average": 12,
+                "maximum": 88,
+                "minimum": 0
+            },
+            "latency": {
+                "average": 144,
+                "maximum": 167,
+                "minimum": 55
+            },
+            "loss_frames": 0,
+            "loss_ratio": 0.0,
+            "port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+            "port_speed": 1000000000.0,
+            "rate_percent": 100.0,
+            "rx_counter": {
+                "bps": 0,
+                "bytes_count": 512000000,
+                "counter_type": 1,
+                "fps": 1,
+                "frame_rate": 1.0,
+                "frames": 1000000,
+                "l1_bit_rate": 4256.0,
+                "l1_bps": 4256,
+                "l2_bit_rate": 4096.0,
+                "l2_bps": 4096,
+                "pps": 0,
+                "tx_l1_bps": 4256.0
+            },
+            "stream_statistic": [
+                {
+                    "burst_frames": 1000000,
+                    "dest_port_addr": "04F4BCB967F4",
+                    "dest_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-4",
+                    "jitter": {
+                        "average": 59,
+                        "maximum": 88,
+                        "minimum": 0
+                    },
+                    "latency": {
+                        "average": 154,
+                        "maximum": 207,
+                        "minimum": 95
+                    },
+                    "live_loss_frames": 0,
+                    "rx_counter": {
+                        "bps": 0,
+                        "bytes_count": 512000000,
+                        "frame_rate": 0.0,
+                        "frames": 1000000,
+                        "l1_bit_rate": 0.0,
+                        "l2_bit_rate": 0.0,
+                        "pps": 0,
+                        "tx_l1_bps": 0.0
+                    },
+                    "src_port_addr": "04F4BCB967F5",
+                    "src_port_id": "P-1e818547519c4ddd53c793f2f7142857-0-5",
+                    "tx_counter": {
+                        "bps": 0,
+                        "bytes_count": 0,
+                        "frame_rate": 1.0,
+                        "frames": 1000000,
+                        "l1_bit_rate": 4256.0,
+                        "l2_bit_rate": 4096.0,
+                        "pps": 0,
+                        "tx_l1_bps": 4256.0
+                    }
+                }
+            ],
+            "tx_counter": {
+                "bps": 0,
+                "bytes_count": 0,
+                "counter_type": 0,
+                "fps": 1,
+                "frame_rate": 1.0,
+                "frames": 1000000,
+                "l1_bit_rate": 4256.0,
+                "l1_bps": 4256,
+                "l2_bit_rate": 4096.0,
+                "l2_bps": 4096,
+                "pps": 0,
+                "tx_l1_bps": 4256.0
+            },
+            "tx_rate_fps_theor": 234962,
+            "tx_rate_l1_bps_theor": 1000000000
+        }
+    ],
+    "rate_result_scope": "common_result",
+    "repetition": 1,
+    "result_state": "done",
+    "test_case_type": "back_to_back",
+    "test_suite_type": "RFC-2544",
+    "total": {
+        "ber_percent": 0.0,
+        "fcs_error_frames": 0,
+        "gap_count": 0,
+        "gap_duration": 0,
+        "jitter": {
+            "average": 35,
+            "maximum": 88,
+            "minimum": 0
+        },
+        "latency": {
+            "average": 149,
+            "maximum": 187,
+            "minimum": 75
+        },
+        "rx_counter": {
+            "bytes_count": 1024000000,
+            "fps": 2,
+            "frames": 2000000,
+            "l1_bps": 8512,
+            "l2_bps": 8192
+        },
+        "rx_loss_frames": 0,
+        "rx_loss_percent": 0.0,
+        "tx_burst_bytes": 1024000000,
+        "tx_burst_frames": 2000000,
+        "tx_counter": {
+            "bytes_count": 0,
+            "fps": 2,
+            "frames": 2000000,
+            "l1_bps": 8512,
+            "l2_bps": 8192
+        },
+        "tx_rate_fps_theor": 469924,
+        "tx_rate_l1_bps_theor": 2000000000
+    },
+    "tx_rate_percent": 100.0
+}

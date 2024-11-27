@@ -25,6 +25,7 @@ import asyncio
 import json
 import csv
 from pathlib import Path
+import logging
 
 # XOA Converter is an independent module and it needs to be installed via `pip install xoa-converter`
 try:
@@ -34,22 +35,21 @@ except ImportError:
     print("XOA Converter is an independent module and it needs to be installed via `pip install -U xoa-converter`")
     sys.exit()
 
-PROJECT_PATH = Path(__file__).parent
-PLUGINS_PATH = PROJECT_PATH / "rfc_lib"
 
 #---------------------------
 # Global parameters
 #---------------------------
-GUI_CONFIG = PROJECT_PATH / "demo.v2544"
+PROJECT_PATH = Path(__file__).parent
+PLUGINS_PATH = PROJECT_PATH / "rfc_lib"
+GUI_CONFIG = PROJECT_PATH / "demo.x2544"
 XOA_CONFIG = PROJECT_PATH / "demo.json"
-# DATA_FILE = PROJECT_PATH / "demo.csv"
 CHASSIS_IP = "10.165.136.70"
 
 
 #---------------------------
 # internal functions
 #---------------------------
-def normalize_json(data: dict) -> dict: 
+def flat_total_json(data: dict) -> dict: 
     new_data = dict() 
     for key, value in data.items(): 
         if not isinstance(value, dict): 
@@ -72,52 +72,77 @@ def read_rfc_type(gui_config: Path) -> TestSuiteType:
 #---------------------------
 # run_xoa_rfc
 #---------------------------
-async def run_xoa_rfc(chassis: str, plugin_path: Path, gui_config: Path) -> None:
+async def run_xoa_rfc(chassis: str, plugin_path: Path, gui_config: Path, xoa_config: Path) -> None:
+
+    # configure basic logger
+    logger = logging.getLogger("run_xoa_rfc")
+    logging.basicConfig(
+        format="%(asctime)s  %(message)s",
+        level=logging.DEBUG,
+        handlers=[
+            logging.FileHandler(filename="run_xoa_rfc.log", mode="a"),
+            logging.StreamHandler()]
+        )
+    
     # Define your tester login credentials
     my_tester_credential = types.Credentials(
         product=types.EProductType.VALKYRIE,
         host=chassis
     )
+    logger.info(f"#####################################################################")
+    logger.info(f"Tester credential:")
+    logger.info(f"  Chassis:            {chassis}")
+    logger.info(f"#####################################################################")
 
     # Create a default instance of the controller class.
     ctrl = await controller.MainController()
+    logger.info(f"Create XOA core controller")
 
     # Register the plugins folder.
     ctrl.register_lib(str(plugin_path))
+    logger.info(f"Register plugin path: {plugin_path}")
 
-    # Add tester credentials into teh controller. If already added, it will be ignored.
+    # Add tester credentials into the controller. If already added, it will be ignored.
     # If you want to add a list of testers, you need to iterate through the list.
     await ctrl.add_tester(my_tester_credential)
+    logger.info(f"Add tester to controller")
 
     # Convert GUI config into XOA config and run.
     with open(gui_config, "r") as f:
         
         # get the rfc type from the filename
         rfc_type = read_rfc_type(gui_config)
+        logger.info(f"Get the RFC type from the config filename")
 
         # get test suite information from the core's registration
         info = ctrl.get_test_suite_info(rfc_type.value)
         if not info:
-            print("Test suite is not recognized.")
+            logger.warning("Test suite is not recognized.")
             return None
 
         # convert the GUI config file into XOA config file
-        xoa_config = converter(rfc_type, f.read())
+        _xoa_config = converter(rfc_type, f.read())
 
         # save new data in xoa json
-        with open(XOA_CONFIG, "w") as f:
-            f.write(xoa_config)
+        with open(xoa_config, "w") as f:
+            f.write(_xoa_config)
+            logger.info(f"Convert {gui_config} into {xoa_config}")
 
         # you can use the config file below to start the test
-        xoa_config_json = json.loads(xoa_config)
+        xoa_config_json = json.loads(_xoa_config)
 
         # Test suite name is received from call of c.get_available_test_suites()
         execution_id = ctrl.start_test_suite(rfc_type.value, xoa_config_json)
+        logger.info(f"Execute the RFC test. (Execution ID: {execution_id})")
 
         # The example here only shows a print of test result data.
         async for msg in ctrl.listen_changes(execution_id, _filter={types.EMsgType.STATISTICS}):
             result_data = json.loads(msg.payload.json())
-            print(result_data)
+            if result_data["is_final"] == True:
+                _test_suite = result_data["test_suite_type"]
+                _test_type = result_data["test_case_type"]
+                logger.info(f"{_test_suite} {_test_type.upper()} test result (final)")
+                logger.info(json.dumps(result_data, sort_keys=True, indent=4))
             # It is up to the user to decide how to process and store the test result data.
             # Different RFC test suite plugin has different test result data structure.
                         
@@ -132,6 +157,7 @@ async def main():
             chassis=CHASSIS_IP,
             plugin_path=PLUGINS_PATH,
             gui_config=GUI_CONFIG,
+            xoa_config=XOA_CONFIG
         )
     except KeyboardInterrupt:
         stop_event.set()
