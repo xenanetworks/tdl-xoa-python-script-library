@@ -20,7 +20,7 @@
 ################################################################
 from __future__ import annotations
 import sys
-from xoa_core import controller, types
+from xoa_core import controller, types, 
 import asyncio
 import json
 import csv
@@ -87,7 +87,8 @@ async def run_xoa_rfc(chassis: str, plugin_path: Path, gui_config: Path, xoa_con
     # Define your tester login credentials
     my_tester_credential = types.Credentials(
         product=types.EProductType.VALKYRIE,
-        host=chassis
+        host=chassis,
+        password="xena"
     )
     logger.info(f"#####################################################################")
     logger.info(f"Tester credential:")
