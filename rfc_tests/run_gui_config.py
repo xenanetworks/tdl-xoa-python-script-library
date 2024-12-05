@@ -20,7 +20,7 @@
 ################################################################
 from __future__ import annotations
 import sys
-from xoa_core import controller, types, 
+from xoa_core import controller, types
 import asyncio
 import json
 import csv
@@ -41,9 +41,9 @@ except ImportError:
 #---------------------------
 PROJECT_PATH = Path(__file__).parent
 PLUGINS_PATH = PROJECT_PATH / "rfc_lib"
-GUI_CONFIG = PROJECT_PATH / "demo.x2544"
-XOA_CONFIG = PROJECT_PATH / "demo.json"
-CHASSIS_IP = "10.165.136.70"
+GUI_CONFIG = PROJECT_PATH / "demo2.x2544"
+XOA_CONFIG = PROJECT_PATH / "demo2.json"
+CHASSIS_IP = "10.165.136.60"
 
 
 #---------------------------
