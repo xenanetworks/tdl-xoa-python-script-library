@@ -21,7 +21,7 @@ async def my_awesome_script():
 
     my_port = my_module.ports.obtain(0)
 
-    with suppress(exceptions.BadStatus):
+    with suppress(exceptions.XmpStatusException):
         await my_port.eee.enable.set_off()
         await my_port.eee.mode.set_off()
 
