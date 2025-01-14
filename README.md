@@ -86,6 +86,7 @@ This repository includes examples of using [XOA Python API](https://docs.xenanet
 * [port_capabilities](https://github.com/xenanetworks/open-automation-script-library/tree/main/port_capabilities): read port capabilities to understand what a port can do.
 * [low_level_api](https://github.com/xenanetworks/open-automation-script-library/tree/main/low_level_api): how to use XOA's Low-Level API
 * [push_notification](https://github.com/xenanetworks/open-automation-script-library/tree/main/push_notification): how to utilize push notification.
+* [exception_handling](https://github.com/xenanetworks/open-automation-script-library/tree/main/exception_handling): how to handle bad status response from chassis server.
 
 ## What Example Folder Contains
 
