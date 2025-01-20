@@ -4,7 +4,7 @@
 #
 # What this script example does:
 # 1. Connect to a tester
-# 2. Reserve a port. Must be Freya, Thor, or Loki
+# 2. Reserve a port. Must be Freya
 # 3. Reset the port
 # 4. Set the port PRBS mode on
 # 5. Collect per-second statistics
@@ -59,10 +59,10 @@ async def prbs_ber_stats(chassis: str, username: str, port_str1: str, port_str2:
         module_obj1 = tester.modules.obtain(_mid1)
         module_obj2 = tester.modules.obtain(_mid2)
 
-        if isinstance(module_obj1, modules.Z10OdinModule) or isinstance(module_obj1, modules.E100ChimeraModule):
+        if not isinstance(module_obj1, modules.Z800FreyaModule):
             logging.info(f"Not Freya or Thor or Loki module")
             return None
-        if isinstance(module_obj2, modules.Z10OdinModule) or isinstance(module_obj2, modules.E100ChimeraModule):
+        if not isinstance(module_obj2, modules.Z800FreyaModule):
             logging.info(f"Not Freya or Thor or Loki module")
             return None 
 
@@ -87,13 +87,13 @@ async def prbs_ber_stats(chassis: str, username: str, port_str1: str, port_str2:
         logging.info(f"Port {_mid2}/{_pid2} Serdes Count: {_serdes_count2}")
 
         # Set PRBS Config on the TX port
-        await port_obj1.pcs_pma.prbs_config.type.set(
+        await port_obj1.l1.prbs_config.set(
             prbs_inserted_type=enums.PRBSInsertedType.PHY_LINE,
             polynomial=enums.PRBSPolynomial.PRBS13,
             invert=enums.PRBSInvertState.INVERTED,
             statistics_mode=enums.PRBSStatisticsMode.PERSECOND)
         # Set PRBS Config on the RX port
-        await port_obj2.pcs_pma.prbs_config.type.set(
+        await port_obj2.l1.prbs_config.set(
             prbs_inserted_type=enums.PRBSInsertedType.PHY_LINE,
             polynomial=enums.PRBSPolynomial.PRBS13,
             invert=enums.PRBSInvertState.INVERTED,
@@ -101,7 +101,7 @@ async def prbs_ber_stats(chassis: str, username: str, port_str1: str, port_str2:
 
         # Enable PRBS on all serdes on the Tx port
         for i in range(_serdes_count1):
-            await port_obj1.serdes[i].prbs.tx_config.set(prbs_seed=0, prbs_on_off=enums.PRBSOnOff.PRBSON, error_on_off=enums.ErrorOnOff.ERRORSOFF)
+            await port_obj1.l1.serdes[i].prbs.control.set(prbs_seed=0, prbs_on_off=enums.PRBSOnOff.PRBSON, error_on_off=enums.ErrorOnOff.ERRORSOFF)
 
         # _list = []
         # for i in range(_serdes_count1):
@@ -132,7 +132,7 @@ async def prbs_ber_stats(chassis: str, username: str, port_str1: str, port_str2:
         # Stop PRBS on the tx port all serdes
         _list = []
         for i in range(_serdes_count1):
-            _list.append(port_obj1.serdes[i].prbs.tx_config.set(prbs_seed=0, prbs_on_off=enums.PRBSOnOff.PRBSOFF, error_on_off=enums.ErrorOnOff.ERRORSOFF))
+            _list.append(port_obj1.l1.serdes[i].prbs.control.set(prbs_seed=0, prbs_on_off=enums.PRBSOnOff.PRBSOFF, error_on_off=enums.ErrorOnOff.ERRORSOFF))
         await utils.apply(*_list)
 
         # Release the ports
