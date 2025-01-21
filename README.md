@@ -29,6 +29,7 @@ This repository includes examples of using [XOA Python API](https://docs.xenanet
 ### Automated Test Suite
 
 * [rfc_tests](https://github.com/xenanetworks/open-automation-script-library/tree/main/rfc_tests): how to run Xena2544/Xena2889/Xena3918 configuration using XOA Python for GUI-less test suite automation.
+* [anlt_test_methodology](https://github.com/xenanetworks/open-automation-script-library/tree/main/anlt_test_methodology): auto-negotiation and link training test methodology.
 * [cable_perf_optimization](https://github.com/xenanetworks/open-automation-script-library/tree/main/cable_perf_optimization): measures PRBS BER while adjusting transceiver cursor values.
 * [chimera_automation](https://github.com/xenanetworks/open-automation-script-library/tree/main/chimera_automation): uses Chimera core ([chimera-core](https://pypi.org/project/chimera-core/)) for impairment automation.
 
