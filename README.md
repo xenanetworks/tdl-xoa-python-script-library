@@ -68,6 +68,11 @@ This repository includes examples of using [XOA Python API](https://docs.xenanet
 
 ---
 
+### Schedule Traffic based on ToD
+* [gps_tod](https://github.com/xenanetworks/open-automation-script-library/tree/main/gps_tod): schedule traffic based on Time of Day (ToD).
+
+---
+
 ### Emulate Various Scenarios
 * [dhcp](https://github.com/xenanetworks/open-automation-script-library/tree/main/dhcp): how to create a DHCP stream
 * [ip_fragmented](https://github.com/xenanetworks/open-automation-script-library/tree/main/ip_fragmented): emulate IP fragmentation.
