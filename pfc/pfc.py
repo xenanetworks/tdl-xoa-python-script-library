@@ -8,6 +8,21 @@
 # port speed.
 #
 #
+# A PFC pause frame contains a 2-byte timer value for each CoS 
+# that indicates the length of time that the traffic needs to be 
+# paused. The unit of time for the timer is specified in pause 
+# quanta. A quanta is the time that is required for transmitting 
+# 512 bits at the speed of the port. The range is from 0 to 65535.
+# 
+# To suppress a specific traffic class of the TX port traffic to a 
+# target fraction of the port speed, the following formula is used:
+# 
+# PFC_fps = PortSpeed_bps/512/Quanta * (1-TargetFraction)
+# 
+# e.g. if the port speed is 800Gbps, the quanta is 65535, and the
+# target fraction is 40%, the PFC frames per second is 
+# 100_000_000_000/512/65535 * (1-0.4) = 14305 fps.
+# 
 ################################################################
 
 import asyncio
@@ -20,7 +35,6 @@ from xoa_driver import utils
 from xoa_driver.hlfuncs import mgmt, headers
 from xoa_driver.misc import Hex
 import logging
-import datetime
 from typing_extensions import List
 
 #---------------------------
@@ -72,17 +86,20 @@ async def pfc(chassis: str, username: str, port_str: str, prio: int, quanta: int
         resp = await port_obj.net_config.mac_address.get()
         port_macaddress = resp.mac_address
 
+        # get the port speed
         resp = await port_obj.speed.current.get()
         port_speed = resp.port_speed * 1_000_000
         print(f"Port speed: {port_speed} bps")
+
+        # Calculate the PFC frames per second
         pfc_pps = int(port_speed/512/quanta * (1-target_fraction))
 
+        # Create and config a PFC stream
         stream_obj = await port_obj.streams.create()
         eth_str = f"0180c2000001{port_macaddress}8808"
         macpfc = MACControlPFC()
         macpfc.class_enable_list[7-prio] = True
         macpfc.class_quanta_list[7-prio] = quanta
-        # macpfc = MACControlPause()
         await stream_obj.payload.content.set(payload_type=enums.PayloadType.PATTERN, hex_data=Hex("00"))
         await stream_obj.packet.length.set(length_type=enums.LengthType.FIXED, min_val=64, max_val=64)
         await stream_obj.packet.header.protocol.set(segments=[enums.ProtocolOption.ETHERNET, enums.ProtocolOption.MACCTRLPFC])
@@ -108,15 +125,6 @@ class MACControlPFC:
         _reserved: str = "00"
         _class_quanta_list: str = ''.join([f"{x:04x}" for x in self.class_quanta_list])
         return f"{_opcode}{_reserved}{_class_enable_vector}{_class_quanta_list}".upper()
-    
-class MACControlPause:
-    opcode: str = "0001"
-    value: int = 65535
-    
-    def __str__(self):
-        _opcode: str = self.opcode
-        _value = '{:04X}'.format(self.value)
-        return f"{_opcode}{_value}".upper()
 
 
 async def main():
