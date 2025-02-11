@@ -73,6 +73,11 @@ This repository includes examples of using [XOA Python API](https://docs.xenanet
 
 ---
 
+### PFC Configuration
+* [pfc](https://github.com/xenanetworks/open-automation-script-library/tree/main/pfc): create a PFC stream on the port to suppress a specific traffic class of the TX port traffic to a target fraction of the port speed.
+
+---
+
 ### Emulate Various Scenarios
 * [dhcp](https://github.com/xenanetworks/open-automation-script-library/tree/main/dhcp): how to create a DHCP stream
 * [ip_fragmented](https://github.com/xenanetworks/open-automation-script-library/tree/main/ip_fragmented): emulate IP fragmentation.
