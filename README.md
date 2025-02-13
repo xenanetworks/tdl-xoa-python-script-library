@@ -78,6 +78,9 @@ This repository includes examples of using [XOA Python API](https://docs.xenanet
 
 ---
 
+### DHCP Server & Client IPv4 
+* [dhcp_server_dhcp_client](https://github.com/xenanetworks/open-automation-script-library/tree/main/dhcp_server_dhcp_client): his project contains two main scripts dhcp_client_main.py and dhcp_server_main.py. As their name indicates, they leverage xoa-driver to run DHCP server and client services over Teledyne Lecroy Xena's testers.
+
 ### Emulate Various Scenarios
 * [dhcp](https://github.com/xenanetworks/open-automation-script-library/tree/main/dhcp): how to create a DHCP stream
 * [ip_fragmented](https://github.com/xenanetworks/open-automation-script-library/tree/main/ip_fragmented): emulate IP fragmentation.
