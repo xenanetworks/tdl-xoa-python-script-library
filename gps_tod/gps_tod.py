@@ -18,7 +18,6 @@ from xoa_driver.hlfuncs import mgmt, headers
 from xoa_driver.misc import Hex
 import logging
 import datetime
-from typing_extensions import List
 
 #---------------------------
 # GLOBAL PARAMS
@@ -37,7 +36,7 @@ MICROSECOND = 0
 #---------------------------
 # gps_tod
 #---------------------------
-async def gps_tod(chassis: str, username: str, port_list_str: List[str], year: int, month: int, day: int, hour: int, minute: int, second: int, microsecond: int):
+async def gps_tod(chassis: str, username: str, port_list_str: list, year: int, month: int, day: int, hour: int, minute: int, second: int, microsecond: int):
     # configure basic logger
     logging.basicConfig(
         format="%(asctime)s  %(message)s",
@@ -79,7 +78,7 @@ async def gps_tod(chassis: str, username: str, port_list_str: List[str], year: i
         logging.info(f"{'Current Time:':<20}{resp.local_time}")
         c_time = resp.local_time
         now_to_epoch = int(datetime.datetime.now().timestamp()) # Get the current time in epoch
-        schedule_to_epoch = int(datetime.datetime(year, month, day, hour, minute, microsecond).timestamp()) # Get the scheduled time in epoch
+        schedule_to_epoch = int(datetime.datetime(year, month, day, hour, minute, second, microsecond).timestamp()) # Get the scheduled time in epoch
         schedule_to_now = schedule_to_epoch - now_to_epoch # Calculate the time difference between the current time and the scheduled time
         c_trafficsync_time = c_time + schedule_to_now # Convert the time difference to C_TIME format
 
