@@ -1,9 +1,11 @@
 ################################################################
 #
-#                   GPS ToD Example
+#                   Traffic ToD Example
 #
 # What this script example does:
-# - Start the preconfigured traffic based on GPS Time of Day (ToD)
+# - Start the preconfigured traffic based on GMT Time of Day (ToD)
+# - Precision is second
+# - Datetime format is "YYYY-MM-DD HH:MM:SS"
 #
 ################################################################
 
@@ -24,19 +26,19 @@ import datetime
 #---------------------------
 CHASSIS_IP = "10.165.136.70"
 USERNAME = "gps_tod"
-PORT_LIST = ["2/0", "2/1"]
-YEAR = 2025
-MONTH = 2
-DAY = 8
-HOUR = 14
-MIUNTE = 7
-SECOND = 0
-MICROSECOND = 0
+PORT_LIST = ["3/2", "3/3"]
+TOD_GMT = "2025-02-17 15:18:00"
+
+# Function to convert string to datetime
+def convert(datetime_str):
+    format = "%Y-%m-%d %H:%M:%S"
+    datetime_result = datetime.datetime.strptime(datetime_str, format)
+    return datetime_result
 
 #---------------------------
 # gps_tod
 #---------------------------
-async def gps_tod(chassis: str, username: str, port_list_str: list, year: int, month: int, day: int, hour: int, minute: int, second: int, microsecond: int):
+async def gps_tod(chassis: str, username: str, port_list_str: list, tod_chassis_gmt: str):
     # configure basic logger
     logging.basicConfig(
         format="%(asctime)s  %(message)s",
@@ -46,7 +48,7 @@ async def gps_tod(chassis: str, username: str, port_list_str: list, year: int, m
             logging.StreamHandler()]
         )
     
-    # Establish connection to a Valkyrie tester using Python context manager
+    # Establish connection to a Xena tester using Python context manager
     # The connection will be automatically terminated when it is out of the block
     async with testers.L23Tester(host=chassis, username=username, password="xena", port=22606, enable_logging=False) as tester_obj:
         logging.info(f"===================================")
@@ -75,12 +77,23 @@ async def gps_tod(chassis: str, username: str, port_list_str: list, year: int, m
         await asyncio.sleep(1)
 
         resp = await tester_obj.time.get()
-        logging.info(f"{'Current Time:':<20}{resp.local_time}")
         c_time = resp.local_time
-        now_to_epoch = int(datetime.datetime.now().timestamp()) # Get the current time in epoch
-        schedule_to_epoch = int(datetime.datetime(year, month, day, hour, minute, second, microsecond).timestamp()) # Get the scheduled time in epoch
-        schedule_to_now = schedule_to_epoch - now_to_epoch # Calculate the time difference between the current time and the scheduled time
-        c_trafficsync_time = c_time + schedule_to_now # Convert the time difference to C_TIME format
+        logging.info(f"{'C_TIME:':<20}{c_time}")
+
+        _delta_day = c_time // 86400
+        _delta_sec = c_time % 86400
+        time_now_gmt = datetime.datetime(2010, 1, 1, 0, 0, 0, 0) + datetime.timedelta(days=_delta_day, seconds=_delta_sec)
+        logging.info(f"{'Now (GMT):':<20}{time_now_gmt}")
+
+        scheduled_datetime_gmt = convert(tod_chassis_gmt)
+        logging.info(f"{'Schedule (GMT):':<20} {scheduled_datetime_gmt}")
+
+        delta = scheduled_datetime_gmt - time_now_gmt
+        delta_sec = int(delta.total_seconds())
+        logging.info(f"{'Delta (sec)':<20}{delta_sec}")
+
+        c_trafficsync_time = c_time + delta_sec # Convert the time difference to C_TIME format
+        logging.info(f"{'New C_TIME:':<20}{c_trafficsync_time}")
 
         # Start the traffic
         await tester_obj.traffic_sync.set(on_off=enums.OnOff.ON, timestamp=c_trafficsync_time, module_ports=module_port_list)
@@ -94,13 +107,7 @@ async def main():
             chassis=CHASSIS_IP,
             username=USERNAME,
             port_list_str=PORT_LIST,
-            year=YEAR,
-            month=MONTH,
-            day=DAY,
-            hour=HOUR,
-            minute=MIUNTE,
-            second=SECOND,
-            microsecond=MICROSECOND
+            tod_chassis_gmt=TOD_GMT
         )
     except KeyboardInterrupt:
         stop_event.set()
