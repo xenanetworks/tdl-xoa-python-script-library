@@ -1,1 +1,1 @@
-xoa-driver>=2.9.3
+tdl-xoa-driver>=1.1.0

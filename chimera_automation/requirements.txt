@@ -1,2 +1,1 @@
-xoa-driver>=2.1
-chimera-core>=1.0
+tdl-xoa-driver>=1.1.0
