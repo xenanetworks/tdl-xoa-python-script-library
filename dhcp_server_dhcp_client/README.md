@@ -1,6 +1,6 @@
 # DHCP IPv4 Script Using XOA Python API
 
-This project contains two main scripts ``dhcp_client_main.py`` and ``dhcp_server_main.py``. As their name indicates, they leverage ``xoa-driver`` to run DHCP server and client services over Teledyne Lecroy Xena's products.
+This project contains two main scripts ``dhcp_client_main.py`` and ``dhcp_server_main.py``. As their name indicates, they leverage ``tdl-xoa-driver`` to run DHCP server and client services over Teledyne Lecroy Xena's products.
 
 ## Quick Start
 
