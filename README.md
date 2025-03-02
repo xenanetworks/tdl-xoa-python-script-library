@@ -1,8 +1,11 @@
-# Xena OpenAutomation Script Example Library
+# Xena OpenAutomation Python Script Example Library
+
+> [!IMPORTANT]  
+> ``xoa-driver`` package has been discontinued and is replaced by ``tdl-xoa-driver``. Please ``pip uninstall  xoa-driver`` from your environment and ``pip install tdl-xoa-driver``. The APIs and imports remain the same so you don't need to change your scripts.
 
 ## Introduction
 
-This repository includes examples of using [XOA Python API](https://docs.xenanetworks.com/projects/xoa-python-api), aka. [xoa-driver](https://pypi.org/project/xoa-driver/)
+This repository includes examples of using [XOA Driver](https://docs.xenanetworks.com/projects/tdl-xoa-driver), aka. [tdl-xoa-driver](https://pypi.org/project/tdl-xoa-driver/)
 
 ## Script Description
 
@@ -14,15 +17,15 @@ This repository includes examples of using [XOA Python API](https://docs.xenanet
 
 ### Async Wrapper for Non-Async Python
 
-* [async_wrapper](https://github.com/xenanetworks/tld-xoa-python-script-library/tree/main/async_wrapper): The APIs provided by xoa-driver are **async** functions. This means any function that uses the xoa-driver must be declared as **async**. This might be a problem for you if your existing framework doesn't support async functions. To solve this "incompatibility" issue, we have made an async wrapper class **XenaAsyncWrapper** for you to wrap xoa-driver's async function inside and use it as a regular Python function.
+* [async_wrapper](https://github.com/xenanetworks/tld-xoa-python-script-library/tree/main/async_wrapper): The APIs provided by tdl-xoa-driver are **async** functions. This means any function that uses the tdl-xoa-driver must be declared as **async**. This might be a problem for you if your existing framework doesn't support async functions. To solve this "incompatibility" issue, we have made an async wrapper class **XenaAsyncWrapper** for you to wrap tdl-xoa-driver's async function inside and use it as a regular Python function.
 
-  **With XenaAsyncWrapper, you can develop your own Robot Framework library using APIs from the xoa-driver**.
+  **With XenaAsyncWrapper, you can develop your own Robot Framework library using APIs from the tdl-xoa-driver**.
 
 ---
 
 ### Robot Framework Library Example
 
-* [robot_framework](https://github.com/xenanetworks/tld-xoa-python-script-library/tree/main/robot_framework): You can develop your own Robot Framework library using APIs from xoa-driver to communicate with the test equipment. In this example, we are **demonstrating how you can use xoa-driver and XenaAsyncWrapper to develop a simple library for Robot**.
+* [robot_framework](https://github.com/xenanetworks/tld-xoa-python-script-library/tree/main/robot_framework): You can develop your own Robot Framework library using APIs from tdl-xoa-driver to communicate with the test equipment. In this example, we are **demonstrating how you can use tdl-xoa-driver and XenaAsyncWrapper to develop a simple library for Robot**.
 
 ---
 
@@ -79,7 +82,7 @@ This repository includes examples of using [XOA Python API](https://docs.xenanet
 ---
 
 ### DHCP Server & Client IPv4 
-* [dhcp_server_dhcp_client](https://github.com/xenanetworks/tld-xoa-python-script-library/tree/main/dhcp_server_dhcp_client): his project contains two main scripts dhcp_client_main.py and dhcp_server_main.py. As their name indicates, they leverage xoa-driver to run DHCP server and client services over Teledyne Lecroy Xena's testers.
+* [dhcp_server_dhcp_client](https://github.com/xenanetworks/tld-xoa-python-script-library/tree/main/dhcp_server_dhcp_client): his project contains two main scripts dhcp_client_main.py and dhcp_server_main.py. As their name indicates, they leverage tdl-xoa-driver to run DHCP server and client services over Teledyne Lecroy Xena's testers.
 
 ### Emulate Various Scenarios
 * [dhcp_stream](https://github.com/xenanetworks/tld-xoa-python-script-library/tree/main/dhcp_stream): how to create a DHCP stream
@@ -111,15 +114,15 @@ Each folder contains at least three files:
 
 ## Installing XOA Driver
 
-This section details how to install `xoa-driver`. Installation is necessary to execute scripts that use XOA Python API.
+This section details how to install `tdl-xoa-driver`. Installation is necessary to execute scripts that use XOA Python API.
 
-Before installing `xoa-driver`, please make sure your environment has installed `python>=3.10` and `pip`.
+Before installing `tdl-xoa-driver`, please make sure your environment has installed `python>=3.9` and `pip`.
 
-You can install the `xoa-driver` to your global or virtual environment for Windows, macOS, and Linux using the commands below. 
+You can install the `tdl-xoa-driver` to your global or virtual environment for Windows, macOS, and Linux using the commands below. 
 ```
-pip install xoa-driver -U            # latest version
+pip install tdl-xoa-driver -U            # latest version
 ```
 
-Once the `xoa-driver` is installed, you can execute your script.
+Once the `tdl-xoa-driver` is installed, you can execute your script.
 
-For the most detailed instructions on how to install the XOA driver, visit our **Getting Started** section of our official XOA documentation here: https://docs.xenanetworks.com/projects/xoa-python-api/en/latest/getting_started/installation.html
+For the most detailed instructions on how to install the XOA driver, visit our **Getting Started** section of our official XOA documentation here: https://docs.xenanetworks.com/projects/tdl-xoa-driver/en/latest/getting_started/installation.html
