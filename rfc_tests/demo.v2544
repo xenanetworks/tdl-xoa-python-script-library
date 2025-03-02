@@ -4,8 +4,8 @@
       {
         "PortRef": {
           "ChassisId": "ce8512c8-48cc-4e6d-a4dd-a637b5a40b6d",
-          "ModuleIndex": 0,
-          "PortIndex": 4
+          "ModuleIndex": 2,
+          "PortIndex": 0
         },
         "PortGroup": "UNDEFINED",
         "PairPeerRef": null,
@@ -49,8 +49,8 @@
       {
         "PortRef": {
           "ChassisId": "ce8512c8-48cc-4e6d-a4dd-a637b5a40b6d",
-          "ModuleIndex": 0,
-          "PortIndex": 5
+          "ModuleIndex": 2,
+          "PortIndex": 1
         },
         "PortGroup": "UNDEFINED",
         "PairPeerRef": null,

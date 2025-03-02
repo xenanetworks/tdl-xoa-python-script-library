@@ -805,13 +805,13 @@
   },
   "port_identities": [
     {
-      "module_index": 0,
-      "port_index": 4,
+      "module_index": 2,
+      "port_index": 0,
       "tester_id": "1e818547519c4ddd53c793f2f7142857"
     },
     {
-      "module_index": 0,
-      "port_index": 5,
+      "module_index": 2,
+      "port_index": 1,
       "tester_id": "1e818547519c4ddd53c793f2f7142857"
     }
   ],

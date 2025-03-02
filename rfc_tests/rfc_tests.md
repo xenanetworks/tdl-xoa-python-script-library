@@ -1,8 +1,8 @@
 # XOA RFC Tests Example
 
-This example demonstrates how to run RFC 2544/2889/3918 tests using XOA RFC test framework (xoa-core), and save the result data in csv files.
+This example demonstrates how to run RFC 2544/2889/3918 tests using XOA RFC test framework (tdl-xoa-core), and save the result data in csv files.
 
-> Read more about xoa-core and the rfc test suite plugins at https://docs.xenanetworks.com/projects/xoa-core
+> Read more about tdl.xoa-core and the rfc test suite plugins at https://docs.xenanetworks.com/projects/tdl-xoa-core
 
 ```run_xoa_rfc.py``` script does the following:
 

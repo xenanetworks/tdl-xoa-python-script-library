@@ -44,7 +44,7 @@ PLUGINS_PATH = PROJECT_PATH / "rfc_lib"
 GUI_CONFIG = PROJECT_PATH / "demo.x2544"
 XOA_CONFIG = PROJECT_PATH / "demo.json"
 CHASSIS_IP = "10.165.136.70"
-RUN_FROM_GUI_CONFIG = False
+RUN_FROM_GUI_CONFIG = True
 
 
 #---------------------------
