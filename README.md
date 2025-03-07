@@ -33,7 +33,7 @@ This repository includes examples of using [XOA Driver](https://docs.xenanetwork
 
 * [rfc_tests](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/rfc_tests): how to run Xena2544/Xena2889/Xena3918 configuration using XOA Python for GUI-less test suite automation.
 * [anlt_test_methodology](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/anlt_test_methodology): auto-negotiation and link training test methodology.
-* [cable_perf_optimization](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/cable_perf_optimization): measures PRBS BER while adjusting transceiver cursor values.
+* [cable_perf_optimization](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/cpom): provides an automated optimization framework that uses PRBS-based BER testing to dial in RX Output Equalization and TX Input Equalization for the best possible signal integrity, aligning with IEEE 802.3ck and CMIS standards.
 * [chimera_automation](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/chimera_automation): uses Chimera core ([chimera-core](https://pypi.org/project/chimera-core/)) for impairment automation.
 
 ---
