@@ -117,7 +117,7 @@ async def prbs_ber_stats(chassis: str, username: str, port_str1: str, port_str2:
         _count = 0
         _list = []
         for i in range(_serdes_count1):
-            _list.append(port_obj2.serdes[i].prbs.status.get())
+            _list.append(port_obj2.l1.serdes[i].prbs.status.get())
         while _count <= duration-1:
             resp = await utils.apply(*_list)
             print(f"*"*_count)
