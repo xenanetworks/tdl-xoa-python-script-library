@@ -43,8 +43,8 @@ async def dhcp_stream(chassis: str, username: str, port_str: str,):
         # Get the port object on module
         port_obj = module_obj.ports.obtain(_pid1)
 
-        await mgmt.reserve_port(port_obj)
-        await mgmt.reset_port(port_obj)
+        await mgmt.reserve_port(port_obj, reset=True)
+        
 
         await asyncio.sleep(2)
 

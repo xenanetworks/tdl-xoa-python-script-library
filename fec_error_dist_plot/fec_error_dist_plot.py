@@ -96,7 +96,7 @@ async def pre_fec_error_dist_plot(
         port_cnt = len(port_objs)
 
         # Forcibly reserve the port
-        await mgmt.free_module(module=module_obj, should_free_ports=False)
+        await mgmt.release_module(module=module_obj, should_release_ports=False)
         resp = await module_obj.revision.get()
         module_module_name = resp.revision
         for p in port_objs:

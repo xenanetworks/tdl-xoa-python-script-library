@@ -71,10 +71,10 @@ async def prbs_ber_stats(chassis: str, username: str, port_str1: str, port_str2:
         port_obj2 = module_obj2.ports.obtain(_pid2)
 
         # Forcibly reserve the port and reset it.
-        await mgmt.reserve_port(port_obj1)
-        await mgmt.reset_port(port_obj1)
-        await mgmt.reserve_port(port_obj2)
-        await mgmt.reset_port(port_obj2)
+        await mgmt.reserve_port(port_obj1, reset=True)
+        
+        await mgmt.reserve_port(port_obj2, reset=True)
+        
 
         await asyncio.sleep(5)
 
@@ -136,8 +136,8 @@ async def prbs_ber_stats(chassis: str, username: str, port_str1: str, port_str2:
         await utils.apply(*_list)
 
         # Release the ports
-        await mgmt.free_port(port=port_obj1)
-        await mgmt.free_port(port=port_obj2)
+        await mgmt.release_port(port=port_obj1)
+        await mgmt.release_port(port=port_obj2)
 
 async def main():
     stop_event = asyncio.Event()

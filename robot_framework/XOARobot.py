@@ -27,7 +27,7 @@ class XOARobot:
     @keyword("Reserve Chassis")
     def reserve_chassis(self):
         for m in self.tester.modules:
-            self.xaw(mgmt.free_module(module=m, should_free_ports=True))
+            self.xaw(mgmt.release_module(module=m, should_release_ports=True))
         self.xaw(mgmt.reserve_tester(tester=self.tester))
 
     @keyword("Disconnect Chassis")
@@ -40,22 +40,22 @@ class XOARobot:
         _mid = int(port_id.split("/")[0])
         module = self.tester.modules.obtain(_mid)
         for p in module.ports:
-            self.xaw(mgmt.free_port(port=p))
+            self.xaw(mgmt.release_port(port=p))
         self.xaw(mgmt.reserve_module(module=module))
     
     @keyword("Release Module")
     def release_module(self, port_id: str):
         _mid = int(port_id.split("/")[0])
         module = self.tester.modules.obtain(_mid)
-        self.xaw(mgmt.free_module(module=module))
+        self.xaw(mgmt.release_module(module=module))
 
     @keyword("Reserve Port")
     def reserve_port(self, port_id: str):
         _mid = int(port_id.split("/")[0])
         _pid = int(port_id.split("/")[1])
         module = self.tester.modules.obtain(_mid)
-        self.xaw(mgmt.free_tester(tester=self.tester))
-        self.xaw(mgmt.free_module(module=module))
+        self.xaw(mgmt.release_tester(tester=self.tester))
+        self.xaw(mgmt.release_module(module=module))
         port = module.ports.obtain(_pid)
         self.xaw(mgmt.reserve_port(port=port))
 
@@ -64,7 +64,7 @@ class XOARobot:
         _mid = int(port_id.split("/")[0])
         _pid = int(port_id.split("/")[1])
         module = self.tester.modules.obtain(_mid)
-        self.xaw(mgmt.free_module(module=module, should_free_ports=True))
+        self.xaw(mgmt.release_module(module=module, should_release_ports=True))
         port = module.ports.obtain(_pid)
         self.xaw(mgmt.reset_port(port=port))
 
@@ -74,7 +74,7 @@ class XOARobot:
         _pid = int(port_id.split("/")[1])
         module = self.tester.modules.obtain(_mid)
         port = module.ports.obtain(_pid)
-        self.xaw(mgmt.free_port(port=port))
+        self.xaw(mgmt.release_port(port=port))
 
     @keyword("Get Port Description")
     def get_port_description(self, port_id: str) -> str:

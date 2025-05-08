@@ -62,7 +62,7 @@ async def stream_sync(chassis: str, username: str, port_str: str):
         port_obj = module_obj.ports.obtain(_pid)
 
         # reserve the port by force
-        await mgmt.free_module(module=module_obj, should_free_ports=False)
+        await mgmt.release_module(module=module_obj, should_release_ports=False)
         await mgmt.reserve_port(port=port_obj, force=True)
 
         # synchronize the streams on the physical port and the stream indices on the port object
@@ -75,7 +75,7 @@ async def stream_sync(chassis: str, username: str, port_str: str):
             logging.info(f"Stream [{i}] : {resp.comment}")
 
         # release the port
-        await mgmt.free_port(port_obj)
+        await mgmt.release_port(port_obj)
 
 async def main():
     stop_event = asyncio.Event()

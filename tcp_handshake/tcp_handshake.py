@@ -69,8 +69,8 @@ async def tcp_handshake(chassis: str, username: str, c_port_str: str, s_port_str
         s_port_obj = s_module_obj.ports.obtain(_pid_s)
         
         # reserve ports
-        await mgmt.free_module(c_module_obj)
-        await mgmt.free_module(s_module_obj)
+        await mgmt.release_module(c_module_obj)
+        await mgmt.release_module(s_module_obj)
         await mgmt.reserve_port(c_port_obj)
         await mgmt.reserve_port(s_port_obj)
 
@@ -186,8 +186,8 @@ async def tcp_handshake(chassis: str, username: str, c_port_str: str, s_port_str
         await asyncio.sleep(1)
 
         # free ports
-        await mgmt.free_port(c_port_obj)
-        await mgmt.free_port(s_port_obj)
+        await mgmt.release_port(c_port_obj)
+        await mgmt.release_port(s_port_obj)
 
         # If you want to save the TCP handshake packets into a pcap, uncomment the lines below.
         # cap_packet_list = []

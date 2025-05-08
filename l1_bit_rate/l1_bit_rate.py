@@ -80,10 +80,10 @@ async def l1_bit_rate(chassis: str, username: str, tx_port_str: str, rx_port_str
         tx_port = tx_module.ports.obtain(_pid_tx)
         rx_port = rx_module.ports.obtain(_pid_rx)
 
-        await mgmt.reserve_port(tx_port)
-        await mgmt.reset_port(tx_port)
-        await mgmt.reserve_port(rx_port)
-        await mgmt.reset_port(rx_port)
+        await mgmt.reserve_port(tx_port, reset=True)
+        
+        await mgmt.reserve_port(rx_port, reset=True)
+        
 
         await asyncio.sleep(5)
 

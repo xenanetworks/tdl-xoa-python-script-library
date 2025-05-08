@@ -35,5 +35,5 @@ foreach port $ports {ClearPortResults $s $port $console_flag}
 foreach port $ports {StartPortTraffic $s $port $console_flag}
 
 # --- Release all ports and disconnect
-foreach port $ports { set response [ReleasePort $s $port $console_flag] }
+foreach port $ports { set response [release_port $s $port $console_flag] }
 set response [Logout $s]

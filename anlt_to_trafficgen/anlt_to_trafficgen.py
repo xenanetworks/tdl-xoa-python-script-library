@@ -64,9 +64,9 @@ async def anlt_to_trafficgen(
         # Get the port
         port_obj = module_obj.ports.obtain(_pid)
 
-        await mgmt.reserve_port(port_obj)
+        await mgmt.reserve_port(port_obj, reset=True)
         logging.info(f"Port {port_obj.kind.module_id}/{port_obj.kind.port_id} is reserved")
-        await mgmt.reset_port(port_obj)
+        
         logging.info(f"Port {port_obj.kind.module_id}/{port_obj.kind.port_id} is reset")
 
         # Read serdes lane count from port

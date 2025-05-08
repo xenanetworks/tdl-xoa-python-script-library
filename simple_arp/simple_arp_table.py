@@ -46,8 +46,8 @@ async def simple_arp_table(chassis: str, username: str, port_str: str,):
         port = module.ports.obtain(_pid)
 
         # Forcibly reserve the TX port and reset it.
-        await mgmt.reserve_port(port)
-        await mgmt.reset_port(port)
+        await mgmt.reserve_port(port, reset=True)
+        
 
         await asyncio.sleep(5)
 
@@ -70,4 +70,4 @@ async def simple_arp_table(chassis: str, username: str, port_str: str,):
         await port.arp_rx_table.set(chunks=arp_table_entry_list)
 
         # release port
-        await mgmt.free_port(port=port)
+        await mgmt.release_port(port=port)

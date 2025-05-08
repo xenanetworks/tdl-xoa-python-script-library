@@ -110,11 +110,11 @@ async def live_plots(
         tx_port_obj_2 = tx_module_obj_2.ports.obtain(_pid_tx_2)
 
         # Forcibly reserve the port
-        await mgmt.free_module(module=rx_module_obj, should_free_ports=False)
+        await mgmt.release_module(module=rx_module_obj, should_release_ports=False)
         await mgmt.reserve_port(rx_port_obj)
-        await mgmt.free_module(module=tx_module_obj_1, should_free_ports=False)
+        await mgmt.release_module(module=tx_module_obj_1, should_release_ports=False)
         await mgmt.reserve_port(tx_port_obj_1)
-        await mgmt.free_module(module=tx_module_obj_2, should_free_ports=False)
+        await mgmt.release_module(module=tx_module_obj_2, should_release_ports=False)
         await mgmt.reserve_port(tx_port_obj_2)
 
         # Sync the filters from chassis to script

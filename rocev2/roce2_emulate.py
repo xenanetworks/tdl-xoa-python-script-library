@@ -96,9 +96,9 @@ class XenaRoCEv2Emulator:
             port_obj = module_obj.ports.obtain(_pid)
 
             # reserve ports
-            await mgmt.free_module(module_obj)
-            await mgmt.reserve_port(port_obj)
-            await mgmt.reset_port(port_obj)
+            await mgmt.release_module(module_obj)
+            await mgmt.reserve_port(port_obj, reset=True)
+            
 
             await asyncio.sleep(delay_after_reset)
 
@@ -201,7 +201,7 @@ class XenaRoCEv2Emulator:
             await port_obj.transceiver.access_rw(page_address=2000, register_address=0xf0036).set(value=Hex("00000001"))
 
             # free the port
-            await mgmt.free_port(port_obj)
+            await mgmt.release_port(port_obj)
             logging.info(f"Configuration complete")
 
     @staticmethod
@@ -250,9 +250,9 @@ class XenaRoCEv2Emulator:
             port_obj = module_obj.ports.obtain(_pid)
 
             # reserve ports
-            await mgmt.free_module(module_obj)
-            await mgmt.reserve_port(port_obj)
-            await mgmt.reset_port(port_obj)
+            await mgmt.release_module(module_obj)
+            await mgmt.reserve_port(port_obj, reset=True)
+            
 
             await asyncio.sleep(delay_after_reset)
 
@@ -341,7 +341,7 @@ class XenaRoCEv2Emulator:
             await modifier.range.set(min_val=1, step=1, max_val=frames_per_flow)
 
             # free the port
-            await mgmt.free_port(port_obj)
+            await mgmt.release_port(port_obj)
             logging.info(f"Configuration complete")
 
 

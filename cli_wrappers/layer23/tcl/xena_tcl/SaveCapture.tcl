@@ -45,5 +45,5 @@ ReservePort $s $port $console_flag
 SavePortCapture $s $port $console_flag
 
 # --- Release all ports and disconnect
-ReleasePort $s $port $console_flag
+release_port $s $port $console_flag
 Logout $xena_socket

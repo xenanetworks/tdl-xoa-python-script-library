@@ -87,8 +87,8 @@ async def siv_plot(
             return None
         
         port_obj = module_obj.ports.obtain(_pid)
-        await mgmt.free_module(module=module_obj, should_free_ports=False)
-        await mgmt.reserve_port(port_obj)
+        await mgmt.release_module(module=module_obj, should_release_ports=False)
+        await mgmt.reserve_port(port_obj, reset=True)
 
         resp = await port_obj.capabilities.get()
         max_serdes = resp.serdes_count
@@ -210,7 +210,7 @@ async def siv_plot(
                     plt.pause(plotting_interval)
                     break
         
-        await mgmt.free_port(port_obj)
+        await mgmt.release_port(port_obj)
         logging.info(f"Bye!")
 
 async def main():

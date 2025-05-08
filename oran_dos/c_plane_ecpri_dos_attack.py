@@ -71,8 +71,8 @@ async def c_plane_ecpri_dos(chassis_ip: str, port_str: str, username: str, xpc_m
 
         # Forcibly reserve the TX port and reset it.
         logging.info(f"Reserve port {port.kind.module_id}/{port.kind.port_id}")
-        await mgmt.reserve_port(port)
-        await mgmt.reset_port(port)
+        await mgmt.reserve_port(port, reset=True)
+        
         await asyncio.sleep(2)
 
         if xpc_mode:
@@ -125,7 +125,7 @@ async def c_plane_ecpri_dos(chassis_ip: str, port_str: str, username: str, xpc_m
         # stop traffic
         logging.info(f"Stop traffic")
         await port.traffic.state.set_stop()
-        await mgmt.free_port(port)
+        await mgmt.release_port(port)
 
         logging.info(f"Done")
 

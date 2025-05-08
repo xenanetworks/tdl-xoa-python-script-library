@@ -61,8 +61,8 @@ async def freya_tx_tune(
         # Get the port
         port_obj = module_obj.ports.obtain(_pid)
 
-        await mgmt.reserve_port(port_obj)
-        await mgmt.reset_port(port_obj)
+        await mgmt.reserve_port(port_obj, reset=True)
+        
 
         # Read serdes lane count from port
         resp = await port_obj.capabilities.get()
@@ -109,7 +109,7 @@ async def freya_tx_tune(
         logging.info(f"Read (IEEE):  pre3 = {resp.pre3/1000}, pre2 = {resp.pre2/1000}, pre = {resp.pre/1000}, main = {resp.main/1000}, post = {resp.post/1000}")
 
         # release the port
-        await mgmt.free_port(port_obj)
+        await mgmt.release_port(port_obj)
 
 
 async def main():
