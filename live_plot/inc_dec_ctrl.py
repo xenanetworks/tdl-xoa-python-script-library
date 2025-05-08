@@ -115,9 +115,9 @@ async def inc_dec_ctrl(
         tx_port_obj_2 = tx_module_obj_2.ports.obtain(_pid_tx_2)
 
         # Forcibly reserve the port
-        await mgmt.free_module(module=tx_module_obj_1, should_free_ports=False)
+        await mgmt.release_module(module=tx_module_obj_1, should_release_ports=False)
         await mgmt.reserve_port(tx_port_obj_1)
-        await mgmt.free_module(module=tx_module_obj_2, should_free_ports=False)
+        await mgmt.release_module(module=tx_module_obj_2, should_release_ports=False)
         await mgmt.reserve_port(tx_port_obj_2)
 
         await tx_port_obj_1.traffic.state.set_stop()
@@ -164,7 +164,7 @@ async def inc_dec_ctrl(
         await stop_event.wait()
         
         # await tx_port_obj_1.traffic.state.set_stop()
-        # await mgmt.free_port(tx_port_obj_1)
+        # await mgmt.release_port(tx_port_obj_1)
 
 async def main():
     stop_event = asyncio.Event()

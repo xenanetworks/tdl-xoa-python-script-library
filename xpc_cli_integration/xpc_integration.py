@@ -67,12 +67,12 @@ async def xpc_integration(chassis: str, username: str, port_str: str):
         # Port reservation
         #---------------------------
         # use high-level func to reserve the port
-        await mgmt.reserve_port(port_obj)
+        await mgmt.reserve_port(port_obj, reset=True)
 
         await cli.port_config_from_file(port_obj, "port_config.xpc")
 
         # use high-level func to reserve the port
-        await mgmt.free_port(port_obj)
+        await mgmt.release_port(port_obj)
 
 
 async def main():

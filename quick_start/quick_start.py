@@ -73,12 +73,12 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
         rx_port = module_obj2.ports.obtain(_pid2)
 
         # Forcibly reserve the TX port and reset it.
-        await mgmt.reserve_port(tx_port)
-        await mgmt.reset_port(tx_port)
+        await mgmt.reserve_port(tx_port, reset=True)
+        
 
         # Forcibly reserve the TX port and reset it.
-        await mgmt.reserve_port(rx_port)
-        await mgmt.reset_port(rx_port)
+        await mgmt.reserve_port(rx_port, reset=True)
+        
 
         await asyncio.sleep(5)
 

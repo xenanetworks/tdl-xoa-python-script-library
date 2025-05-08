@@ -274,7 +274,7 @@ async def thor_ppm_anlt_stream(chassis: str, username: str, duration: int, cool_
 
             # reserve module
             logging.info(f"Reserve Module {mid}")
-            await mgmt.free_module(module=module, should_free_ports=True)
+            await mgmt.release_module(module=module, should_release_ports=True)
             await mgmt.reserve_module(module=module, force=True)
 
             # change module media
@@ -342,8 +342,8 @@ async def thor_ppm_anlt_stream(chassis: str, username: str, duration: int, cool_
                 port = module.ports.obtain(pid)
                 _port_object_list.append(port)
                 
-                await mgmt.reserve_port(port, force=True)
-                await mgmt.reset_port(port)
+                await mgmt.reserve_port(port, force=True, reset=True)
+                
 
                 await asyncio.sleep(5)
 
@@ -508,7 +508,7 @@ async def thor_ppm_anlt_stream(chassis: str, username: str, duration: int, cool_
             logging.info(f"{'RX BYTES:':<20}{_rx.byte_count_since_cleared}")
 
         for module in _module_object_list:
-            await mgmt.free_module(module=module, should_free_ports=True)
+            await mgmt.release_module(module=module, should_release_ports=True)
         
         logging.info(f"==================================")
         logging.info(f"{'DONE'}")

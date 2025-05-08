@@ -61,7 +61,7 @@ async def thor_seq_access(chassis: str, username: str, port_str: str, page: int,
         port = module.ports.obtain(_pid)
 
         logging.info(f"Reserve Port {_mid}/{_pid}")
-        await mgmt.free_module(module=module)
+        await mgmt.release_module(module=module)
         await mgmt.reserve_port(port=port)
 
         if len(data)%2 != 0:

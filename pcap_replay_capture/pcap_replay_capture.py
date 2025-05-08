@@ -75,12 +75,10 @@ async def pcap_replay_capture(chassis: str, username: str, replay_file: str, rep
         capture_port_obj = capture_module_obj.ports.obtain(_pid)
 
         # reserve the port objects
-        await mgmt.free_module(module=replay_module_obj, should_free_ports=False)
-        await mgmt.reserve_port(port=replay_port_obj, force=True)
-        await mgmt.reset_port(port=replay_port_obj)
-        await mgmt.free_module(module=capture_module_obj, should_free_ports=False)
-        await mgmt.reserve_port(port=capture_port_obj, force=True)
-        await mgmt.reset_port(port=capture_port_obj)
+        await mgmt.release_module(module=replay_module_obj, should_release_ports=False)
+        await mgmt.reserve_port(port=replay_port_obj, force=True, reset=True)
+        await mgmt.release_module(module=capture_module_obj, should_release_ports=False)
+        await mgmt.reserve_port(port=capture_port_obj, force=True, reset=True)
 
         # configure capture trigger criteria
         await capture_port_obj.capturer.state.set(on_off=enums.StartOrStop.STOP)
@@ -125,8 +123,8 @@ async def pcap_replay_capture(chassis: str, username: str, replay_file: str, rep
         scapy.all.wrpcap(filename=capture_file, pkt=cap_packet_list)
 
         # release the port
-        await mgmt.free_port(replay_port_obj)
-        await mgmt.free_port(capture_port_obj)
+        await mgmt.release_port(replay_port_obj)
+        await mgmt.release_port(capture_port_obj)
 
 
 async def main():

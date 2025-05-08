@@ -60,7 +60,7 @@ async def rx_los_mon(chassis: str, username: str, port_str: str):
         port_obj = module_obj.ports.obtain(_pid)
 
         # Forcibly reserve the TX port
-        # await mgmt.reserve_port(port_obj)
+        # await mgmt.reserve_port(port_obj, reset=True)
         # await asyncio.sleep(1)
 
         # Supported Pages Advertising - BanksSupported

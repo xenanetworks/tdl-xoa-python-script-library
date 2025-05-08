@@ -81,7 +81,7 @@ proc ReservePort {s port console} {
 # -----------------------------------------
 
 # ---------------- Release_Port ----------------
-proc ReleasePort {s port console} {
+proc release_port {s port console} {
 
 	set pf_flag 1
 	

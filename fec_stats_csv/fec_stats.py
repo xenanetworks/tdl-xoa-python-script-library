@@ -72,9 +72,9 @@ async def fec_stats(chassis: str, username: str, port_str: str):
         port_obj = module_obj.ports.obtain(_pid)
 
         # Forcibly reserve the port and reset it.
-        await mgmt.free_module(module=module_obj, should_free_ports=False)
-        await mgmt.reserve_port(port_obj)
-        await mgmt.reset_port(port_obj)
+        await mgmt.release_module(module=module_obj, should_release_ports=False)
+        await mgmt.reserve_port(port_obj, reset=True)
+        
 
         await asyncio.sleep(5)
 

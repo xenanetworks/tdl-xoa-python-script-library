@@ -70,8 +70,8 @@ async def live_plot(chassis: str, username: str, port_str: str, filter_idx: int,
         port_obj = module_obj.ports.obtain(_pid)
 
         # Forcibly reserve the port and reset it.
-        await mgmt.free_module(module=module_obj, should_free_ports=False)
-        await mgmt.reserve_port(port_obj)
+        await mgmt.release_module(module=module_obj, should_release_ports=False)
+        await mgmt.reserve_port(port_obj, reset=True)
 
         # Sync the filters from chassis to script
         await asyncio.sleep(1)

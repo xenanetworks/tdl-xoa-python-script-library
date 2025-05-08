@@ -78,7 +78,7 @@ async def chimera_using_xoa_driver_func(chassis: str, username: str, port_str: s
         # region change the module's media configuration
 
         # Free the module and all its ports
-        await mgmt.free_module(module=module_obj, should_free_ports=True)
+        await mgmt.release_module(module=module_obj, should_release_ports=True)
 
         # Reserve the module
         await mgmt.reserve_module(module=module_obj)
@@ -93,7 +93,7 @@ async def chimera_using_xoa_driver_func(chassis: str, username: str, port_str: s
         await asyncio.sleep(10)
 
         # Release the module
-        await mgmt.free_module(module=module_obj)
+        await mgmt.release_module(module=module_obj)
     
         # endregion
 
@@ -106,8 +106,8 @@ async def chimera_using_xoa_driver_func(chassis: str, username: str, port_str: s
         port_obj = module_obj.ports.obtain(_pid)
 
         # Use HL-FUNC to reserve and reset the Chimera port.
-        await mgmt.reserve_port(port_obj)
-        await mgmt.reset_port(port_obj)
+        await mgmt.reserve_port(port_obj, reset=True)
+        
 
         await asyncio.sleep(5)
 

@@ -44,7 +44,7 @@ async def modifier(chassis: str, username: str, port_str: str):
     port_obj = module_obj.ports.obtain(_pid)
 
     # use high-level func to reserve the port
-    await mgmt.reserve_port(port_obj)
+    await mgmt.reserve_port(port_obj, reset=True)
     
     # reset the port
     await port_obj.reset.set()

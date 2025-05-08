@@ -115,7 +115,7 @@ def main() -> None:
     tester = xaw(testers.L23Tester(host=CHASSIS_IP, username=USERNAME, password="xena", port=22606, enable_logging=False))
 
     # reserve the chassis to change multi-user setting
-    xaw(mgmt.free_tester(tester=tester, should_free_modules_ports=True))
+    xaw(mgmt.release_tester(tester=tester, should_release_modules_ports=True))
     xaw(mgmt.reserve_tester(tester=tester))
     # xaw(tester.multiuser.set_on())
 
@@ -123,7 +123,7 @@ def main() -> None:
     module = tester.modules.obtain(MODULE_IDX)
 
     # reserve the module
-    xaw(mgmt.free_module(module=module, should_free_ports=True))
+    xaw(mgmt.release_module(module=module, should_release_ports=True))
     xaw(mgmt.reserve_module(module=module))
 
     # exit if module type is Chimera
@@ -138,8 +138,7 @@ def main() -> None:
     print(f"{resp.comment}")
 
     # reserve & reset port
-    xaw(mgmt.reserve_port(port=port))
-    xaw(mgmt.reset_port(port=port))
+    xaw(mgmt.reserve_port(port=port, reset=True))
 
     xaw(asyncio.sleep(5))
 

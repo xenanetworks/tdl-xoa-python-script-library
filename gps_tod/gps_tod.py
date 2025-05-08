@@ -72,7 +72,7 @@ async def gps_tod(chassis: str, username: str, port_list_str: list, tod_chassis_
             tx_port = module_obj.ports.obtain(pid)
 
             # Forcibly reserve the TX port
-            await mgmt.reserve_port(tx_port)
+            await mgmt.reserve_port(tx_port, reset=True)
 
         await asyncio.sleep(1)
 

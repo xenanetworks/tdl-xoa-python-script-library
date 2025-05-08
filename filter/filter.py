@@ -53,10 +53,10 @@ async def port_filter(chassis: str, username: str, port_str1: str, port_str2: st
         tx_port = tx_module.ports.obtain(_pid1)
         rx_port = rx_module.ports.obtain(_pid2)
 
-        await mgmt.reserve_port(tx_port)
-        await mgmt.reset_port(tx_port)
-        await mgmt.reserve_port(rx_port)
-        await mgmt.reset_port(rx_port)
+        await mgmt.reserve_port(tx_port, reset=True)
+        
+        await mgmt.reserve_port(rx_port, reset=True)
+        
 
         await asyncio.sleep(5)
 
