@@ -2,14 +2,14 @@
 #
 #                   ASYNC WRAPPER
 #
-# The APIs provided by xoa-driver are **async** functions. 
-# This means any function that uses the xoa-driver must be 
+# The APIs provided by tdl-xoa-driver are **async** functions. 
+# This means any function that uses the tdl-xoa-driver must be 
 # declared as **async**. 
 # 
 # This might be a problem for you if your existing framework 
 # doesn't support async functions. To solve this "incompatibility" 
 # issue, we have made an async wrapper class **XenaAsyncWrapper** 
-# for you to wrap xoa-driver's async function inside and use it 
+# for you to wrap tdl-xoa-driver's async function inside and use it 
 # as a regular Python function.
 #
 ################################################################

@@ -1,11 +1,10 @@
-
-
-from xoa_driver import utils
-from xoa_driver.lli import commands as cmd
-from xoa_driver.lli import TransportationHandler
-from scapy.all import Ether, IP, UDP, BOOTP, DHCP, mac2str
-
-from dhcp_core.xsocket import XSocket
+from xoa_driver import ports
+from scapy.layers.l2 import Ether
+from scapy.utils import mac2str
+from scapy.layers.inet import IP, UDP
+from scapy.layers.dhcp import BOOTP, DHCP
+from scapy.packet import Packet
+from .xsocket import XSocket
 from typing import Dict, Tuple
 from enum import Enum
 import time
@@ -66,8 +65,8 @@ class DhcpSession:
     
     __discover_max_num_retransmit:  int
     __discover_num_retransmit:      int
-    __discover_last_sent:           int
-    __discover_timeout:             int
+    __discover_last_sent:           float
+    __discover_timeout:             float
     
     offered_dhcp_server_id:       int
     offered_ip_addr:              str
@@ -85,7 +84,7 @@ class DhcpSession:
         self.state                          = DhcpSession.State.DISCOVER
         self.__discover_max_num_retransmit  = max_num_retransmit
         self.__discover_num_retransmit      = 0
-        self.__discover_last_sent           = 0
+        self.__discover_last_sent           = 0.0
         self.__discover_timeout             = timeout_msec/1000
         
         self.offered_dhcp_server_id       = 0
@@ -100,39 +99,39 @@ class DhcpSession:
         if self.state == DhcpSession.State.DISCOVER:
             if self.__discover_num_retransmit >= self.__discover_max_num_retransmit:
                 self.state = DhcpSession.State.FAILED
-                return [DhcpSession.Error.Success, None]
+                return (DhcpSession.Error.Success, b"")
             
             self.state = DhcpSession.State.DISCOVER_SENT
             self.__discover_last_sent = time.time()
-            return [DhcpSession.Error.Success, self.__create_discovery_packet()]
+            return (DhcpSession.Error.Success, self.__create_discovery_packet())
         
         elif self.state == DhcpSession.State.DISCOVER_SENT:
             if time.time() - self.__discover_last_sent > self.__discover_timeout:
                 self.__discover_num_retransmit += 1
                 self.state = DhcpSession.State.DISCOVER
-            return [DhcpSession.Error.Success, None]
+            return (DhcpSession.Error.Success, b"")
             
         elif self.state == DhcpSession.State.REQUEST:
             if self.__discover_num_retransmit >= self.__discover_max_num_retransmit:
                 self.state = DhcpSession.State.FAILED
-                return [DhcpSession.Error.Success, None]
+                return (DhcpSession.Error.Success, b"")
             
             self.state = DhcpSession.State.REQUEST_SENT
             self.__discover_last_sent = time.time()
-            return [DhcpSession.Error.Success, self.__create_request_packet()]
+            return (DhcpSession.Error.Success, self.__create_request_packet())
                 
         elif self.state == DhcpSession.State.REQUEST_SENT:
             if time.time() - self.__discover_last_sent > self.__discover_timeout:
                 self.__discover_num_retransmit += 1
                 self.state = DhcpSession.State.REQUEST
-            return [DhcpSession.Error.Success, None]
+            return (DhcpSession.Error.Success, b"")
                 
         elif self.state == DhcpSession.State.COMPLETED:
-            return [DhcpSession.Error.Success, None]
+            return (DhcpSession.Error.Success, b"")
         elif self.state == DhcpSession.State.FAILED:
-            return [DhcpSession.Error.Success, None]
+            return (DhcpSession.Error.Success, b"")
         else:
-            return [DhcpSession.Error.UnknownFailure, None]
+            return (DhcpSession.Error.UnknownFailure, b"")
     
     async def process_rx(self, data :bytes):
         if self.state == DhcpSession.State.DISCOVER:
@@ -206,6 +205,7 @@ class DhcpSession:
                 elif option[0] == 'end':
                     break
             return DhcpSession.Error.Success
+        return DhcpSession.Error.UnknownFailure
 
     def __parse_ack_packet(self, data: bytes) -> Error:
         packet = Ether(data)
@@ -228,35 +228,27 @@ class DhcpSession:
                 elif option[0] == 'end':
                     break
             return DhcpSession.Error.Success
+        return DhcpSession.Error.UnknownFailure
     
-    def __get_dhcp_message_type(packet):
+    @staticmethod
+    def __get_dhcp_message_type(packet: Packet):
         if packet.haslayer(DHCP):
             for option in packet[DHCP].options:
                 if option[0] == 'message-type':
                     return option[1]
         return None
 
-
-
 class DhcpClient:
-    
     class Error(Enum):
         Success         = 0
         UnknownFailure  = 1
     
-    chassis_handler:        TransportationHandler
-    module_id:              int
-    port_id:                int
-    __xsocket:              XSocket
-    concurrent_requests:    int # the number of concurrent dhcp sessions that can be processed at the same time
-
-    def __init__(self, chassis_handler: TransportationHandler, module_id: int, port_id: int):
-        self.chassis_handler        = chassis_handler
-        self.module_id              = module_id
-        self.port_id                = port_id
-        self.__xsocket              = XSocket(chassis_handler, module_id, port_id, XSocket.FilterType.DhcpClient)
-        self.concurrent_requests    = 10
+    def __init__(self, port: ports.GenericL23Port):
+        self.port = port
+        self.__xsocket              = XSocket(self.port, XSocket.FilterType.DhcpClient)
+        self.concurrent_requests    = 10 # the number of concurrent dhcp sessions that can be processed at the same time
         
+    @staticmethod   
     def __is_valid_mac_address(mac: str):
         regex = r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$'
         if re.match(regex, mac):
@@ -264,7 +256,7 @@ class DhcpClient:
         else:
             return False
     
-    async def get_dhcp_addresses(self, base_hw_address: str, num_requests: int, max_num_retransmit: int, timeout_msec: int)-> Tuple[Error, Dict[hex, DhcpSession], int, int]:
+    async def get_dhcp_addresses(self, base_hw_address: str, num_requests: int, max_num_retransmit: int, timeout_msec: int) -> Tuple[Error, Dict[str, DhcpSession], int, int]:
         """As a DHCP Client, it sends a set of DHCP requests toward DHCP server in order to get a list of IP addresses
         :param: base_hw_address: the base mac address for sending the DHCP Requests. The first 3 bytes will be used as a base and the rest will be chosen randomly
         :param: num_requests: Number of DHCP requests to be sent
@@ -274,13 +266,13 @@ class DhcpClient:
         """
         
         if not DhcpClient.__is_valid_mac_address(base_hw_address):
-            return [XSocket.Error.UnknownFailure, None, None, None]
+            return (DhcpClient.Error.UnknownFailure, {}, 0, 0)
         
         base_hw_address = base_hw_address.lower()
         
         ret_err = await self.__xsocket.start()
         if ret_err != XSocket.Error.Success:
-            return [XSocket.Error.UnknownFailure, None, None, None]
+            return (DhcpClient.Error.UnknownFailure, {}, 0, 0)
         
         current_xid = random.randint(0, 2**24)
         
@@ -335,6 +327,6 @@ class DhcpClient:
                 num_failure += 1
             else:
                 print("Unexpected state for DhcpSession")
-                return [XSocket.Error.UnknownFailure, None, None, None]
+                return (DhcpClient.Error.UnknownFailure, {}, 0, 0)
         
-        return [DhcpClient.Error.Success, success_dict, num_success, num_failure]
+        return (DhcpClient.Error.Success, success_dict, num_success, num_failure)

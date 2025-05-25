@@ -39,6 +39,6 @@ example_module-->factory_udp.py;
 # Running
 To run script please install xoa_driver first: 
 ```shell 
-> pip install xoa-driver
+> pip install tdl-xoa-driver
 ```
 If you already have environment variables defined please remove `.env` file, or modify it for your needs.

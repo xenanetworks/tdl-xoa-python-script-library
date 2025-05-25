@@ -56,7 +56,7 @@ For instance, the following code is an easy example that uses 04:F4:BF as the ba
 For each request, there is a corresponding DhcpSession which contains the DHCP information including the obtained IP address, Broadcast address, Netmask address, Router address and lease timeout.  
 
 ```python
-dhcp_handler = DhcpClient(chassis_handler=chassis_1_handler, module_id=global_module_id, port_id=global_port_id)
+dhcp_handler = DhcpClient(port_obj)
 ret_error, address_dict, num_success, num_faliure = await dhcp_handler.get_dhcp_addresses("04:F4:BF:00:00:00", 100, 3, 3000)
 if ret_error == DhcpClient.Error.Success:
     print("The DHCP process ran Successfully")
