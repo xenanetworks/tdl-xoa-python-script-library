@@ -55,7 +55,7 @@ Each folder contains at least three files:
 
 ### Automated Test Suite
 
-* [rfc_tests](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/rfc_tests): How to run Xena2544/Xena2889/Xena3918 configuration using XOA Python for GUI-less test suite automation.
+* [rfc2544_tests](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/rfc2544_tests): How to run Xena2544 configuration using XOA Python for GUI-less test suite automation.
 * [anlt_test_methodology](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/anlt_test_methodology): Auto-negotiation and link training test methodology.
 * [cable_perf_optimization](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/cpom): Provides an automated optimization framework that uses PRBS-based BER testing to dial in RX Output Equalization and TX Input Equalization for the best possible signal integrity, aligning with IEEE 802.3ck and CMIS standards.
 
