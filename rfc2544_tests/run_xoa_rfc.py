@@ -26,6 +26,7 @@ import json
 import csv
 from pathlib import Path
 import logging
+from pydantic import SecretStr
 
 # XOA Converter is an independent module and it needs to be installed via `pip install xoa-converter`
 try:
@@ -89,7 +90,7 @@ async def run_xoa_rfc(chassis: str, plugin_path: Path, gui_config: Path, xoa_con
     my_tester_credential = types.Credentials(
         product=types.EProductType.VALKYRIE,
         host=chassis,
-        password="xena"
+        password=SecretStr("xena")
     )
     logger.info(f"#####################################################################")
     logger.info(f"Tester credential:")
