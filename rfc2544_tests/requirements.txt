@@ -1,3 +1,0 @@
-tdl-xoa-converter
-tdl-xoa-core
-tdl-xoa-driver
