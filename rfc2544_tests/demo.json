@@ -11,16 +11,16 @@
         "ip_gateway_mac_address": "000000000000",
         "latency_offset_ms": 0,
         "mdi_mdix_mode": "auto",
-        "peer_slot": null,
+        "peer_slot": 1,
         "pause_mode_enabled": 0,
-        "port_group": "undefined",
+        "port_group": "east",
         "port_slot": 0,
         "port_speed_mode": "auto",
         "port_rate_cap_enabled": false,
         "port_rate_cap_profile": "physical_port_rate",
         "port_rate_cap_value": 1000.0,
         "port_rate_cap_unit": "1e6_bps",
-        "protocol_segment_profile_id": "fae86ed0-bea0-4aa7-9e96-4ffd26f4d1da",
+        "protocol_segment_profile_id": "5f22c15f-1a15-422c-b880-0e83991bb02e",
         "remote_loop_mac_address": "000000000000",
         "reply_arp_requests": true,
         "reply_ping_requests": true,
@@ -36,16 +36,116 @@
         "ip_gateway_mac_address": "000000000000",
         "latency_offset_ms": 0,
         "mdi_mdix_mode": "auto",
-        "peer_slot": null,
+        "peer_slot": 0,
         "pause_mode_enabled": 0,
-        "port_group": "undefined",
+        "port_group": "west",
         "port_slot": 1,
         "port_speed_mode": "auto",
         "port_rate_cap_enabled": false,
         "port_rate_cap_profile": "physical_port_rate",
         "port_rate_cap_value": 1000.0,
         "port_rate_cap_unit": "1e6_bps",
-        "protocol_segment_profile_id": "fae86ed0-bea0-4aa7-9e96-4ffd26f4d1da",
+        "protocol_segment_profile_id": "5f22c15f-1a15-422c-b880-0e83991bb02e",
+        "remote_loop_mac_address": "000000000000",
+        "reply_arp_requests": true,
+        "reply_ping_requests": true,
+        "speed_reduction_ppm": 0
+      },
+      {
+        "anlt_enabled": false,
+        "auto_neg_enabled": true,
+        "broadr_reach_mode": "slave",
+        "fec_mode": "off",
+        "inter_frame_gap": 20,
+        "ip_address": null,
+        "ip_gateway_mac_address": "000000000000",
+        "latency_offset_ms": 0,
+        "mdi_mdix_mode": "auto",
+        "peer_slot": 3,
+        "pause_mode_enabled": 0,
+        "port_group": "east",
+        "port_slot": 2,
+        "port_speed_mode": "auto",
+        "port_rate_cap_enabled": false,
+        "port_rate_cap_profile": "physical_port_rate",
+        "port_rate_cap_value": 1000.0,
+        "port_rate_cap_unit": "1e6_bps",
+        "protocol_segment_profile_id": "5f22c15f-1a15-422c-b880-0e83991bb02e",
+        "remote_loop_mac_address": "000000000000",
+        "reply_arp_requests": true,
+        "reply_ping_requests": true,
+        "speed_reduction_ppm": 0
+      },
+      {
+        "anlt_enabled": false,
+        "auto_neg_enabled": true,
+        "broadr_reach_mode": "slave",
+        "fec_mode": "off",
+        "inter_frame_gap": 20,
+        "ip_address": null,
+        "ip_gateway_mac_address": "000000000000",
+        "latency_offset_ms": 0,
+        "mdi_mdix_mode": "auto",
+        "peer_slot": 2,
+        "pause_mode_enabled": 0,
+        "port_group": "west",
+        "port_slot": 3,
+        "port_speed_mode": "auto",
+        "port_rate_cap_enabled": false,
+        "port_rate_cap_profile": "physical_port_rate",
+        "port_rate_cap_value": 1000.0,
+        "port_rate_cap_unit": "1e6_bps",
+        "protocol_segment_profile_id": "5f22c15f-1a15-422c-b880-0e83991bb02e",
+        "remote_loop_mac_address": "000000000000",
+        "reply_arp_requests": true,
+        "reply_ping_requests": true,
+        "speed_reduction_ppm": 0
+      },
+      {
+        "anlt_enabled": false,
+        "auto_neg_enabled": true,
+        "broadr_reach_mode": "slave",
+        "fec_mode": "off",
+        "inter_frame_gap": 20,
+        "ip_address": null,
+        "ip_gateway_mac_address": "000000000000",
+        "latency_offset_ms": 0,
+        "mdi_mdix_mode": "auto",
+        "peer_slot": 5,
+        "pause_mode_enabled": 0,
+        "port_group": "east",
+        "port_slot": 4,
+        "port_speed_mode": "auto",
+        "port_rate_cap_enabled": false,
+        "port_rate_cap_profile": "physical_port_rate",
+        "port_rate_cap_value": 1000.0,
+        "port_rate_cap_unit": "1e6_bps",
+        "protocol_segment_profile_id": "5f22c15f-1a15-422c-b880-0e83991bb02e",
+        "remote_loop_mac_address": "000000000000",
+        "reply_arp_requests": true,
+        "reply_ping_requests": true,
+        "speed_reduction_ppm": 0
+      },
+      {
+        "anlt_enabled": false,
+        "auto_neg_enabled": true,
+        "broadr_reach_mode": "slave",
+        "fec_mode": "off",
+        "inter_frame_gap": 20,
+        "ip_address": null,
+        "ip_gateway_mac_address": "000000000000",
+        "latency_offset_ms": 0,
+        "mdi_mdix_mode": "auto",
+        "peer_slot": 4,
+        "pause_mode_enabled": 0,
+        "port_group": "west",
+        "port_slot": 5,
+        "port_speed_mode": "auto",
+        "port_rate_cap_enabled": false,
+        "port_rate_cap_profile": "physical_port_rate",
+        "port_rate_cap_value": 1000.0,
+        "port_rate_cap_unit": "1e6_bps",
+        "protocol_segment_profile_id": "5f22c15f-1a15-422c-b880-0e83991bb02e",
         "remote_loop_mac_address": "000000000000",
         "reply_arp_requests": true,
         "reply_ping_requests": true,
@@ -54,7 +154,7 @@
     ],
     "protocol_segments": [
       {
-        "id": "fae86ed0-bea0-4aa7-9e96-4ffd26f4d1da",
+        "id": "5f22c15f-1a15-422c-b880-0e83991bb02e",
         "segments": [
           {
             "type": "ethernet",
@@ -86,7 +186,7 @@
         ]
       },
       {
-        "id": "ab7eba0d-3c59-44fe-b3cc-3f85b7a01bce",
+        "id": "a17273eb-a072-47db-9516-dd78b3710c7f",
         "segments": [
           {
             "type": "ethernet",
@@ -152,7 +252,7 @@
         ]
       },
       {
-        "id": "6cd6d284-69fb-46db-a658-60098dc33b7d",
+        "id": "26067226-7d3d-48cd-9ce4-89193529d453",
         "segments": [
           {
             "type": "ethernet",
@@ -252,7 +352,7 @@
         ]
       },
       {
-        "id": "4a3ab5b4-9e50-412b-9fb2-8e4fbfcd6e5a",
+        "id": "97819831-45cd-4ae4-9ea5-9238f510a15d",
         "segments": [
           {
             "type": "ethernet",
@@ -381,7 +481,7 @@
         ]
       },
       {
-        "id": "347b59d4-3cce-4af3-a407-7d574b1ce92e",
+        "id": "7579154a-626f-4a1e-8055-a912c5cb8c58",
         "segments": [
           {
             "type": "ethernet",
@@ -544,7 +644,7 @@
         ]
       },
       {
-        "id": "03e3cf90-70bb-47ef-b483-a514a1097220",
+        "id": "133cc93a-0929-47e6-990f-821e67fcd51b",
         "segments": [
           {
             "type": "ethernet",
@@ -676,10 +776,10 @@
       },
       "multi_stream_config": {
         "enable_multi_stream": false,
-        "multi_stream_address_offset": 2,
-        "multi_stream_address_increment": 1,
+        "multi_stream_address_offset": 4,
+        "multi_stream_address_increment": 2,
         "multi_stream_mac_base_address": "04f4bc",
-        "per_port_stream_count": 1
+        "per_port_stream_count": 4
       },
       "test_execution_config": {
         "flow_based_learning_options": {
@@ -693,11 +793,11 @@
           "tid_allocation_scope": "config_scope"
         },
         "l23_learning_options": {
-          "arp_refresh_enabled": true,
+          "arp_refresh_enabled": false,
           "arp_refresh_period_second": 4000.0,
           "learning_duration_second": 5000.0,
           "learning_rate_pct": 1.0,
-          "use_gateway_mac_as_dmac": true
+          "use_gateway_mac_as_dmac": false
         },
         "mac_learning_options": {
           "mac_learning_frame_count": 1,
@@ -705,7 +805,7 @@
           "toggle_port_sync_config": {
             "delay_after_sync_on_second": 1,
             "sync_off_duration_second": 1,
-            "toggle_port_sync": true
+            "toggle_port_sync": false
           }
         },
         "outer_loop_mode": "packet_size",
@@ -722,7 +822,7 @@
       },
       "topology_config": {
         "direction": "bidirectional",
-        "topology": "mesh"
+        "topology": "pairs"
       }
     },
     "test_types_configuration": {
@@ -740,13 +840,13 @@
         "enabled": true,
         "rate_sweep_options": {
           "end_value_pct": 100.0,
-          "start_value_pct": 100.0,
+          "start_value_pct": 50.0,
           "step_value_pct": 50.0
         }
       },
       "frame_loss_rate_test": {
         "common_options": {
-          "duration": 10.0,
+          "duration": 1.0,
           "duration_type": "time",
           "duration_unit": "seconds",
           "repetition": 1
@@ -758,7 +858,7 @@
         "pass_criteria_loss_type": "percent",
         "rate_sweep_options": {
           "end_value_pct": 100.0,
-          "start_value_pct": 100.0,
+          "start_value_pct": 50.0,
           "step_value_pct": 50.0
         },
         "use_gap_monitor": false,
@@ -766,7 +866,7 @@
       },
       "latency_test": {
         "common_options": {
-          "duration": 10.0,
+          "duration": 1.0,
           "duration_type": "time",
           "duration_unit": "seconds",
           "repetition": 1
@@ -775,7 +875,7 @@
         "latency_mode": "last_to_last",
         "rate_sweep_options": {
           "end_value_pct": 100.0,
-          "start_value_pct": 100.0,
+          "start_value_pct": 50.0,
           "step_value_pct": 50.0
         },
         "use_relative_to_throughput": true
@@ -783,7 +883,7 @@
       "throughput_test": {
         "acceptable_loss_pct": 0.0,
         "common_options": {
-          "duration": 10.0,
+          "duration": 1.0,
           "duration_type": "time",
           "duration_unit": "seconds",
           "repetition": 1
@@ -805,13 +905,33 @@
   },
   "port_identities": [
     {
-      "module_index": 2,
+      "module_index": 1,
       "port_index": 0,
       "tester_id": "1e818547519c4ddd53c793f2f7142857"
     },
     {
-      "module_index": 2,
+      "module_index": 1,
       "port_index": 1,
+      "tester_id": "1e818547519c4ddd53c793f2f7142857"
+    },
+    {
+      "module_index": 1,
+      "port_index": 2,
+      "tester_id": "1e818547519c4ddd53c793f2f7142857"
+    },
+    {
+      "module_index": 1,
+      "port_index": 3,
+      "tester_id": "1e818547519c4ddd53c793f2f7142857"
+    },
+    {
+      "module_index": 1,
+      "port_index": 4,
+      "tester_id": "1e818547519c4ddd53c793f2f7142857"
+    },
+    {
+      "module_index": 1,
+      "port_index": 5,
       "tester_id": "1e818547519c4ddd53c793f2f7142857"
     }
   ],
