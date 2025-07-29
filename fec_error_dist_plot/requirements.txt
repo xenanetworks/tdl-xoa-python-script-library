@@ -1,3 +1,3 @@
-tdl-xoa-driver>=1.2.0
+tdl-xoa-driver>=1.3.0
 matplotlib
 numpy
