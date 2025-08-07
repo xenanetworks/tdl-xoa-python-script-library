@@ -156,14 +156,18 @@ async def run_xoa_rfc(chassis: str, plugin_path: Path, gui_config: Path, xoa_con
     
     else:
         with open(xoa_config, "r") as f:
+            # get the rfc type from the filename
+            rfc_type = read_rfc_type(gui_config)
+            logger.info(f"Get the RFC type from the config filename")
+            
             # get rfc2544 test suite information from the core's registration
-            info = ctrl.get_test_suite_info("RFC-2544")
+            info = ctrl.get_test_suite_info(rfc_type.value)
             if not info:
                 print("Test suite is not recognized.")
                 return None
 
             # Test suite name: "RFC-2544" is received from call of c.get_available_test_suites()
-            execution_id = ctrl.start_test_suite("RFC-2544", json.load(f))
+            execution_id = ctrl.start_test_suite(rfc_type.value, json.load(f))
 
             logger.info(f"Execute the RFC test. (Execution ID: {execution_id})")
 
