@@ -1,0 +1,1249 @@
+{
+  "username": "Xena2889",
+  "config": {
+    "ports_configuration": {
+      "P-1e818547519c4ddd53c793f2f7142857-1-0": {
+        "port_slot": "p0",
+        "peer_config_slot": "",
+        "port_group": "UNDEFINED",
+        "port_speed_mode": "AUTO",
+        "ipv4_properties": {
+          "address": "0.0.0.0",
+          "routing_prefix": 24,
+          "gateway": "0.0.0.0",
+          "public_address": "0.0.0.0",
+          "public_routing_prefix": 24,
+          "remote_loop_address": "0.0.0.0"
+        },
+        "ipv6_properties": {
+          "address": "::",
+          "routing_prefix": 64,
+          "gateway": "::",
+          "public_address": "::",
+          "public_routing_prefix": 64,
+          "remote_loop_address": "::"
+        },
+        "ip_gateway_mac_address": "000000000000",
+        "reply_arp_requests": true,
+        "reply_ping_requests": true,
+        "remote_loop_mac_address": "000000000000",
+        "interframe_gap": 20,
+        "speed_reduction_ppm": 0,
+        "pause_mode_enabled": 0,
+        "latency_offset_ms": 0,
+        "fec_mode": "OFF",
+        "port_rate_cap_enabled": false,
+        "port_rate_cap_value": 1000.0,
+        "port_rate_cap_profile": "PHYSICAL_PORT_RATE",
+        "port_rate_cap_unit": "FIELD_1E6_BPS",
+        "auto_neg_enabled": true,
+        "anlt_enabled": false,
+        "mdi_mdix_mode": "AUTO",
+        "broadr_reach_mode": "SLAVE",
+        "profile_id": "8641089f-723b-4cbe-ad75-44f7f8dfd44b",
+        "item_id": "fe44b353-7e9c-4933-8432-9ba6fe7fa5f1",
+        "tester_id": "1e818547519c4ddd53c793f2f7142857"
+      },
+      "P-1e818547519c4ddd53c793f2f7142857-1-1": {
+        "port_slot": "p1",
+        "peer_config_slot": "",
+        "port_group": "UNDEFINED",
+        "port_speed_mode": "AUTO",
+        "ipv4_properties": {
+          "address": "0.0.0.0",
+          "routing_prefix": 24,
+          "gateway": "0.0.0.0",
+          "public_address": "0.0.0.0",
+          "public_routing_prefix": 24,
+          "remote_loop_address": "0.0.0.0"
+        },
+        "ipv6_properties": {
+          "address": "::",
+          "routing_prefix": 64,
+          "gateway": "::",
+          "public_address": "::",
+          "public_routing_prefix": 64,
+          "remote_loop_address": "::"
+        },
+        "ip_gateway_mac_address": "000000000000",
+        "reply_arp_requests": true,
+        "reply_ping_requests": true,
+        "remote_loop_mac_address": "000000000000",
+        "interframe_gap": 20,
+        "speed_reduction_ppm": 0,
+        "pause_mode_enabled": 0,
+        "latency_offset_ms": 0,
+        "fec_mode": "OFF",
+        "port_rate_cap_enabled": false,
+        "port_rate_cap_value": 1000.0,
+        "port_rate_cap_profile": "PHYSICAL_PORT_RATE",
+        "port_rate_cap_unit": "FIELD_1E6_BPS",
+        "auto_neg_enabled": true,
+        "anlt_enabled": false,
+        "mdi_mdix_mode": "AUTO",
+        "broadr_reach_mode": "SLAVE",
+        "profile_id": "8641089f-723b-4cbe-ad75-44f7f8dfd44b",
+        "item_id": "f0cb5492-5e9d-4171-8a3d-97079392f4dc",
+        "tester_id": "1e818547519c4ddd53c793f2f7142857"
+      },
+      "P-1e818547519c4ddd53c793f2f7142857-1-2": {
+        "port_slot": "p2",
+        "peer_config_slot": "",
+        "port_group": "UNDEFINED",
+        "port_speed_mode": "AUTO",
+        "ipv4_properties": {
+          "address": "0.0.0.0",
+          "routing_prefix": 24,
+          "gateway": "0.0.0.0",
+          "public_address": "0.0.0.0",
+          "public_routing_prefix": 24,
+          "remote_loop_address": "0.0.0.0"
+        },
+        "ipv6_properties": {
+          "address": "::",
+          "routing_prefix": 64,
+          "gateway": "::",
+          "public_address": "::",
+          "public_routing_prefix": 64,
+          "remote_loop_address": "::"
+        },
+        "ip_gateway_mac_address": "000000000000",
+        "reply_arp_requests": true,
+        "reply_ping_requests": true,
+        "remote_loop_mac_address": "000000000000",
+        "interframe_gap": 20,
+        "speed_reduction_ppm": 0,
+        "pause_mode_enabled": 0,
+        "latency_offset_ms": 0,
+        "fec_mode": "OFF",
+        "port_rate_cap_enabled": false,
+        "port_rate_cap_value": 1000.0,
+        "port_rate_cap_profile": "PHYSICAL_PORT_RATE",
+        "port_rate_cap_unit": "FIELD_1E6_BPS",
+        "auto_neg_enabled": true,
+        "anlt_enabled": false,
+        "mdi_mdix_mode": "AUTO",
+        "broadr_reach_mode": "SLAVE",
+        "profile_id": "8641089f-723b-4cbe-ad75-44f7f8dfd44b",
+        "item_id": "8ba734c8-6ece-436f-8ecb-c49cc369f9c2",
+        "tester_id": "1e818547519c4ddd53c793f2f7142857"
+      },
+      "P-1e818547519c4ddd53c793f2f7142857-1-3": {
+        "port_slot": "p3",
+        "peer_config_slot": "",
+        "port_group": "UNDEFINED",
+        "port_speed_mode": "AUTO",
+        "ipv4_properties": {
+          "address": "0.0.0.0",
+          "routing_prefix": 24,
+          "gateway": "0.0.0.0",
+          "public_address": "0.0.0.0",
+          "public_routing_prefix": 24,
+          "remote_loop_address": "0.0.0.0"
+        },
+        "ipv6_properties": {
+          "address": "::",
+          "routing_prefix": 64,
+          "gateway": "::",
+          "public_address": "::",
+          "public_routing_prefix": 64,
+          "remote_loop_address": "::"
+        },
+        "ip_gateway_mac_address": "000000000000",
+        "reply_arp_requests": true,
+        "reply_ping_requests": true,
+        "remote_loop_mac_address": "000000000000",
+        "interframe_gap": 20,
+        "speed_reduction_ppm": 0,
+        "pause_mode_enabled": 0,
+        "latency_offset_ms": 0,
+        "fec_mode": "OFF",
+        "port_rate_cap_enabled": false,
+        "port_rate_cap_value": 1000.0,
+        "port_rate_cap_profile": "PHYSICAL_PORT_RATE",
+        "port_rate_cap_unit": "FIELD_1E6_BPS",
+        "auto_neg_enabled": true,
+        "anlt_enabled": false,
+        "mdi_mdix_mode": "AUTO",
+        "broadr_reach_mode": "SLAVE",
+        "profile_id": "8641089f-723b-4cbe-ad75-44f7f8dfd44b",
+        "item_id": "594df841-66f1-4656-a893-96ced6d4243a",
+        "tester_id": "1e818547519c4ddd53c793f2f7142857"
+      },
+      "P-1e818547519c4ddd53c793f2f7142857-1-4": {
+        "port_slot": "p4",
+        "peer_config_slot": "",
+        "port_group": "UNDEFINED",
+        "port_speed_mode": "AUTO",
+        "ipv4_properties": {
+          "address": "0.0.0.0",
+          "routing_prefix": 24,
+          "gateway": "0.0.0.0",
+          "public_address": "0.0.0.0",
+          "public_routing_prefix": 24,
+          "remote_loop_address": "0.0.0.0"
+        },
+        "ipv6_properties": {
+          "address": "::",
+          "routing_prefix": 64,
+          "gateway": "::",
+          "public_address": "::",
+          "public_routing_prefix": 64,
+          "remote_loop_address": "::"
+        },
+        "ip_gateway_mac_address": "000000000000",
+        "reply_arp_requests": true,
+        "reply_ping_requests": true,
+        "remote_loop_mac_address": "000000000000",
+        "interframe_gap": 20,
+        "speed_reduction_ppm": 0,
+        "pause_mode_enabled": 0,
+        "latency_offset_ms": 0,
+        "fec_mode": "OFF",
+        "port_rate_cap_enabled": false,
+        "port_rate_cap_value": 1000.0,
+        "port_rate_cap_profile": "PHYSICAL_PORT_RATE",
+        "port_rate_cap_unit": "FIELD_1E6_BPS",
+        "auto_neg_enabled": true,
+        "anlt_enabled": false,
+        "mdi_mdix_mode": "AUTO",
+        "broadr_reach_mode": "SLAVE",
+        "profile_id": "8641089f-723b-4cbe-ad75-44f7f8dfd44b",
+        "item_id": "7dca7a76-f54e-49c4-838c-efd80e8a6aed",
+        "tester_id": "1e818547519c4ddd53c793f2f7142857"
+      },
+      "P-1e818547519c4ddd53c793f2f7142857-1-5": {
+        "port_slot": "p5",
+        "peer_config_slot": "",
+        "port_group": "UNDEFINED",
+        "port_speed_mode": "AUTO",
+        "ipv4_properties": {
+          "address": "0.0.0.0",
+          "routing_prefix": 24,
+          "gateway": "0.0.0.0",
+          "public_address": "0.0.0.0",
+          "public_routing_prefix": 24,
+          "remote_loop_address": "0.0.0.0"
+        },
+        "ipv6_properties": {
+          "address": "::",
+          "routing_prefix": 64,
+          "gateway": "::",
+          "public_address": "::",
+          "public_routing_prefix": 64,
+          "remote_loop_address": "::"
+        },
+        "ip_gateway_mac_address": "000000000000",
+        "reply_arp_requests": true,
+        "reply_ping_requests": true,
+        "remote_loop_mac_address": "000000000000",
+        "interframe_gap": 20,
+        "speed_reduction_ppm": 0,
+        "pause_mode_enabled": 0,
+        "latency_offset_ms": 0,
+        "fec_mode": "OFF",
+        "port_rate_cap_enabled": false,
+        "port_rate_cap_value": 1000.0,
+        "port_rate_cap_profile": "PHYSICAL_PORT_RATE",
+        "port_rate_cap_unit": "FIELD_1E6_BPS",
+        "auto_neg_enabled": true,
+        "anlt_enabled": false,
+        "mdi_mdix_mode": "AUTO",
+        "broadr_reach_mode": "SLAVE",
+        "profile_id": "8641089f-723b-4cbe-ad75-44f7f8dfd44b",
+        "item_id": "6748ca81-7fa2-4a46-a581-774b3abdb4db",
+        "tester_id": "1e818547519c4ddd53c793f2f7142857"
+      }
+    },
+    "protocol_segments": {
+      "8641089f-723b-4cbe-ad75-44f7f8dfd44b": {
+        "header_segments": [
+          {
+            "segment_type": "ETHERNET",
+            "fields": [
+              {
+                "name": "Dst MAC addr",
+                "value": "000000000000000000000000000000000000000000000000",
+                "bit_length": 48
+              },
+              {
+                "name": "Src MAC addr",
+                "value": "000000000000000000000000000000000000000000000000",
+                "bit_length": 48
+              },
+              {
+                "name": "EtherType",
+                "value": "1111111111111111",
+                "bit_length": 16
+              }
+            ],
+            "checksum_offset": null
+          }
+        ]
+      },
+      "7ff24d43-db43-4b77-a741-8e9f17d916a0": {
+        "header_segments": [
+          {
+            "segment_type": "ETHERNET",
+            "fields": [
+              {
+                "name": "Dst MAC addr",
+                "value": "000000000000000000000000000000000000000000000000",
+                "bit_length": 48
+              },
+              {
+                "name": "Src MAC addr",
+                "value": "000000000000000000000000000000000000000000000000",
+                "bit_length": 48
+              },
+              {
+                "name": "EtherType",
+                "value": "1000000100000000",
+                "bit_length": 16
+              }
+            ],
+            "checksum_offset": null
+          },
+          {
+            "segment_type": "VLAN",
+            "fields": [
+              {
+                "name": "PCP",
+                "value": "000",
+                "bit_length": 3
+              },
+              {
+                "name": "CFI/DEI",
+                "value": "0",
+                "bit_length": 1
+              },
+              {
+                "name": "VLAN Tag",
+                "value": "000000000000",
+                "bit_length": 12
+              },
+              {
+                "name": "EtherType",
+                "value": "1111111111111111",
+                "bit_length": 16
+              }
+            ],
+            "checksum_offset": null
+          }
+        ]
+      },
+      "f14d273d-bd59-4bb7-a6d2-61fcf7c2b83b": {
+        "header_segments": [
+          {
+            "segment_type": "ETHERNET",
+            "fields": [
+              {
+                "name": "Dst MAC addr",
+                "value": "000000000000000000000000000000000000000000000000",
+                "bit_length": 48
+              },
+              {
+                "name": "Src MAC addr",
+                "value": "000000000000000000000000000000000000000000000000",
+                "bit_length": 48
+              },
+              {
+                "name": "EtherType",
+                "value": "1001000100000000",
+                "bit_length": 16
+              }
+            ],
+            "checksum_offset": null
+          },
+          {
+            "segment_type": "VLAN",
+            "fields": [
+              {
+                "name": "PCP",
+                "value": "000",
+                "bit_length": 3
+              },
+              {
+                "name": "CFI/DEI",
+                "value": "0",
+                "bit_length": 1
+              },
+              {
+                "name": "VLAN Tag",
+                "value": "000000000000",
+                "bit_length": 12
+              },
+              {
+                "name": "EtherType",
+                "value": "1000000100000000",
+                "bit_length": 16
+              }
+            ],
+            "checksum_offset": null
+          },
+          {
+            "segment_type": "VLAN",
+            "fields": [
+              {
+                "name": "PCP",
+                "value": "000",
+                "bit_length": 3
+              },
+              {
+                "name": "CFI/DEI",
+                "value": "0",
+                "bit_length": 1
+              },
+              {
+                "name": "VLAN Tag",
+                "value": "000000000000",
+                "bit_length": 12
+              },
+              {
+                "name": "EtherType",
+                "value": "1111111111111111",
+                "bit_length": 16
+              }
+            ],
+            "checksum_offset": null
+          }
+        ]
+      },
+      "bb183e59-7399-4df4-a9e8-721bada9050f": {
+        "header_segments": [
+          {
+            "segment_type": "ETHERNET",
+            "fields": [
+              {
+                "name": "Dst MAC addr",
+                "value": "000000000000000000000000000000000000000000000000",
+                "bit_length": 48
+              },
+              {
+                "name": "Src MAC addr",
+                "value": "000000000000000000000000000000000000000000000000",
+                "bit_length": 48
+              },
+              {
+                "name": "EtherType",
+                "value": "0000100000000000",
+                "bit_length": 16
+              }
+            ],
+            "checksum_offset": null
+          },
+          {
+            "segment_type": "IPV4",
+            "fields": [
+              {
+                "name": "Version",
+                "value": "0100",
+                "bit_length": 4
+              },
+              {
+                "name": "Header Length",
+                "value": "0101",
+                "bit_length": 4
+              },
+              {
+                "name": "DSCP",
+                "value": "000000",
+                "bit_length": 6
+              },
+              {
+                "name": "ECN",
+                "value": "00",
+                "bit_length": 2
+              },
+              {
+                "name": "Total Length",
+                "value": "0000000000010100",
+                "bit_length": 16
+              },
+              {
+                "name": "Identification",
+                "value": "0000000000000000",
+                "bit_length": 16
+              },
+              {
+                "name": "Flags",
+                "value": "000",
+                "bit_length": 3
+              },
+              {
+                "name": "Fragment Offset",
+                "value": "0000000000000",
+                "bit_length": 13
+              },
+              {
+                "name": "TTL",
+                "value": "01111111",
+                "bit_length": 8
+              },
+              {
+                "name": "Protocol",
+                "value": "11111111",
+                "bit_length": 8
+              },
+              {
+                "name": "Header Checksum",
+                "value": "0000000000000000",
+                "bit_length": 16
+              },
+              {
+                "name": "Src IP Addr",
+                "value": "00000000000000000000000000000000",
+                "bit_length": 32
+              },
+              {
+                "name": "Dest IP Addr",
+                "value": "00000000000000000000000000000000",
+                "bit_length": 32
+              }
+            ],
+            "checksum_offset": 10
+          }
+        ]
+      },
+      "cf6467ae-c94d-4b2f-9ec5-28e9a38c8c08": {
+        "header_segments": [
+          {
+            "segment_type": "ETHERNET",
+            "fields": [
+              {
+                "name": "Dst MAC addr",
+                "value": "000000000000000000000000000000000000000000000000",
+                "bit_length": 48
+              },
+              {
+                "name": "Src MAC addr",
+                "value": "000000000000000000000000000000000000000000000000",
+                "bit_length": 48
+              },
+              {
+                "name": "EtherType",
+                "value": "0000100000000000",
+                "bit_length": 16
+              }
+            ],
+            "checksum_offset": null
+          },
+          {
+            "segment_type": "IPV4",
+            "fields": [
+              {
+                "name": "Version",
+                "value": "0100",
+                "bit_length": 4
+              },
+              {
+                "name": "Header Length",
+                "value": "0101",
+                "bit_length": 4
+              },
+              {
+                "name": "DSCP",
+                "value": "000000",
+                "bit_length": 6
+              },
+              {
+                "name": "ECN",
+                "value": "00",
+                "bit_length": 2
+              },
+              {
+                "name": "Total Length",
+                "value": "0000000000010100",
+                "bit_length": 16
+              },
+              {
+                "name": "Identification",
+                "value": "0000000000000000",
+                "bit_length": 16
+              },
+              {
+                "name": "Flags",
+                "value": "000",
+                "bit_length": 3
+              },
+              {
+                "name": "Fragment Offset",
+                "value": "0000000000000",
+                "bit_length": 13
+              },
+              {
+                "name": "TTL",
+                "value": "01111111",
+                "bit_length": 8
+              },
+              {
+                "name": "Protocol",
+                "value": "00010001",
+                "bit_length": 8
+              },
+              {
+                "name": "Header Checksum",
+                "value": "0000000000000000",
+                "bit_length": 16
+              },
+              {
+                "name": "Src IP Addr",
+                "value": "00000000000000000000000000000000",
+                "bit_length": 32
+              },
+              {
+                "name": "Dest IP Addr",
+                "value": "00000000000000000000000000000000",
+                "bit_length": 32
+              }
+            ],
+            "checksum_offset": 10
+          },
+          {
+            "segment_type": "UDP",
+            "fields": [
+              {
+                "name": "Src Port",
+                "value": "0000000000000000",
+                "bit_length": 16
+              },
+              {
+                "name": "Dest Port",
+                "value": "0000000000000000",
+                "bit_length": 16
+              },
+              {
+                "name": "Length",
+                "value": "0000000000000000",
+                "bit_length": 16
+              },
+              {
+                "name": "Checksum",
+                "value": "0000000000000000",
+                "bit_length": 16
+              }
+            ],
+            "checksum_offset": null
+          }
+        ]
+      },
+      "10b1bc25-6f28-40cd-ae1b-0d5ce58d4e5a": {
+        "header_segments": [
+          {
+            "segment_type": "ETHERNET",
+            "fields": [
+              {
+                "name": "Dst MAC addr",
+                "value": "000000000000000000000000000000000000000000000000",
+                "bit_length": 48
+              },
+              {
+                "name": "Src MAC addr",
+                "value": "000000000000000000000000000000000000000000000000",
+                "bit_length": 48
+              },
+              {
+                "name": "EtherType",
+                "value": "1000011011011101",
+                "bit_length": 16
+              }
+            ],
+            "checksum_offset": null
+          },
+          {
+            "segment_type": "IPV6",
+            "fields": [
+              {
+                "name": "Version",
+                "value": "0110",
+                "bit_length": 4
+              },
+              {
+                "name": "Traffic Class",
+                "value": "00000000",
+                "bit_length": 8
+              },
+              {
+                "name": "Flow Label",
+                "value": "00000000000000000000",
+                "bit_length": 20
+              },
+              {
+                "name": "Payload Length",
+                "value": "0000000000000000",
+                "bit_length": 16
+              },
+              {
+                "name": "Next Header",
+                "value": "00111011",
+                "bit_length": 8
+              },
+              {
+                "name": "Hop Limit",
+                "value": "11111111",
+                "bit_length": 8
+              },
+              {
+                "name": "Src IPv6 Addr",
+                "value": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                "bit_length": 128
+              },
+              {
+                "name": "Dest IPv6 Addr",
+                "value": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                "bit_length": 128
+              }
+            ],
+            "checksum_offset": null
+          }
+        ]
+      }
+    },
+    "general_test_configuration": {
+      "frame_sizes": {
+        "packet_size_type": "CUSTOM_SIZES",
+        "custom_packet_sizes": [
+          512.0
+        ],
+        "fixed_packet_start_size": 100,
+        "fixed_packet_end_size": 1500,
+        "fixed_packet_step_size": 100,
+        "varying_packet_min_size": 64,
+        "varying_packet_max_size": 1500,
+        "mixed_sizes_weights": [
+          0,
+          0,
+          0,
+          0,
+          57,
+          3,
+          5,
+          1,
+          2,
+          5,
+          1,
+          4,
+          4,
+          18,
+          0,
+          0
+        ],
+        "mixed_length_config": {
+          "field_0": 56,
+          "field_1": 60,
+          "field_14": 9216,
+          "field_15": 16360
+        }
+      },
+      "rate_definition": {
+        "rate_type": "FRACTION",
+        "rate_fraction": 100.0,
+        "rate_pps": 0.0,
+        "rate_bps_l1": 0.0,
+        "rate_bps_l1_unit": "FIELD_1E6_BPS",
+        "rate_bps_l2": 0.0,
+        "rate_bps_l2_unit": "FIELD_1E6_BPS"
+      },
+      "latency_mode": "LAST2LAST",
+      "toggle_sync_state": true,
+      "sync_off_duration": 1,
+      "sync_on_duration": 1,
+      "should_stop_on_los": true,
+      "port_reset_delay": 1,
+      "use_port_sync_start": false,
+      "port_stagger_steps": 0,
+      "use_micro_tpld_on_demand": false,
+      "tid_allocation_scope": "CONFIGURATION_SCOPE"
+    },
+    "test_suites_configuration": {
+      "rate_test": {
+        "sub_test": [
+          {
+            "topology": "MESH",
+            "direction": "BIDIR",
+            "port_role_handler": {
+              "role_map": {
+                "guid_fe44b353-7e9c-4933-8432-9ba6fe7fa5f1": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                },
+                "guid_f0cb5492-5e9d-4171-8a3d-97079392f4dc": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                },
+                "guid_8ba734c8-6ece-436f-8ecb-c49cc369f9c2": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                },
+                "guid_594df841-66f1-4656-a893-96ced6d4243a": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                },
+                "guid_7dca7a76-f54e-49c4-838c-efd80e8a6aed": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                },
+                "guid_6748ca81-7fa2-4a46-a581-774b3abdb4db": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                }
+              }
+            },
+            "throughput_test_enabled": true,
+            "rate_iteration_options": {
+              "initial_value": 100.0,
+              "minimum_value": 0.1,
+              "maximum_value": 100.0,
+              "value_resolution": 0.5,
+              "use_pass_threshold": false,
+              "pass_threshold": 0.0
+            },
+            "forwarding_test_enabled": true,
+            "rate_sweep_options": {
+              "start_value": 50.0,
+              "end_value": 100.0,
+              "step_value": 50.0
+            },
+            "enabled": true,
+            "duration": 30.0,
+            "duration_time_unit": "SECOND",
+            "iterations": 1,
+            "item_id": "ac57500b-0c23-43eb-a150-eb5f2a3c23cd",
+            "label": "Full Mesh"
+          },
+          {
+            "topology": "BLOCKS",
+            "direction": "BIDIR",
+            "port_role_handler": {
+              "role_map": {
+                "guid_fe44b353-7e9c-4933-8432-9ba6fe7fa5f1": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                },
+                "guid_f0cb5492-5e9d-4171-8a3d-97079392f4dc": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                },
+                "guid_8ba734c8-6ece-436f-8ecb-c49cc369f9c2": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                },
+                "guid_594df841-66f1-4656-a893-96ced6d4243a": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                },
+                "guid_7dca7a76-f54e-49c4-838c-efd80e8a6aed": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                },
+                "guid_6748ca81-7fa2-4a46-a581-774b3abdb4db": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                }
+              }
+            },
+            "throughput_test_enabled": true,
+            "rate_iteration_options": {
+              "initial_value": 100.0,
+              "minimum_value": 0.1,
+              "maximum_value": 100.0,
+              "value_resolution": 0.5,
+              "use_pass_threshold": false,
+              "pass_threshold": 0.0
+            },
+            "forwarding_test_enabled": true,
+            "rate_sweep_options": {
+              "start_value": 50.0,
+              "end_value": 100.0,
+              "step_value": 50.0
+            },
+            "enabled": false,
+            "duration": 30.0,
+            "duration_time_unit": "SECOND",
+            "iterations": 1,
+            "item_id": "ddca5e21-8b01-4b2e-a0c0-4ebf1d4f8745",
+            "label": "Part.Mesh, 1:N"
+          },
+          {
+            "topology": "BLOCKS",
+            "direction": "EAST_TO_WEST",
+            "port_role_handler": {
+              "role_map": {
+                "guid_fe44b353-7e9c-4933-8432-9ba6fe7fa5f1": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                },
+                "guid_f0cb5492-5e9d-4171-8a3d-97079392f4dc": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                },
+                "guid_8ba734c8-6ece-436f-8ecb-c49cc369f9c2": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                },
+                "guid_594df841-66f1-4656-a893-96ced6d4243a": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                },
+                "guid_7dca7a76-f54e-49c4-838c-efd80e8a6aed": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                },
+                "guid_6748ca81-7fa2-4a46-a581-774b3abdb4db": {
+                  "is_used": true,
+                  "role": "UNDEFINED",
+                  "peer_port_id": ""
+                }
+              }
+            },
+            "throughput_test_enabled": true,
+            "rate_iteration_options": {
+              "initial_value": 100.0,
+              "minimum_value": 0.1,
+              "maximum_value": 100.0,
+              "value_resolution": 0.5,
+              "use_pass_threshold": false,
+              "pass_threshold": 0.0
+            },
+            "forwarding_test_enabled": true,
+            "rate_sweep_options": {
+              "start_value": 50.0,
+              "end_value": 100.0,
+              "step_value": 50.0
+            },
+            "enabled": false,
+            "duration": 30.0,
+            "duration_time_unit": "SECOND",
+            "iterations": 1,
+            "item_id": "c412092d-b978-4755-a258-a49b609180d9",
+            "label": "Part.Mesh, N->N"
+          }
+        ],
+        "enabled": true,
+        "duration": 30.0,
+        "duration_time_unit": "SECOND",
+        "iterations": 1,
+        "item_id": "db886278-cf7e-4bb1-ad06-1b7a3099412b",
+        "label": ""
+      },
+      "congestion_control": {
+        "port_role_handler": {
+          "role_map": {
+            "guid_fe44b353-7e9c-4933-8432-9ba6fe7fa5f1": {
+              "is_used": true,
+              "role": "SOURCE",
+              "peer_port_id": ""
+            },
+            "guid_f0cb5492-5e9d-4171-8a3d-97079392f4dc": {
+              "is_used": true,
+              "role": "SOURCE",
+              "peer_port_id": ""
+            },
+            "guid_8ba734c8-6ece-436f-8ecb-c49cc369f9c2": {
+              "is_used": true,
+              "role": "DESTINATION",
+              "peer_port_id": ""
+            },
+            "guid_594df841-66f1-4656-a893-96ced6d4243a": {
+              "is_used": true,
+              "role": "DESTINATION",
+              "peer_port_id": ""
+            }
+          }
+        },
+        "enabled": true,
+        "duration": 30.0,
+        "duration_time_unit": "SECOND",
+        "iterations": 1,
+        "item_id": "0f37bbe0-5643-4f3a-8024-d016098ad04e",
+        "label": ""
+      },
+      "forward_pressure": {
+        "port_role_handler": {
+          "role_map": {
+            "guid_fe44b353-7e9c-4933-8432-9ba6fe7fa5f1": {
+              "is_used": true,
+              "role": "SOURCE",
+              "peer_port_id": ""
+            },
+            "guid_f0cb5492-5e9d-4171-8a3d-97079392f4dc": {
+              "is_used": true,
+              "role": "DESTINATION",
+              "peer_port_id": ""
+            }
+          }
+        },
+        "interframe_gap_delta": 1,
+        "acceptable_rx_max_util_delta": 0.001,
+        "enabled": true,
+        "duration": 30.0,
+        "duration_time_unit": "SECOND",
+        "iterations": 1,
+        "item_id": "97d8c83d-0e84-4aed-ba7c-2fbf27056b27",
+        "label": ""
+      },
+      "max_forwarding_rate": {
+        "port_role_handler": {
+          "role_map": {
+            "guid_fe44b353-7e9c-4933-8432-9ba6fe7fa5f1": {
+              "is_used": true,
+              "role": "SOURCE",
+              "peer_port_id": ""
+            },
+            "guid_f0cb5492-5e9d-4171-8a3d-97079392f4dc": {
+              "is_used": true,
+              "role": "DESTINATION",
+              "peer_port_id": ""
+            }
+          }
+        },
+        "use_throughput_as_start_value": true,
+        "rate_sweep_options": {
+          "start_value": 10.0,
+          "end_value": 100.0,
+          "step_value": 1.0
+        },
+        "enabled": true,
+        "duration": 30.0,
+        "duration_time_unit": "SECOND",
+        "iterations": 1,
+        "item_id": "a8697e28-e4c1-4336-9a92-ff595c18d014",
+        "label": ""
+      },
+      "address_caching_capacity": {
+        "port_role_handler": {
+          "role_map": {
+            "guid_fe44b353-7e9c-4933-8432-9ba6fe7fa5f1": {
+              "is_used": true,
+              "role": "TEST_PORT",
+              "peer_port_id": ""
+            },
+            "guid_f0cb5492-5e9d-4171-8a3d-97079392f4dc": {
+              "is_used": true,
+              "role": "LEARNING_PORT",
+              "peer_port_id": ""
+            },
+            "guid_8ba734c8-6ece-436f-8ecb-c49cc369f9c2": {
+              "is_used": true,
+              "role": "MONITORING_PORT",
+              "peer_port_id": ""
+            }
+          }
+        },
+        "address_iteration_options": {
+          "initial_value": 4096.0,
+          "minimum_value": 100.0,
+          "maximum_value": 65535.0,
+          "value_resolution": 100.0,
+          "use_pass_threshold": false,
+          "pass_threshold": 0.0
+        },
+        "rate_sweep_options": {
+          "start_value": 100.0,
+          "end_value": 100.0,
+          "step_value": 50.0
+        },
+        "learn_mac_base_address": "2,244,188",
+        "test_port_mac_mode": "USE_PORT_NATIVE_MAC",
+        "learning_port_dmac_mode": "USE_TEST_PORT_MAC",
+        "learning_sequence_port_dmac_mode": "USE_INCREMENTING_MAC_ADDRESSES",
+        "learning_rate_fps": 1000.0,
+        "toggle_sync_state": true,
+        "sync_off_duration": 1,
+        "sync_on_duration": 0,
+        "switch_test_port_roles": false,
+        "dut_aging_time": 300,
+        "fast_run_resolution_enabled": false,
+        "enabled": true,
+        "duration": 30.0,
+        "duration_time_unit": "SECOND",
+        "iterations": 1,
+        "item_id": "59971a7b-e4e5-4fdd-983b-8773099f4677",
+        "label": ""
+      },
+      "address_learning_rate": {
+        "port_role_handler": {
+          "role_map": {
+            "guid_fe44b353-7e9c-4933-8432-9ba6fe7fa5f1": {
+              "is_used": true,
+              "role": "TEST_PORT",
+              "peer_port_id": ""
+            },
+            "guid_f0cb5492-5e9d-4171-8a3d-97079392f4dc": {
+              "is_used": true,
+              "role": "LEARNING_PORT",
+              "peer_port_id": ""
+            },
+            "guid_8ba734c8-6ece-436f-8ecb-c49cc369f9c2": {
+              "is_used": true,
+              "role": "MONITORING_PORT",
+              "peer_port_id": ""
+            }
+          }
+        },
+        "rate_iteration_options": {
+          "initial_value": 100.0,
+          "minimum_value": 0.1,
+          "maximum_value": 100.0,
+          "value_resolution": 0.6,
+          "use_pass_threshold": false,
+          "pass_threshold": 0.0
+        },
+        "address_sweep_options": {
+          "start_value": 13107.0,
+          "end_value": 65535.0,
+          "step_value": 13107.0
+        },
+        "learn_mac_base_address": "2,244,188",
+        "test_port_mac_mode": "USE_PORT_NATIVE_MAC",
+        "learning_port_dmac_mode": "USE_TEST_PORT_MAC",
+        "learning_sequence_port_dmac_mode": "USE_INCREMENTING_MAC_ADDRESSES",
+        "learning_rate_fps": 1000.0,
+        "toggle_sync_state": true,
+        "sync_off_duration": 1,
+        "sync_on_duration": 0,
+        "switch_test_port_roles": false,
+        "dut_aging_time": 300,
+        "only_use_capacity": false,
+        "set_end_address_to_capacity": true,
+        "enabled": true,
+        "duration": 30.0,
+        "duration_time_unit": "SECOND",
+        "iterations": 1,
+        "item_id": "bdd12c4f-9def-485a-a8ff-8c468a64471b",
+        "label": ""
+      },
+      "errored_frames_filtering": {
+        "port_role_handler": {
+          "role_map": {
+            "guid_fe44b353-7e9c-4933-8432-9ba6fe7fa5f1": {
+              "is_used": true,
+              "role": "SOURCE",
+              "peer_port_id": ""
+            },
+            "guid_f0cb5492-5e9d-4171-8a3d-97079392f4dc": {
+              "is_used": true,
+              "role": "DESTINATION",
+              "peer_port_id": ""
+            }
+          }
+        },
+        "rate_sweep_options": {
+          "start_value": 50.0,
+          "end_value": 100.0,
+          "step_value": 50.0
+        },
+        "oversize_test_enabled": true,
+        "max_frame_size": 1518,
+        "oversize_span": 1,
+        "min_frame_size": 64,
+        "undersize_span": 1,
+        "enabled": true,
+        "duration": 30.0,
+        "duration_time_unit": "SECOND",
+        "iterations": 1,
+        "item_id": "aef0eb27-82cb-44a6-bd7b-ac39ff8fb231",
+        "label": ""
+      },
+      "broadcast_forwarding": {
+        "port_role_handler": {
+          "role_map": {
+            "guid_fe44b353-7e9c-4933-8432-9ba6fe7fa5f1": {
+              "is_used": true,
+              "role": "SOURCE",
+              "peer_port_id": ""
+            },
+            "guid_f0cb5492-5e9d-4171-8a3d-97079392f4dc": {
+              "is_used": true,
+              "role": "DESTINATION",
+              "peer_port_id": ""
+            },
+            "guid_8ba734c8-6ece-436f-8ecb-c49cc369f9c2": {
+              "is_used": true,
+              "role": "DESTINATION",
+              "peer_port_id": ""
+            },
+            "guid_594df841-66f1-4656-a893-96ced6d4243a": {
+              "is_used": true,
+              "role": "DESTINATION",
+              "peer_port_id": ""
+            },
+            "guid_7dca7a76-f54e-49c4-838c-efd80e8a6aed": {
+              "is_used": true,
+              "role": "DESTINATION",
+              "peer_port_id": ""
+            },
+            "guid_6748ca81-7fa2-4a46-a581-774b3abdb4db": {
+              "is_used": true,
+              "role": "DESTINATION",
+              "peer_port_id": ""
+            }
+          }
+        },
+        "rate_iteration_options": {
+          "initial_value": 100.0,
+          "minimum_value": 0.1,
+          "maximum_value": 100.0,
+          "value_resolution": 0.5,
+          "use_pass_threshold": false,
+          "pass_threshold": 0.0
+        },
+        "enabled": false,
+        "duration": 30.0,
+        "duration_time_unit": "SECOND",
+        "iterations": 1,
+        "item_id": "50506579-553c-41c6-89dd-7324222bb517",
+        "label": ""
+      }
+    }
+  },
+  "port_identities": [
+    {
+      "tester_id": "1e818547519c4ddd53c793f2f7142857",
+      "module_index": 1,
+      "port_index": 0
+    },
+    {
+      "tester_id": "1e818547519c4ddd53c793f2f7142857",
+      "module_index": 1,
+      "port_index": 1
+    },
+    {
+      "tester_id": "1e818547519c4ddd53c793f2f7142857",
+      "module_index": 1,
+      "port_index": 2
+    },
+    {
+      "tester_id": "1e818547519c4ddd53c793f2f7142857",
+      "module_index": 1,
+      "port_index": 3
+    },
+    {
+      "tester_id": "1e818547519c4ddd53c793f2f7142857",
+      "module_index": 1,
+      "port_index": 4
+    },
+    {
+      "tester_id": "1e818547519c4ddd53c793f2f7142857",
+      "module_index": 1,
+      "port_index": 5
+    }
+  ]
+}
