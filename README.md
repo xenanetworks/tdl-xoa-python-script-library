@@ -92,8 +92,8 @@ Each folder contains at least three files:
 
 ---
 
-### PFC Configuration
-* [pfc](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/pfc): Create a PFC stream on the port to suppress a specific traffic class of the TX port traffic to a target fraction of the port speed.
+### PAUSE & PFC
+* [pause_and_pfc](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/pause_and_pfc): Create a PAUSE/PFC stream on the port to suppress a specific traffic class of the TX port traffic to a target fraction of the port speed.
 
 ---
 
