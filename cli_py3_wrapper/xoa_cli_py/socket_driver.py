@@ -46,24 +46,42 @@ class SimpleSocket(object):
 			self.sock.close()
 			
 	# Send a string command to a socket
-	def send_command(self, cmd: str):
-		"""Send command string to server"""
+	def send(self, cmd: str) -> None:
+		"""Send a command string to server, ignores the response.
+
+		:param cmd: The command to send.
+		:type cmd: str
+		:return: None
+		:rtype: None
+		:raises RuntimeError: If the socket connection is broken.
+		"""
 		if hasattr(self, "sock") and self.is_connected:
 			sent = self.sock.send((cmd + '\n').encode('utf-8'))
 			if sent == 0:
 				raise RuntimeError("Socket connection broken")
 
 	# Send a string command to a socket and return a string response from the socket
-	def ask(self, cmd: str) -> str:
-		"""Send a command string to server and return the response"""
+	def send_with_resp(self, cmd: str, check_terminator = True) -> str:
+		"""Sends the command to server and returns the response.
+
+		:param cmd: The command to send.
+		:type cmd: str
+		:param check_terminator: Whether to check for the response terminator, defaults to True
+		:type check_terminator: bool, optional
+		:raises RuntimeError: If the socket connection is broken.
+		:return: The response from the server.
+		:rtype: str
+		"""
 		if hasattr(self, "sock") and self.is_connected:
 			try:
 				sent = self.sock.send((cmd + '\n').encode('utf-8'))
 				if sent == 0:
 					raise RuntimeError("Socket connection broken")
 				tmp = self.sock.recv(4096)
-				while not tmp:
-					tmp = self.sock.recv(4096)
+				print(f"#1 {tmp.decode('utf_8')}")
+				while tmp == b'' or not tmp.decode('utf_8').endswith('<SYNC>\n'):
+					tmp = tmp + self.sock.recv(4096)
+					print(f"#2 {tmp.decode('utf_8')}")
 				return tmp.decode('utf_8')
 			except socket.error as msg:
 				logging.error(f"[Socket connection error] { msg }")
@@ -71,27 +89,42 @@ class SimpleSocket(object):
 		return ''
 
 	# Send a long string data to the socket and return a long string of response from the socket
-	def ask_multi(self, cmd:str, num:int) -> str:
-		"""Send a number of commands to server and return the responses"""
+	def send_list_with_resp(self, cmds: list[str]) -> list[str]:
+		"""Sends a list of commands to server and returns the responses.
+
+		:param cmds: The list of commands to send.
+		:type cmds: list[str]
+		:raises ValueError: If cmds is not a list.
+		:return: The response from the server.
+		:rtype: list[str]
+		"""
+		if not isinstance(cmds, list):
+			raise ValueError('\'cmds\' - must be a instance of list')
+		
+		cmd = ''.join(cmds) + '\n'
+		
 		if hasattr(self, "sock") and self.is_connected:
 			try:
 				self.sock.sendall((cmd).encode('utf-8'))
-				tmp_resp = self.sock.recv(4096)
-				while not tmp_resp:
-					tmp_resp = self.sock.recv(4096)
-				data = tmp_resp.decode('utf_8')
+				data = self.sock.recv(4096)
+				while not data:
+					data = self.sock.recv(4096)
+				_resps = data.decode('utf_8')
 				while True:
-					if data.count('\n') < num:
+					if _resps.count('\n') < len(cmds):
 						data2 = self.sock.recv(4096).decode('utf_8')
 						if data2:
-							data = data + data2
+							_resps = _resps + data2
 					else:
 						break
-				return data
+				# def mapper(v): return f"{ v[0] }: { v[1] }"
+				# resps = "\n".join( list( map(mapper, list( zip(cmds, _resps.split('\n')) ) ) ) )
+				resps = _resps.split('\n')[:-1]
+				return resps
 			except socket.error as msg:
 				logging.error(f"[Socket connection error] { msg }")
-				return ''
-		return ''
+				return ['']
+		return ['']
 	
 	def set_keepalives(self):
 		if hasattr(self, "sock") and self.is_connected:
