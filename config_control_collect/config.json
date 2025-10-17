@@ -1,0 +1,24 @@
+{
+  "chassis": "10.165.153.243",
+  "username": "Xena",
+  "password": "xena",
+  "tcp_port": 22606,
+  "enable_comm_logging": false,
+  "resultdir_prefix": "results",
+  "delay_after_reset": 5,
+  "waiting_time": 5,
+  "delay_to_query": 5,
+  "test_duration": 120,
+  "xpc_files": [
+      {"0/0": "0-0.xpc"},
+      {"0/1": "0-1.xpc"},
+      {"0/2": "0-2.xpc"},
+      {"0/3": "0-3.xpc"}
+  ],
+  "port_pairs": [
+      {"tx": "0/0", "rx": "0/1"},
+      {"tx": "0/1", "rx": "0/0"},
+      {"tx": "0/2", "rx": "0/3"},
+      {"tx": "0/3", "rx": "0/2"}
+  ]
+}
