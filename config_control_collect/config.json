@@ -5,9 +5,9 @@
   "tcp_port": 22606,
   "enable_comm_logging": false,
   "resultdir_prefix": "results",
-  "delay_after_reset": 5,
-  "waiting_time": 5,
-  "delay_to_query": 5,
+  "delay_after_reset": 10,
+  "delay_after_traffic_on": 5,
+  "delay_after_traffic_off": 5,
   "test_duration": 120,
   "xpc_files": [
       {"0/0": "0-0.xpc"},
