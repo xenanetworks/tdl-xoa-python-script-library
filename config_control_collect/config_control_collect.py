@@ -3,6 +3,7 @@
 #        config_control_collect.py
 #
 # author: leonard.yu@teledyne.com
+# version: v7
 ################################################################
 
 import asyncio
@@ -17,6 +18,7 @@ from datetime import datetime
 from time import sleep
 import os
 import json
+import sys
 
 # *************************************************************************************
 # function: get_module_and_port_objs
@@ -293,7 +295,7 @@ class XenaConfigControlCollect:
     
     async def prepare_data_storage(self):
         # Prepare the CSV file header row
-        field = ["Timestamp", "SrcPort", "SID", "DestPort", "TID", "StreamDescription", "TxL1Bps", "TxBps", "TxBytesps", "TxFps", "TxBytes", "TxFrames", "RxL1Bps", "RxBps", "RxBytesps", "RxFps", "RxBytes", "RxFrames", "RxOversizePackets", "RxUndersizePackets", "RxJabberPackets", "RxFcsErrors", "RxLossPcks", "RxMisErr", "RxPldErr", "LatencyCurr", "LatencyCurrMin", "LatencyCurrMax", "LatencyAvg", "LatencyMin", "LatencyMax", "JitterCurr", "JitterCurrMin", "JitterCurrMax", "JitterAvg", "JitterMin", "JitterMax"]
+        field = ["Timestamp (Rx)", "SrcPort", "SID", "DestPort", "TID", "StreamDescription", "TxL1Bps", "TxBps", "TxBytesps", "TxFps", "TxBytes", "TxFrames", "RxL1Bps", "RxBps", "RxBytesps", "RxFps", "RxBytes", "RxFrames", "RxOversizePackets", "RxUndersizePackets", "RxJabberPackets", "RxFcsErrors", "RxLossPcks", "RxMisErr", "RxPldErr", "LatencyCurr", "LatencyCurrMin", "LatencyCurrMax", "LatencyAvg", "LatencyMin", "LatencyMax", "JitterCurr", "JitterCurrMin", "JitterCurrMax", "JitterAvg", "JitterMin", "JitterMax"]
         
         self.stats_data.append(field)
 
@@ -449,9 +451,6 @@ class XenaConfigControlCollect:
 
     async def query_statistics(self):
         # The time string for this batch of statistics
-        curr_time = datetime.now()
-        batch_time = curr_time.strftime("%Y%m%d-%H%M%S.%f")
-
         # First construct commands to query all streams on all ports
         commands =[]
         for stream_struct in self.stream_struct_list:
@@ -485,13 +484,16 @@ class XenaConfigControlCollect:
         # Send the commands and get the responses
         responses = await asyncio.gather(*commands)
         test_data_list = []
-        
+
+        # The timestamp in the statistics log is the time when the data is received.
+        curr_time = datetime.now()
+        batch_time = curr_time.strftime("%Y%m%d-%H%M%S.%f")
+
         for i in range(0, len(responses), 8):
             test_data_list.append(responses[i:i + 8])
         for test_data, stream_struct in zip(test_data_list, self.stream_struct_list):
             # Clear the stats data row for this stream
             _stats_data_row = []
-
             tx_port_ifg = stream_struct["tx_port_ifg"]
             rx_port_ifg = stream_struct["rx_port_ifg"]
             pkt_size = stream_struct["pkt_size"]
@@ -538,9 +540,9 @@ class XenaConfigControlCollect:
             _stats_data_row.append(rx_jabber) # RxJabberPackets
             _stats_data_row.append(rx_fcs_errors) # RxFcsErrors
 
-            rx_loss = test_data[4].non_incre_seq_event_count
-            rx_misorder = test_data[4].swapped_seq_misorder_event_count
-            rx_payload_err = test_data[4].non_incre_payload_packet_count
+            rx_loss = test_data[4].non_incre_seq_event_count if test_data[4].non_incre_seq_event_count != -1 else "N/A"
+            rx_misorder = test_data[4].swapped_seq_misorder_event_count if test_data[4].swapped_seq_misorder_event_count != -1 else "N/A"
+            rx_payload_err = test_data[4].non_incre_payload_packet_count if test_data[4].non_incre_payload_packet_count != -1 else "N/A"
             _stats_data_row.append(rx_loss) # RxLossPcks
             _stats_data_row.append(rx_misorder) # RxMisErr
             _stats_data_row.append(rx_payload_err) # RxPldErr
@@ -594,11 +596,11 @@ class XenaConfigControlCollect:
 # *************************************************************************************
 # main function
 # *************************************************************************************
-async def main():
+async def main(config_file: str = "config.json"):
     stop_event = asyncio.Event()
     ccc = XenaConfigControlCollect(stop_event)
-    ccc.load_test_config(config_file="config.json")
+    ccc.load_test_config(config_file=config_file)
     await ccc.run()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(main(sys.argv[1] if len(sys.argv) > 1 else "config.json"))
