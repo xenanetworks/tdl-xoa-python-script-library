@@ -295,7 +295,46 @@ class XenaConfigControlCollect:
     
     async def prepare_data_storage(self):
         # Prepare the CSV file header row
-        field = ["Timestamp (Rx)", "SrcPort", "SID", "DestPort", "TID", "StreamDescription", "TxL1Bps", "TxBps", "TxBytesps", "TxFps", "TxBytes", "TxFrames", "RxL1Bps", "RxBps", "RxBytesps", "RxFps", "RxBytes", "RxFrames", "RxOversizePackets", "RxUndersizePackets", "RxJabberPackets", "RxFcsErrors", "RxLossPcks", "RxMisErr", "RxPldErr", "LatencyCurr", "LatencyCurrMin", "LatencyCurrMax", "LatencyAvg", "LatencyMin", "LatencyMax", "JitterCurr", "JitterCurrMin", "JitterCurrMax", "JitterAvg", "JitterMin", "JitterMax"]
+        field = [
+            "Timestamp (Rx)", 
+            "SrcPort",
+            "DestPort", 
+            "SID", 
+            "TID", 
+            "StreamDesc", 
+            "TxL1bps", 
+            "Txbps", 
+            "TxBps", 
+            "TxFps", 
+            "TxBytes", 
+            "TxFrames", 
+            "RxL1bps", 
+            "Rxbps", 
+            "RxBps", 
+            "RxFps", 
+            "RxBytes", 
+            "RxFrames", 
+            "RxLostFrames", 
+            "RxMisoFrames", 
+            "RxPldErrFrames", 
+            "LatencyCurr(ns)", 
+            "LatencyCurrMin(ns)", 
+            "LatencyCurrMax(ns)", 
+            "LatencyAvg(ns)", 
+            "LatencyMin(ns)", 
+            "LatencyMax(ns)", 
+            "JitterCurr(ns)", 
+            "JitterCurrMin(ns)", 
+            "JitterCurrMax(ns)", 
+            "JitterAvg(ns)", 
+            "JitterMin(ns)", 
+            "JitterMax(ns)",
+            "RxOversizeFrames", 
+            "RxUndersizeFrames", 
+            "RxJabberFrames", 
+            "RxFcsErrFrames",
+            "TxRxDiff"
+            ]
         
         self.stats_data.append(field)
 
@@ -376,7 +415,7 @@ class XenaConfigControlCollect:
 
             try:
                 for tick in range(statistics_duration):
-                    await self.query_statistics()
+                    await self.query_statistics(tx_rx_diff=True) if tick==statistics_duration-1 else await self.query_statistics(tx_rx_diff=False)
                     logging.info(f"Statistics collection #{tick} completed.")
                     if tick == self.pre_traffic_interval-1:
                         await self.start_traffic()
@@ -388,7 +427,7 @@ class XenaConfigControlCollect:
                 logging.error(f"Statistics collection cancelled.")
                 await self.stop_traffic()
                 await asyncio.sleep(self.post_traffic_interval)
-                await self.query_statistics()
+                await self.query_statistics(tx_rx_diff=True)
             finally:
                 # Stop histogram on all involved ports
                 for rx_port_obj in self.rx_port_obj_set:
@@ -422,7 +461,7 @@ class XenaConfigControlCollect:
         logging.info(f"All data saved to directory: {self.result_dir}")
 
 
-    async def query_statistics(self):
+    async def query_statistics(self, tx_rx_diff: bool = True):
         # The time string for this batch of statistics
         # First construct commands to query all streams on all ports
         commands =[]
@@ -436,9 +475,9 @@ class XenaConfigControlCollect:
             tx_stream_comment: str = stream_struct["stream_comment"]
             rx_port_ifg: int = stream_struct["rx_port_ifg"]
 
-            # Query stream TxBps, TxFps, TxBytes, TxFrames
+            # Query stream Txbps, TxFps, TxBytes, TxFrames
             commands.append(tx_port_obj.statistics.tx.obtain_from_stream(my_stream).get())
-            # Query stream RxBps, RxBytesps, RxFps, RxBytes, RxFrames
+            # Query stream Rxbps, RxBps, RxFps, RxBytes, RxFrames
             commands.append(rx_port_obj.statistics.rx.access_tpld(tx_stream_tpld_id).traffic_ext.get())
             # Query stream LatencyCurr, LatencyCurrMin, LatencyCurrMax, LatencyAvg, LatencyMin, LatencyMax
             commands.append(rx_port_obj.statistics.rx.access_tpld(tx_stream_tpld_id).latency.get())    
@@ -470,23 +509,23 @@ class XenaConfigControlCollect:
             tx_port_ifg = stream_struct["tx_port_ifg"]
             rx_port_ifg = stream_struct["rx_port_ifg"]
             pkt_size = stream_struct["pkt_size"]
-            _stats_data_row.append(batch_time) # Timestamp
+            _stats_data_row.append(batch_time) # Timestamp (Rx)
             _tx_port_str = f"P-{stream_struct['tx_port_str'].replace('/', '-')}"
             _stats_data_row.append(_tx_port_str) # SrcPort
-            _stats_data_row.append(stream_struct["stream_index"]) # SID
             _rx_port_str = f"P-{stream_struct['rx_port_str'].replace('/', '-')}"
             _stats_data_row.append(_rx_port_str) # DestPort
+            _stats_data_row.append(stream_struct["stream_index"]) # SID
             _stats_data_row.append(stream_struct["stream_tpld_id"]) # TID
-            _stats_data_row.append(stream_struct["stream_comment"]) # StreamDescription
+            _stats_data_row.append(stream_struct["stream_comment"]) # StreamDesc
 
             tx_bps = test_data[0].bit_count_last_sec
             tx_fps = test_data[0].packet_count_last_sec
             tx_bytes = test_data[0].byte_count_since_cleared
             tx_frames = test_data[0].packet_count_since_cleared
             tx_l1_bps = tx_fps * (tx_port_ifg + pkt_size)*8
-            _stats_data_row.append(tx_l1_bps) # TxL1Bps
-            _stats_data_row.append(tx_bps) # TxBps
-            _stats_data_row.append(int(tx_bps / 8)) # TxBytesps
+            _stats_data_row.append(tx_l1_bps) # TxL1bps
+            _stats_data_row.append(tx_bps) # Txbps
+            _stats_data_row.append(int(tx_bps / 8)) # TxBps (bytes per second)
             _stats_data_row.append(tx_fps) # TxFps
             _stats_data_row.append(tx_bytes) # TxBytes
             _stats_data_row.append(tx_frames) # TxFrames
@@ -497,28 +536,19 @@ class XenaConfigControlCollect:
             rx_bytes = test_data[1].byte_count_since_cleared
             rx_frames = test_data[1].packet_count_since_cleared
             rx_l1_bps = rx_fps * (rx_port_ifg + pkt_size)*8
-            _stats_data_row.append(rx_l1_bps) # RxL1Bps
-            _stats_data_row.append(rx_bps) # RxBps
-            _stats_data_row.append(rx_bytesps) # RxBytesps
+            _stats_data_row.append(rx_l1_bps) # RxL1bps
+            _stats_data_row.append(rx_bps) # Rxbps
+            _stats_data_row.append(rx_bytesps) # RxBps (bytes per second)
             _stats_data_row.append(rx_fps) # RxFps
             _stats_data_row.append(rx_bytes) # RxBytes
             _stats_data_row.append(rx_frames) # RxFrames
 
-            rx_oversize = test_data[5].oversize_count if test_data[5].oversize_count >= 0 else "N/A"
-            rx_undersize = test_data[5].undersize_count if test_data[5].undersize_count >= 0 else "N/A"
-            rx_jabber = test_data[5].jabber_count if test_data[5].jabber_count >= 0 else "N/A"
-            rx_fcs_errors = test_data[5].fcs_error_count if test_data[5].fcs_error_count >= 0 else "N/A"
-            _stats_data_row.append(rx_oversize) # RxOversizePackets
-            _stats_data_row.append(rx_undersize) # RxUndersizePackets
-            _stats_data_row.append(rx_jabber) # RxJabberPackets
-            _stats_data_row.append(rx_fcs_errors) # RxFcsErrors
-
-            rx_loss = test_data[4].non_incre_seq_event_count if test_data[4].non_incre_seq_event_count != -1 else "N/A"
-            rx_misorder = test_data[4].swapped_seq_misorder_event_count if test_data[4].swapped_seq_misorder_event_count != -1 else "N/A"
-            rx_payload_err = test_data[4].non_incre_payload_packet_count if test_data[4].non_incre_payload_packet_count != -1 else "N/A"
-            _stats_data_row.append(rx_loss) # RxLossPcks
-            _stats_data_row.append(rx_misorder) # RxMisErr
-            _stats_data_row.append(rx_payload_err) # RxPldErr
+            rx_loss = test_data[4].non_incre_seq_event_count if test_data[4].non_incre_seq_event_count != -1 else "0"
+            rx_misorder = test_data[4].swapped_seq_misorder_event_count if test_data[4].swapped_seq_misorder_event_count != -1 else "0"
+            rx_payload_err = test_data[4].non_incre_payload_packet_count if test_data[4].non_incre_payload_packet_count != -1 else "0"
+            _stats_data_row.append(rx_loss) # RxLostFrames
+            _stats_data_row.append(rx_misorder) # RxMisoFrames
+            _stats_data_row.append(rx_payload_err) # RxPldErrFrames
 
             rx_latency_curr = test_data[2].avg_last_sec if (test_data[2].avg_last_sec != -1 and test_data[2].avg_last_sec != -2147483648) else "N/A"
             rx_latency_curr_min = test_data[2].min_last_sec if (test_data[2].min_last_sec != -1 and test_data[2].min_last_sec != -2147483648) else "N/A"
@@ -545,6 +575,17 @@ class XenaConfigControlCollect:
             _stats_data_row.append(rx_jitter_avg) # JitterAvg
             _stats_data_row.append(rx_jitter_min) # JitterMin
             _stats_data_row.append(rx_jitter_max) # JitterMax
+
+            rx_oversize = test_data[5].oversize_count if test_data[5].oversize_count >= 0 else "N/A"
+            rx_undersize = test_data[5].undersize_count if test_data[5].undersize_count >= 0 else "N/A"
+            rx_jabber = test_data[5].jabber_count if test_data[5].jabber_count >= 0 else "N/A"
+            rx_fcs_errors = test_data[5].fcs_error_count if test_data[5].fcs_error_count >= 0 else "N/A"
+            _stats_data_row.append(rx_oversize) # RxOversizeFrames
+            _stats_data_row.append(rx_undersize) # RxUndersizeFrames
+            _stats_data_row.append(rx_jabber) # RxJabberFrames
+            _stats_data_row.append(rx_fcs_errors) # RxFcsErrFrames
+
+            _stats_data_row.append(tx_frames - rx_frames) if tx_rx_diff else _stats_data_row.append("N/A")  # TxRxDiff
 
             # Append the stream stats data row to the stats data
             self.stats_data.append(_stats_data_row)
