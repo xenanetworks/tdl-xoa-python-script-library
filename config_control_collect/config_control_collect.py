@@ -3,7 +3,7 @@
 #        config_control_collect.py
 #
 # author: leonard.yu@teledyne.com
-# version: v7
+# version: v8
 ################################################################
 
 import asyncio
@@ -59,10 +59,10 @@ class XenaConfigControlCollect:
         self.debug_logging: bool = False
         self.port_pairs: list[dict[str, str]] = []
         self.xpc_files: list[dict[str, str]] = []
-        self.duration: int = 60
+        self.test_duration: int = 60
         self.delay_after_reset: int = 30
-        self.delay_after_traffic_on: int = 5
-        self.delay_after_traffic_off: int = 5
+        self.pre_traffic_interval: int = 5
+        self.post_traffic_interval: int = 5
         self.resultdir_prefix: str = "results"
         self.stop_event: asyncio.Event = stop_event
         self.tx_port_obj_set = set()
@@ -83,10 +83,10 @@ class XenaConfigControlCollect:
             self.debug_logging = config.get("debug_logging", self.debug_logging)
             self.port_pairs = config.get("port_pairs", self.port_pairs)
             self.xpc_files = config.get("xpc_files", self.xpc_files)
-            self.duration = config.get("test_duration", self.duration)
+            self.test_duration = config.get("test_duration", self.test_duration)
             self.delay_after_reset = config.get("delay_after_reset", self.delay_after_reset)
-            self.delay_after_traffic_on = config.get("delay_after_traffic_on", self.delay_after_traffic_on)
-            self.delay_after_traffic_off = config.get("delay_after_traffic_off", self.delay_after_traffic_off)
+            self.pre_traffic_interval = config.get("pre_traffic_interval", self.pre_traffic_interval)
+            self.post_traffic_interval = config.get("post_traffic_interval", self.post_traffic_interval)
             self.resultdir_prefix = config.get("resultdir_prefix", self.resultdir_prefix)
 
         self.config_file_dir = os.path.join(os.path.dirname(__file__), "xpc_files")
@@ -114,10 +114,10 @@ class XenaConfigControlCollect:
         logging.info(f"Chassis: {self.chassis}, Username: {self.username}, TCP Port: {self.tcp_port}")
         logging.info(f"Port Pairs (Tx/Rx): {self.port_pairs}")
         logging.info(f"Port Config Files: {self.xpc_files}")
-        logging.info(f"Test Duration: {self.duration} seconds")
-        logging.info(f"Delay After Port Config: {self.delay_after_reset} seconds")
-        logging.info(f"Delay After Traffic On: {self.delay_after_traffic_on} seconds")
-        logging.info(f"Delay After Traffic Off: {self.delay_after_traffic_off} seconds")
+        logging.info(f"Test Traffic Duration: {self.test_duration} seconds")
+        logging.info(f"Delay After Port Reset: {self.delay_after_reset} seconds")
+        logging.info(f"Pre Traffic Interval: {self.pre_traffic_interval} seconds")
+        logging.info(f"Post Traffic Interval: {self.post_traffic_interval} seconds")
         logging.info(f"Result Directory Prefix: {self.resultdir_prefix}")
         logging.info(f"===============================================")
         logging.info(f"===============================================")
@@ -369,38 +369,25 @@ class XenaConfigControlCollect:
                     await histogram_obj.enable.set_on()
                 logging.info(f"  Enabled histogram {histogram_obj.idx} on Port {rx_port_obj.kind.module_id}/{rx_port_obj.kind.port_id}")
 
-            # wait for a while after clearing statistics
-            await asyncio.sleep(1)  
+            # Wait for pre-traffic interval
+            await asyncio.sleep(self.pre_traffic_interval)
+            statistics_duration = self.pre_traffic_interval + self.test_duration + self.post_traffic_interval
+            logging.info(f"Collecting statistics for {statistics_duration} seconds")
 
-            #################################################
-            #                  Start Traffic                #
-            #################################################
-            # start traffic on all tx ports
-            logging.info(f"Starting traffic on all Tx ports")
-            for tx_port_obj in self.tx_port_obj_set:
-                await tx_port_obj.traffic.state.set_start()
-                logging.info(f"  Started traffic on Port {tx_port_obj.kind.module_id}/{tx_port_obj.kind.port_id}")
-            
-            #################################################
-            #                  Statistics                   #
-            #################################################
-            # Each port can have two roles, Tx and Rx. 
-            # On the Tx role, we use the stream index to identify the stream and collect statistics.
-            # On the Rx role, we use the TPLD ID to identify the stream and collect statistics.
-            await asyncio.sleep(self.delay_after_traffic_on)  # wait for a while before querying statistics
-
-            logging.info(f"Collecting statistics for {self.duration} seconds")
             try:
-                for tick in range(self.duration + self.delay_after_traffic_off):
-                    if tick >= self.duration:
-                        await self.stop_traffic()
+                for tick in range(statistics_duration):
                     await self.query_statistics()
-                    await asyncio.sleep(1)  # wait for 1 second before the next query
-                    logging.info(f"Statistics collection #{tick+1} completed.")
+                    logging.info(f"Statistics collection #{tick} completed.")
+                    if tick == self.pre_traffic_interval-1:
+                        await self.start_traffic()
+                    if tick == self.pre_traffic_interval + self.test_duration-1:
+                        await self.stop_traffic()
+                    # wait for 1 second before the next query
+                    await asyncio.sleep(1.000)
             except asyncio.CancelledError:
                 logging.error(f"Statistics collection cancelled.")
                 await self.stop_traffic()
-                await asyncio.sleep(self.delay_after_traffic_off)
+                await asyncio.sleep(self.post_traffic_interval)
                 await self.query_statistics()
             finally:
                 # Stop histogram on all involved ports
@@ -434,20 +421,6 @@ class XenaConfigControlCollect:
         
         logging.info(f"All data saved to directory: {self.result_dir}")
 
-    async def stop_traffic(self):
-        # Force stop traffic on all tx ports
-        logging.info(f"Stopping traffic on all Tx ports")
-        module_ports = []
-        for tx_port_obj in self.tx_port_obj_set:
-            module_ports.append(tx_port_obj.kind.module_id)
-            module_ports.append(tx_port_obj.kind.port_id)
-        await self.chassis_obj.traffic.set(on_off=enums.OnOff.OFF, module_ports=module_ports)
-        logging.info(f"Traffic stopped on Port {tx_port_obj.kind.module_id}/{tx_port_obj.kind.port_id}")
-
-    async def disconnect(self):
-        # Disconnect from the chassis
-        await self.chassis_obj.session.logoff()
-        logging.info(f"Disconnected from chassis: {self.chassis}")
 
     async def query_statistics(self):
         # The time string for this batch of statistics
@@ -592,7 +565,47 @@ class XenaConfigControlCollect:
             _y_data.extend(_pkt_cnt)
             _y_data.extend([0] * (_histogram_dict["bucket_count"] - len(_pkt_cnt)))
             _histogram_dict["y_axis"] = _y_data
+
+    async def statistics_background_task(self, duration: int):
+        """Background task to collect statistics for a given duration.
+
+        :param duration: Duration in seconds to collect statistics
+        :type duration: int
+        """
+        try:
+            for tick in range(duration):
+                if self.stop_event.is_set():
+                    logging.info(f"Statistics collection cancelled by stop event.")
+                    break
+                await self.query_statistics()
+                await asyncio.sleep(1)  # wait for 1 second before the next query
+                logging.info(f"Statistics collection #{tick+1} completed.")
+        except asyncio.CancelledError:
+            logging.error(f"Statistics collection cancelled.")
     
+    async def start_traffic(self):
+        # start traffic on all tx ports
+        logging.info(f"Starting traffic on all Tx ports")
+        module_ports = []
+        for tx_port_obj in self.tx_port_obj_set:
+            module_ports.append(tx_port_obj.kind.module_id)
+            module_ports.append(tx_port_obj.kind.port_id)
+        await self.chassis_obj.traffic.set(on_off=enums.OnOff.ON, module_ports=module_ports)
+
+    async def stop_traffic(self):
+        # stop traffic on all tx ports
+        logging.info(f"Stopping traffic on all Tx ports")
+        module_ports = []
+        for tx_port_obj in self.tx_port_obj_set:
+            module_ports.append(tx_port_obj.kind.module_id)
+            module_ports.append(tx_port_obj.kind.port_id)
+        await self.chassis_obj.traffic.set(on_off=enums.OnOff.OFF, module_ports=module_ports)
+
+    async def disconnect(self):
+        # Disconnect from the chassis
+        await self.chassis_obj.session.logoff()
+        logging.info(f"Disconnected from chassis: {self.chassis}")
+
 # *************************************************************************************
 # main function
 # *************************************************************************************
