@@ -42,8 +42,8 @@ except ImportError:
 #---------------------------
 PROJECT_PATH = Path(__file__).parent
 PLUGINS_PATH = PROJECT_PATH / "rfc_lib"
-GUI_CONFIG = PROJECT_PATH / "test.x2544"
-XOA_CONFIG = PROJECT_PATH / "test.json"
+GUI_CONFIG = PROJECT_PATH / "demo.x2889"
+XOA_CONFIG = PROJECT_PATH / "demo.json"
 CHASSIS_IP = "10.165.136.70"
 RUN_FROM_GUI_CONFIG = True
 
@@ -159,8 +159,8 @@ async def run_xoa_rfc(chassis: str, plugin_path: Path, gui_config: Path, xoa_con
             # get the rfc type from the filename
             rfc_type = read_rfc_type(gui_config)
             logger.info(f"Get the RFC type from the config filename")
-            
-            # get rfc2544 test suite information from the core's registration
+
+            # get rfc2889 test suite information from the core's registration
             info = ctrl.get_test_suite_info(rfc_type.value)
             if not info:
                 print("Test suite is not recognized.")

@@ -1,0 +1,98 @@
+2025-08-07 04:16:29,026  #####################################################################
+2025-08-07 04:16:29,026  Tester credential:
+2025-08-07 04:16:29,026    Chassis:            10.165.136.70
+2025-08-07 04:16:29,026  #####################################################################
+2025-08-07 04:16:29,040  Create XOA core controller
+2025-08-07 04:16:29,118  Register plugin path: /Users/leonardyu/GitHub/tld-xoa-python-script-library/rfc2889/rfc_lib
+2025-08-07 04:16:30,682  Add tester 1e818547519c4ddd53c793f2f7142857 to controller
+2025-08-07 04:16:30,682  Get the RFC type from the config filename
+2025-08-07 04:20:08,873  #####################################################################
+2025-08-07 04:20:08,873  Tester credential:
+2025-08-07 04:20:08,873    Chassis:            10.165.136.70
+2025-08-07 04:20:08,873  #####################################################################
+2025-08-07 04:20:08,888  Create XOA core controller
+2025-08-07 04:20:08,965  Register plugin path: /Users/leonardyu/GitHub/tld-xoa-python-script-library/rfc2889/rfc_lib
+2025-08-07 04:20:10,603  Add tester 1e818547519c4ddd53c793f2f7142857 to controller
+2025-08-07 04:20:10,604  Get the RFC type from the config filename
+2025-08-07 04:20:10,636  Convert /Users/leonardyu/GitHub/tld-xoa-python-script-library/rfc2889/demo.x2889 into /Users/leonardyu/GitHub/tld-xoa-python-script-library/rfc2889/demo.json
+2025-08-07 04:20:10,638  Execute the RFC test. (Execution ID: d3b57183-0968-4a11-a67f-f4e7cc0c0261)
+2025-08-07 04:20:10,639  Exception in callback SuiteExecutor.__on_execution_terminated()
+handle: <Handle SuiteExecutor.__on_execution_terminated()>
+Traceback (most recent call last):
+  File "/Users/leonardyu/GitHub/tld-xoa-python-script-library/rfc2889/rfc_lib/plugin2889/__init__.py", line 60, in start
+    await self.__do_test()
+  File "/Users/leonardyu/GitHub/tld-xoa-python-script-library/rfc2889/rfc_lib/plugin2889/__init__.py", line 43, in __do_test
+    plugin_params = PluginParameter(
+        testers=self.testers,
+    ...<4 lines>...
+        state_conditions=self.state_conditions,
+    )
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/pydantic/main.py", line 253, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for PluginParameter
+full_test_config
+  Input should be a valid dictionary or instance of TestSuiteConfiguration2889 [type=model_type, input_value=TestSuiteConfiguration288...roadcast_forwarding'>))), input_type=TestSuiteConfiguration2889]
+    For further information visit https://errors.pydantic.dev/2.11/v/model_type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/xoa_core/core/executors/executor.py", line 52, in __on_execution_terminated
+    raise exceptions.ExecutionError(task.get_name()) from err
+xoa_core.core.executors.exceptions.ExecutionError: During of the execution Plugin: <RFC-2889[d3b57183-0968-4a11-a67f-f4e7cc0c0261]> raised the error.
+2025-08-07 04:25:58,912  #####################################################################
+2025-08-07 04:25:58,912  Tester credential:
+2025-08-07 04:25:58,912    Chassis:            10.165.136.70
+2025-08-07 04:25:58,912  #####################################################################
+2025-08-07 04:26:00,637  Create XOA core controller
+2025-08-07 04:26:00,719  Register plugin path: /Users/leonardyu/GitHub/tld-xoa-python-script-library/rfc2889/rfc_lib
+2025-08-07 04:26:00,720  Add tester 1e818547519c4ddd53c793f2f7142857 to controller
+2025-08-07 04:26:00,720  Get the RFC type from the config filename
+2025-08-07 04:26:27,278  #####################################################################
+2025-08-07 04:26:27,278  Tester credential:
+2025-08-07 04:26:27,278    Chassis:            10.165.136.70
+2025-08-07 04:26:27,278  #####################################################################
+2025-08-07 04:26:27,291  Create XOA core controller
+2025-08-07 04:26:27,371  Register plugin path: /Users/leonardyu/GitHub/tld-xoa-python-script-library/rfc2889/rfc_lib
+2025-08-07 04:26:29,228  Add tester 1e818547519c4ddd53c793f2f7142857 to controller
+2025-08-07 04:26:29,229  Get the RFC type from the config filename
+2025-08-07 04:26:55,720  #####################################################################
+2025-08-07 04:26:55,721  Tester credential:
+2025-08-07 04:26:55,721    Chassis:            10.165.136.70
+2025-08-07 04:26:55,721  #####################################################################
+2025-08-07 04:26:57,103  Create XOA core controller
+2025-08-07 04:26:57,197  Register plugin path: /Users/leonardyu/GitHub/tld-xoa-python-script-library/rfc2889/rfc_lib
+2025-08-07 04:26:57,198  Add tester 1e818547519c4ddd53c793f2f7142857 to controller
+2025-08-07 04:26:57,198  Get the RFC type from the config filename
+2025-08-07 04:26:57,217  Convert /Users/leonardyu/GitHub/tld-xoa-python-script-library/rfc2889/demo.x2889 into /Users/leonardyu/GitHub/tld-xoa-python-script-library/rfc2889/demo.json
+2025-08-07 04:26:57,219  Execute the RFC test. (Execution ID: c5adfc74-10f8-4fea-b3ec-9979b5ac6d37)
+2025-08-07 04:26:57,220  Exception in callback SuiteExecutor.__on_execution_terminated()
+handle: <Handle SuiteExecutor.__on_execution_terminated()>
+Traceback (most recent call last):
+  File "/Users/leonardyu/GitHub/tld-xoa-python-script-library/rfc2889/rfc_lib/plugin2889/__init__.py", line 60, in start
+    await self.__do_test()
+  File "/Users/leonardyu/GitHub/tld-xoa-python-script-library/rfc2889/rfc_lib/plugin2889/__init__.py", line 43, in __do_test
+    plugin_params = PluginParameter(
+        testers=self.testers,
+    ...<4 lines>...
+        state_conditions=self.state_conditions,
+    )
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/pydantic/main.py", line 253, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for PluginParameter
+full_test_config
+  Input should be a valid dictionary or instance of TestSuiteConfiguration2889 [type=model_type, input_value=TestSuiteConfiguration288...roadcast_forwarding'>))), input_type=TestSuiteConfiguration2889]
+    For further information visit https://errors.pydantic.dev/2.11/v/model_type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/xoa_core/core/executors/executor.py", line 52, in __on_execution_terminated
+    raise exceptions.ExecutionError(task.get_name()) from err
+xoa_core.core.executors.exceptions.ExecutionError: During of the execution Plugin: <RFC-2889[c5adfc74-10f8-4fea-b3ec-9979b5ac6d37]> raised the error.
