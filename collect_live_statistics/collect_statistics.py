@@ -138,10 +138,9 @@ async def traffic_control(
     logging.info(f"Reserve and reset port {_mid1}/{_pid1}")
     logging.info(f"Reserve and reset port {_mid2}/{_pid2}")
 
-    await mgmt.release_module(module=module_obj_1, should_release_ports=False)
-    await mgmt.reserve_port(port=port_obj_1, force=True, reset=True)
-    await mgmt.release_module(module=module_obj_2, should_release_ports=False)
-    await mgmt.reserve_port(port=port_obj_2, force=True, reset=True)
+
+    await mgmt.release_modules(modules=[module_obj_1, module_obj_2], should_release_ports=False)
+    await mgmt.reserve_ports(ports=[port_obj_1, port_obj_2], force=True, reset=True)
 
     await asyncio.sleep(5)
 
@@ -237,8 +236,7 @@ async def traffic_control(
 
     # free ports
     logging.info(f"Free ports")
-    await mgmt.release_port(port_obj_1)
-    await mgmt.release_port(port_obj_2)
+    await mgmt.release_ports(ports=[port_obj_1, port_obj_2])
 
     # done
     logging.info(f"Test done")

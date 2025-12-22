@@ -61,8 +61,8 @@ async def thor_seq_access(chassis: str, username: str, port_str: str, page: int,
         port = module.ports.obtain(_pid)
 
         logging.info(f"Reserve Port {_mid}/{_pid}")
-        await mgmt.release_module(module=module)
-        await mgmt.reserve_port(port=port)
+        await mgmt.release_modules(modules=[module])
+        await mgmt.reserve_ports(ports=[port])
 
         if len(data)%2 != 0:
             logging.info(f"Data length not valid")

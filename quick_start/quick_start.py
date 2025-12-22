@@ -72,14 +72,9 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
         # Get the port on module as RX port
         rx_port = module_obj2.ports.obtain(_pid2)
 
-        # Forcibly reserve the TX port and reset it.
-        await mgmt.reserve_port(tx_port, reset=True)
+        # Forcibly reserve the TX and RX ports and reset them.
+        await mgmt.reserve_ports(ports=[tx_port, rx_port], reset=True)
         
-
-        # Forcibly reserve the TX port and reset it.
-        await mgmt.reserve_port(rx_port, reset=True)
-        
-
         await asyncio.sleep(5)
 
         #################################################
@@ -221,19 +216,19 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
         logging.info(f"TPLD {tpld_id} RX min jitter: {rx_jitter.min_val}")
         logging.info(f"TPLD {tpld_id} RX max jitter: {rx_jitter.max_val}")
         logging.info(f"TPLD {tpld_id} RX avg jitter: {rx_jitter.avg_val}")
-        logging.info(f"TPLD {tpld_id} RX Lost Packets: {rx_error.non_incre_seq_event_count}")
-        logging.info(f"TPLD {tpld_id} RX Misordered: {rx_error.swapped_seq_misorder_event_count}")
-        logging.info(f"TPLD {tpld_id} RX Payload Errors: {rx_error.non_incre_payload_packet_count}")
+        logging.info(f"TPLD {tpld_id} RX Lost Packets: {rx_error.packet_loss_by_seq}")
+        logging.info(f"TPLD {tpld_id} RX Misordered: {rx_error.misorder_by_seq}")
+        logging.info(f"TPLD {tpld_id} RX Payload Errors: {rx_error.payload_err_packets}")
 
 
         # Stream errors of TPLD 0
         rx_stats_obj = rx_port.statistics.rx.access_tpld(0)
         errors = await rx_stats_obj.errors.get()
-        lost_packet = errors.non_incre_seq_event_count
+        lost_packet = errors.packet_loss_by_seq
         logging.info(lost_packet) # This is called Lost Packets on the UI
-        misordered_pkts = errors.swapped_seq_misorder_event_count
+        misordered_pkts = errors.misorder_by_seq
         logging.info(misordered_pkts) # This is called Misordered on the UI
-        payload_errors = errors.non_incre_payload_packet_count
+        payload_errors = errors.payload_err_packets
         logging.info(payload_errors) # This is called Payload Errors on the UI
 
 

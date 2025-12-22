@@ -110,12 +110,8 @@ async def live_plots(
         tx_port_obj_2 = tx_module_obj_2.ports.obtain(_pid_tx_2)
 
         # Forcibly reserve the port
-        await mgmt.release_module(module=rx_module_obj, should_release_ports=False)
-        await mgmt.reserve_port(rx_port_obj)
-        await mgmt.release_module(module=tx_module_obj_1, should_release_ports=False)
-        await mgmt.reserve_port(tx_port_obj_1)
-        await mgmt.release_module(module=tx_module_obj_2, should_release_ports=False)
-        await mgmt.reserve_port(tx_port_obj_2)
+        await mgmt.release_modules(modules=[rx_module_obj, tx_module_obj_1, tx_module_obj_2], should_release_ports=False)
+        await mgmt.reserve_ports(ports=[rx_port_obj, tx_port_obj_1, tx_port_obj_2])
 
         # Sync the filters from chassis to script
         await asyncio.sleep(1)
@@ -209,32 +205,32 @@ async def live_plots(
             y4 = resp4.bit_count_last_sec/1_000_000*factor
             y5 = resp5.packet_count
 
-            data0.append((x, y0))
+            data0.append((x, y0)) # type: ignore
             ax0.relim()
             ax0.autoscale_view()
             line0.set_data(*zip(*data0))
 
-            data1.append((x, y1))
+            data1.append((x, y1)) # type: ignore
             ax1.relim()
             ax1.autoscale_view()
             line1.set_data(*zip(*data1))
 
-            data2.append((x, y2))
+            data2.append((x, y2)) # type: ignore
             ax2.relim()
             ax2.autoscale_view()
             line2.set_data(*zip(*data2))
 
-            data3.append((x, y3))
+            data3.append((x, y3)) # type: ignore
             ax3.relim()
             ax3.autoscale_view()
             line3.set_data(*zip(*data3))
 
-            data4.append((x, y4))
+            data4.append((x, y4)) # type: ignore
             ax4.relim()
             ax4.autoscale_view()
             line4.set_data(*zip(*data4))
 
-            data5.append((x, y5))
+            data5.append((x, y5)) # type: ignore
             ax5.relim()
             ax5.autoscale_view()
             line5.set_data(*zip(*data5))

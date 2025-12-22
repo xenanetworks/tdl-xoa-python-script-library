@@ -25,7 +25,7 @@ from xoa_driver import (
 from xoa_driver.hlfuncs import mgmt
 from xoa_driver.misc import Hex
 import logging
-import scapy.all
+from scapy.all import Raw, rdpcap, wrpcap
 
 #---------------------------
 # GLOBAL PARAMS
@@ -75,10 +75,8 @@ async def pcap_replay_capture(chassis: str, username: str, replay_file: str, rep
         capture_port_obj = capture_module_obj.ports.obtain(_pid)
 
         # reserve the port objects
-        await mgmt.release_module(module=replay_module_obj, should_release_ports=False)
-        await mgmt.reserve_port(port=replay_port_obj, force=True, reset=True)
-        await mgmt.release_module(module=capture_module_obj, should_release_ports=False)
-        await mgmt.reserve_port(port=capture_port_obj, force=True, reset=True)
+        await mgmt.release_modules(modules=[replay_module_obj, capture_module_obj], should_release_ports=False)
+        await mgmt.reserve_ports(ports=[replay_port_obj, capture_port_obj], force=True, reset=True)
 
         # configure capture trigger criteria
         await capture_port_obj.capturer.state.set(on_off=enums.StartOrStop.STOP)
@@ -94,9 +92,9 @@ async def pcap_replay_capture(chassis: str, username: str, replay_file: str, rep
         await capture_port_obj.capturer.state.set(on_off=enums.StartOrStop.START)        
 
         # start replay on the replay port
-        packet_list = scapy.all.rdpcap(filename=replay_file, count=-1)
+        packet_list = rdpcap(filename=replay_file, count=-1)
         for i in range(len(packet_list)):
-            pkt_hexstr= scapy.all.raw(packet_list[i]).hex()
+            pkt_hexstr= Raw(packet_list[i]).load.hex()
             await replay_port_obj.tx_single_pkt.send.set(hex_data=Hex(pkt_hexstr))
             logging.info(f"Send packet #{i}: {pkt_hexstr}")
 
@@ -120,11 +118,10 @@ async def pcap_replay_capture(chassis: str, username: str, replay_file: str, rep
             logging.info(f"Capt packet # {i}: {pkt_hexstr}")
             _pkt_bytes = bytes.fromhex(pkt_hexstr)
             cap_packet_list.append(_pkt_bytes)
-        scapy.all.wrpcap(filename=capture_file, pkt=cap_packet_list)
+        wrpcap(filename=capture_file, pkt=cap_packet_list)
 
         # release the port
-        await mgmt.release_port(replay_port_obj)
-        await mgmt.release_port(capture_port_obj)
+        await mgmt.release_ports(ports=[replay_port_obj, capture_port_obj])
 
 
 async def main():

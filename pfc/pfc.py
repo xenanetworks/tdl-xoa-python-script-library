@@ -79,7 +79,7 @@ async def pfc(chassis: str, username: str, port_str: str, prio: int, quanta: int
         port_obj = module_obj.ports.obtain(pid)
 
         # Forcibly reserve the port
-        await mgmt.reserve_port(port_obj, reset=True)
+        await mgmt.reserve_ports(ports=[port_obj], reset=True)
         
         await asyncio.sleep(1)
 
@@ -108,7 +108,7 @@ async def pfc(chassis: str, username: str, port_str: str, prio: int, quanta: int
         await stream_obj.enable.set_on()
 
         # Release the port
-        await mgmt.release_port(port_obj)
+        await mgmt.release_ports(ports=[port_obj])
         
 
 

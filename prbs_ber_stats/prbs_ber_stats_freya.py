@@ -71,9 +71,7 @@ async def prbs_ber_stats(chassis: str, username: str, port_str1: str, port_str2:
         port_obj2 = module_obj2.ports.obtain(_pid2)
 
         # Forcibly reserve the port and reset it.
-        await mgmt.reserve_port(port_obj1, reset=True)
-        
-        await mgmt.reserve_port(port_obj2, reset=True)
+        await mgmt.reserve_ports(ports=[port_obj1, port_obj2], reset=True)
         
 
         await asyncio.sleep(5)
@@ -87,13 +85,13 @@ async def prbs_ber_stats(chassis: str, username: str, port_str1: str, port_str2:
         logging.info(f"Port {_mid2}/{_pid2} Serdes Count: {_serdes_count2}")
 
         # Set PRBS Config on the TX port
-        await port_obj1.l1.prbs_config.set(
+        await port_obj1.layer1.prbs_config.set(
             prbs_inserted_type=enums.PRBSInsertedType.PHY_LINE,
             polynomial=enums.PRBSPolynomial.PRBS13,
             invert=enums.PRBSInvertState.INVERTED,
             statistics_mode=enums.PRBSStatisticsMode.PERSECOND)
         # Set PRBS Config on the RX port
-        await port_obj2.l1.prbs_config.set(
+        await port_obj2.layer1.prbs_config.set(
             prbs_inserted_type=enums.PRBSInsertedType.PHY_LINE,
             polynomial=enums.PRBSPolynomial.PRBS13,
             invert=enums.PRBSInvertState.INVERTED,
@@ -101,7 +99,7 @@ async def prbs_ber_stats(chassis: str, username: str, port_str1: str, port_str2:
 
         # Enable PRBS on all serdes on the Tx port
         for i in range(_serdes_count1):
-            await port_obj1.l1.serdes[i].prbs.control.set(prbs_seed=0, prbs_on_off=enums.PRBSOnOff.PRBSON, error_on_off=enums.ErrorOnOff.ERRORSOFF)
+            await port_obj1.layer1.serdes[i].prbs.control.set(prbs_seed=0, prbs_on_off=enums.PRBSOnOff.PRBSON, error_on_off=enums.ErrorOnOff.ERRORSOFF)
 
         # _list = []
         # for i in range(_serdes_count1):
@@ -111,13 +109,13 @@ async def prbs_ber_stats(chassis: str, username: str, port_str1: str, port_str2:
         await asyncio.sleep(2.0)
 
         # clear counters on the Rx port
-        await port_obj2.pcs_pma.rx.clear.set()
+        await port_obj2.layer1.pcs_fec.clear.set()
 
         # Sample PRBS status counter on the other port every second for 20 secs.
         _count = 0
         _list = []
         for i in range(_serdes_count1):
-            _list.append(port_obj2.l1.serdes[i].prbs.status.get())
+            _list.append(port_obj2.layer1.serdes[i].prbs.status.get())
         while _count <= duration-1:
             resp = await utils.apply(*_list)
             print(f"*"*_count)
@@ -132,12 +130,11 @@ async def prbs_ber_stats(chassis: str, username: str, port_str1: str, port_str2:
         # Stop PRBS on the tx port all serdes
         _list = []
         for i in range(_serdes_count1):
-            _list.append(port_obj1.l1.serdes[i].prbs.control.set(prbs_seed=0, prbs_on_off=enums.PRBSOnOff.PRBSOFF, error_on_off=enums.ErrorOnOff.ERRORSOFF))
+            _list.append(port_obj1.layer1.serdes[i].prbs.control.set(prbs_seed=0, prbs_on_off=enums.PRBSOnOff.PRBSOFF, error_on_off=enums.ErrorOnOff.ERRORSOFF))
         await utils.apply(*_list)
 
         # Release the ports
-        await mgmt.release_port(port=port_obj1)
-        await mgmt.release_port(port=port_obj2)
+        await mgmt.release_ports(ports=[port_obj1, port_obj2])
 
 async def main():
     stop_event = asyncio.Event()

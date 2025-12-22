@@ -128,8 +128,7 @@ async def tcp_udp_ipv4_ipv6_config_func(chassis: str, username: str, port_str1: 
     #------------------
     # Port reservation 
     #------------------
-    await mgmt.reserve_port(port_obj_a, reset=True)
-    await mgmt.reserve_port(port_obj_b, reset=True)
+    await mgmt.reserve_ports(ports=[port_obj_a, port_obj_b], reset=True)
 
     #------------------------
     # Read port capabilities

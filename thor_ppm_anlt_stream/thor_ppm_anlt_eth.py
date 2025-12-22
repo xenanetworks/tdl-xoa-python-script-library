@@ -274,37 +274,15 @@ async def thor_ppm_anlt_stream(chassis: str, username: str, duration: int, cool_
 
             # reserve module
             logging.info(f"Reserve Module {mid}")
-            await mgmt.release_module(module=module, should_release_ports=True)
-            await mgmt.reserve_module(module=module, force=True)
+            await mgmt.release_modules(modules=[module], should_release_ports=True)
+            await mgmt.reserve_modules(modules=[module], force=True)
 
             # change module media
             module_config = m_item["media"]
-            
-            resp = await module.media.get()
-            logging.info(f"Module {mid}'s current media: {resp.media_config.name}")
-            if resp.media_config != module_config:
-                logging.info(f"Change Module {mid}'s media to: {module_config.name}")
-                await module.media.set(media_config=module_config)
-                resp = await module.media.get()
-                logging.info(f"Module {mid}'s new media: {resp.media_config.name}")
-            else:
-                logging.info(f"Module {mid}'s media: no change")
-
-            # Change module's port config
-            resp = await module.cfp.config.get()
-            logging.info(f"Module {mid}'s current port count x speed: {resp.portspeed_list}")
             port_count = m_item["port count"]
             port_speed = m_item["port speed"]
             
-            speeds = [port_count]
-            speeds.extend([port_speed]*port_count)
-            if resp.portspeed_list != speeds:
-                logging.info(f"Change Module {mid}'s port count x speed to: {port_count}x{int(port_speed/1000)}G")
-                await module.cfp.config.set(portspeed_list=speeds)
-                resp = await module.cfp.config.get()
-                logging.info(f"Module {mid}'s new port count x speed: {resp.portspeed_list}")
-            else:
-                logging.info(f"Module {mid}'s port count x speed: no change")
+            await mgmt.set_module_config(module=module, media=module_config, port_count=port_count, port_speed=port_speed)
 
             logging.info(f"==================================")
             logging.info(f"{'MODULE CLOCK CONFIG'}")
@@ -334,7 +312,7 @@ async def thor_ppm_anlt_stream(chassis: str, username: str, duration: int, cool_
                 return None # commands which used in this example are not supported by Chimera Module
 
             # reserve module
-            await mgmt.reserve_module(module=module, force=True)
+            await mgmt.reserve_modules(modules=[module], force=True)
 
             for p_item in m_item["ports"]:
                 # access port on the module
@@ -342,14 +320,14 @@ async def thor_ppm_anlt_stream(chassis: str, username: str, duration: int, cool_
                 port = module.ports.obtain(pid)
                 _port_object_list.append(port)
                 
-                await mgmt.reserve_port(port, force=True, reset=True)
+                await mgmt.reserve_ports(ports=[port], force=True, reset=True)
                 
 
                 await asyncio.sleep(5)
 
                 # fec mode = rs-fec
                 fec_mode = p_item["port fec mode"]
-                await port.fec_mode.set(mode=fec_mode)
+                await port.layer1.pcs_fec.fec_mode.set(mode=fec_mode)
                 logging.info(f"Set Port {mid}/{pid} to {fec_mode.name}")
 
                 # loopback mode
@@ -364,14 +342,14 @@ async def thor_ppm_anlt_stream(chassis: str, username: str, duration: int, cool_
                 logging.info(f"{mid}/{pid}: Autoneg: {should_an}, Link Training: {should_lt}")
                 
                 if should_an == True and should_lt == True:
-                    await port.pcs_pma.link_training.settings.set(
+                    await port.layer1.anlt.link_training.settings.set(
                         mode=enums.LinkTrainingMode.START_AFTER_AUTONEG,
                         pam4_frame_size=enums.PAM4FrameSize.P16K_FRAME,
                         nrz_pam4_init_cond=enums.LinkTrainingInitCondition.NO_INIT,
                         nrz_preset=enums.NRZPreset.NRZ_NO_PRESET,
                         timeout_mode=enums.TimeoutMode.DEFAULT
                     )
-                    await port.pcs_pma.auto_neg.settings.set(
+                    await port.layer1.anlt.autoneg.settings.set(
                         mode=enums.AutoNegMode.ANEG_ON, 
                         tec_ability=enums.AutoNegTecAbility.DEFAULT_TECH_MODE, 
                         fec_capable=enums.AutoNegFECOption.DEFAULT_FEC, 
@@ -379,13 +357,13 @@ async def thor_ppm_anlt_stream(chassis: str, username: str, duration: int, cool_
                         pause_mode=enums.PauseMode.NO_PAUSE)
                     
                 elif should_an == False and should_lt == True:
-                    await port.pcs_pma.auto_neg.settings.set(
+                    await port.layer1.anlt.autoneg.settings.set(
                         mode=enums.AutoNegMode.ANEG_OFF, 
                         tec_ability=enums.AutoNegTecAbility.DEFAULT_TECH_MODE, 
                         fec_capable=enums.AutoNegFECOption.DEFAULT_FEC, 
                         fec_requested=enums.AutoNegFECOption.DEFAULT_FEC, 
                         pause_mode=enums.PauseMode.NO_PAUSE)
-                    await port.pcs_pma.link_training.settings.set(
+                    await port.layer1.anlt.link_training.settings.set(
                         mode=enums.LinkTrainingMode.STANDALONE,
                         pam4_frame_size=enums.PAM4FrameSize.P16K_FRAME,
                         nrz_pam4_init_cond=enums.LinkTrainingInitCondition.NO_INIT,
@@ -393,13 +371,13 @@ async def thor_ppm_anlt_stream(chassis: str, username: str, duration: int, cool_
                         timeout_mode=enums.TimeoutMode.DEFAULT
                     )
                 elif should_an == False and should_lt == False:
-                    await port.pcs_pma.auto_neg.settings.set(
+                    await port.layer1.anlt.autoneg.settings.set(
                         mode=enums.AutoNegMode.ANEG_OFF, 
                         tec_ability=enums.AutoNegTecAbility.DEFAULT_TECH_MODE, 
                         fec_capable=enums.AutoNegFECOption.DEFAULT_FEC, 
                         fec_requested=enums.AutoNegFECOption.DEFAULT_FEC, 
                         pause_mode=enums.PauseMode.NO_PAUSE)
-                    await port.pcs_pma.link_training.settings.set(
+                    await port.layer1.anlt.link_training.settings.set(
                         mode=enums.LinkTrainingMode.START_AFTER_AUTONEG,
                         pam4_frame_size=enums.PAM4FrameSize.P16K_FRAME,
                         nrz_pam4_init_cond=enums.LinkTrainingInitCondition.NO_INIT,
@@ -508,7 +486,7 @@ async def thor_ppm_anlt_stream(chassis: str, username: str, duration: int, cool_
             logging.info(f"{'RX BYTES:':<20}{_rx.byte_count_since_cleared}")
 
         for module in _module_object_list:
-            await mgmt.release_module(module=module, should_release_ports=True)
+            await mgmt.release_modules(modules=[module], should_release_ports=True)
         
         logging.info(f"==================================")
         logging.info(f"{'DONE'}")

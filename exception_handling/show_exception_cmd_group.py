@@ -20,8 +20,8 @@ async def my_awesome_script():
     my_port = my_module.ports.obtain(0)
 
     responses = asyncio.gather(
-        my_port.eee.enable.set_off(),
-        my_port.eee.mode.set_off(),
+        my_port.eee.enable.set_off(), # type: ignore
+        my_port.eee.mode.set_off(), # type: ignore
         my_port.capabilities.get(),
         return_exceptions=True
     )

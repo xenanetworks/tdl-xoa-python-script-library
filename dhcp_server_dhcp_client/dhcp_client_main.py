@@ -29,7 +29,7 @@ async def run_dhcp_client_sample():
             raise TypeError(f"Expected a GenericL23Port, got {type(port_obj)}")
 
         # reserve the port
-        await mgmt.reserve_port(port_obj)
+        await mgmt.reserve_ports(ports=[port_obj], reset=True)
     
         dhcp_handler = DhcpClient(port_obj)
         ret_error, address_dict, num_success, num_faliure = await dhcp_handler.get_dhcp_addresses("04:F4:BF:00:00:00", 100, 3, 3000)
@@ -44,7 +44,7 @@ async def run_dhcp_client_sample():
             print(f"{src_mac} -> {dhcp_session.offered_ip_addr}")
         
         # release the port
-        await mgmt.release_port(port_obj)
+        await mgmt.release_ports(ports=[port_obj])
     
 async def main():
     task = asyncio.create_task(run_dhcp_client_sample())

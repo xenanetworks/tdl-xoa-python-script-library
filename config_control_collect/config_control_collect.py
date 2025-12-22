@@ -11,7 +11,7 @@ from xoa_driver import testers
 from xoa_driver import modules
 from xoa_driver import ports
 from xoa_driver import enums
-from xoa_driver.hlfuncs import mgmt, cli
+from xoa_driver.hlfuncs import mgmt, config_io
 import logging
 import csv
 from datetime import datetime
@@ -19,6 +19,7 @@ from time import sleep
 import os
 import json
 import sys
+from typing import Set
 
 # *************************************************************************************
 # function: get_module_and_port_objs
@@ -65,8 +66,8 @@ class XenaConfigControlCollect:
         self.post_traffic_interval: int = 5
         self.resultdir_prefix: str = "results"
         self.stop_event: asyncio.Event = stop_event
-        self.tx_port_obj_set = set()
-        self.rx_port_obj_set = set()
+        self.tx_port_obj_set: Set[ports.GenericL23Port] = set()
+        self.rx_port_obj_set: Set[ports.GenericL23Port] = set()
         self.stream_struct_list = []
         self.stats_data = []
         self.histogram_data = dict()
@@ -153,10 +154,10 @@ class XenaConfigControlCollect:
                         logging.error(f"Failed to get module or port object for port {port_str}")
                         continue
                     logging.info(f"Loading port {port_str} configuration from {xpc_file}")
-                    await mgmt.release_module(module=module_obj)
-                    await mgmt.reserve_port(port=port_obj, force=True, reset=True)
+                    await mgmt.release_modules(modules=[module_obj])
+                    await mgmt.reserve_ports(ports=[port_obj], force=True, reset=True)
                     await asyncio.sleep(1)  # wait for a while after resetting the port
-                    await cli.port_config_from_file(port=port_obj, path=os.path.join(self.config_file_dir, xpc_file))
+                    await config_io.load_port_config(tester=self.chassis_obj, port=port_obj, path=os.path.join(self.config_file_dir, xpc_file))
                     logging.info(f"Port {port_str} configuration loaded")
                     await asyncio.sleep(1)  # wait for a while to let the module/port apply the configuration
         else:
@@ -406,7 +407,7 @@ class XenaConfigControlCollect:
             for rx_port_obj in self.rx_port_obj_set:
                 for histogram_obj in rx_port_obj.datasets:
                     await histogram_obj.enable.set_on()
-                logging.info(f"  Enabled histogram {histogram_obj.idx} on Port {rx_port_obj.kind.module_id}/{rx_port_obj.kind.port_id}")
+                    logging.info(f"  Enabled histogram {histogram_obj.idx} on Port {rx_port_obj.kind.module_id}/{rx_port_obj.kind.port_id}")
 
             # Wait for pre-traffic interval
             await asyncio.sleep(self.pre_traffic_interval)
@@ -433,7 +434,7 @@ class XenaConfigControlCollect:
                 for rx_port_obj in self.rx_port_obj_set:
                     for histogram_obj in rx_port_obj.datasets:
                         await histogram_obj.enable.set_off()
-                    logging.info(f"Disabled histogram {histogram_obj.idx} on Port {rx_port_obj.kind.module_id}/{rx_port_obj.kind.port_id}")
+                        logging.info(f"Disabled histogram {histogram_obj.idx} on Port {rx_port_obj.kind.module_id}/{rx_port_obj.kind.port_id}")
                 await self.save_data()
                 await self.disconnect()
 

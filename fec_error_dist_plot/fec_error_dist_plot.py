@@ -80,28 +80,23 @@ async def pre_fec_error_dist_plot(
         logging.info(f"#####################################################################")
 
         # Access module on the tester
-        _mid = int(module_str)
-        module_obj = tester.modules.obtain(_mid)
-
-        if isinstance(module_obj, modules.E100ChimeraModule):
-            logging.info(f"FEC not supported on E100 Chimera modules")
+        module_objs = mgmt.obtain_modules_by_ids(tester=tester, module_ids=[module_str])
+        module_obj = module_objs[0]
+        
+        if not isinstance(module_obj, (modules.Z100LokiModule, modules.Z400ThorModule, modules.Z800FreyaModule)):
+            logging.info(f"The module must be a L23 module")
+            logging.info(f"Abort")
             return None
         
-        if isinstance(module_obj, modules.Z10OdinModule):
-            logging.info(f"FEC not supported on Z10 Odin modules")
-            return None 
-        
         # reserve all ports on a module
-        port_objs = [x for x in module_obj.ports]
+        port_objs = mgmt.obtain_ports_by_ids(tester=tester, port_ids=[f"{module_str}/*"])
         port_cnt = len(port_objs)
 
         # Forcibly reserve the port
-        await mgmt.release_module(module=module_obj, should_release_ports=False)
-        resp = await module_obj.revision.get()
+        await mgmt.release_modules(modules=[module_obj], should_release_ports=False)
+        resp = await module_obj.revision.get() # type: ignore
         module_module_name = resp.revision
-        for p in port_objs:
-            await mgmt.reserve_port(p)
-
+        await mgmt.reserve_ports(ports=list(port_objs), reset=True)
         await asyncio.sleep(1)
         
         # figure config
@@ -118,7 +113,7 @@ async def pre_fec_error_dist_plot(
         # add subplots
         pre_fec_subplots = []
         for i in range(port_cnt):
-            pre_fec_subplots.append(fig.add_subplot(gs[i%gs.nrows, int(i/gs.nrows)]))
+            pre_fec_subplots.append(fig.add_subplot(gs[i%gs.nrows, int(i/gs.nrows)])) # type: ignore
 
         # set x and y label for each subplot
         for i in range(port_cnt):
@@ -127,12 +122,12 @@ async def pre_fec_error_dist_plot(
         # set FEC mode on
         logging.info(f"Set FEC Mode = {fec_mode.name}")
         for p in port_objs:
-            await p.fec_mode.set(mode=fec_mode)
+            await p.layer1.pcs_fec.fec_mode.set(mode=fec_mode) # type: ignore
 
         # clear FEC counter
         logging.info(f"Clear FEC counter")
         for p in port_objs:
-            await p.pcs_pma.rx.clear.set()
+            await p.layer1.pcs_fec.clear.set() # type: ignore
 
         # query FEC Totals and Pre-FEC Error Distribution
         plot_count = math.ceil(plotting_duration/plotting_interval)
@@ -143,10 +138,9 @@ async def pre_fec_error_dist_plot(
             for i in range(port_cnt):
                 port_obj = port_objs[i]
                 logging.info(f"Port {port_obj.kind.module_id}/{port_obj.kind.port_id}")
-                # await port_obj.pcs_pma.rx.clear.set()
                 _total_status, _fec_status = await utils.apply(
-                    port_obj.pcs_pma.rx.total_status.get(),
-                    port_obj.pcs_pma.rx.fec_status.get()
+                    port_obj.layer1.pcs_fec.fec_symbol_status.total_status.get(), # type: ignore
+                    port_obj.layer1.pcs_fec.fec_symbol_status.fec_status.get() # type: ignore
                 )
                 n = _fec_status.data_count - 2
                 for j in range(n):
@@ -187,7 +181,7 @@ async def pre_fec_error_dist_plot(
             plt.show()
             logging.info(f"Clear FEC counter")
             for p in port_objs:
-                await p.pcs_pma.rx.clear.set()
+                await p.layer1.pcs_fec.clear.set() # type: ignore
             plt.pause(plotting_interval)
             
 

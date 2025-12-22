@@ -15,7 +15,7 @@
 ################################################################
 
 from typing import Any, Awaitable, Callable, TypeVar
-from xoa_driver.hlfuncs import mgmt, cli
+from xoa_driver.hlfuncs import mgmt
 from xoa_driver.misc import Hex
 from xoa_driver import utils
 from xoa_driver import enums
@@ -123,8 +123,8 @@ def main() -> None:
     module = tester.modules.obtain(MODULE_IDX)
 
     # reserve the module
-    xaw(mgmt.release_module(module=module, should_release_ports=True))
-    xaw(mgmt.reserve_module(module=module))
+    xaw(mgmt.release_modules(modules=[module], should_release_ports=True))
+    xaw(mgmt.reserve_modules(modules=[module]))
 
     # exit if module type is Chimera
     if isinstance(module, modules.ModuleChimera):
@@ -138,7 +138,7 @@ def main() -> None:
     print(f"{resp.comment}")
 
     # reserve & reset port
-    xaw(mgmt.reserve_port(port=port, reset=True))
+    xaw(mgmt.reserve_ports(ports=[port], reset=True))
 
     xaw(asyncio.sleep(5))
 
