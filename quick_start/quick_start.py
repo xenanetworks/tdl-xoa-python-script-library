@@ -1,6 +1,6 @@
 ################################################################
 #
-#                   QUICK START
+#                   QUICK START (Traffic Generation)
 #
 # What this script example does:
 # 1. Connect to a tester
@@ -27,6 +27,7 @@ from xoa_driver.hlfuncs import mgmt, headers
 from xoa_driver.misc import Hex
 import ipaddress
 import logging
+from typing import Union
 
 #---------------------------
 # GLOBAL PARAMS
@@ -53,24 +54,27 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
         logging.info(f"{'Connect to chassis:':<20}{chassis}")
         logging.info(f"{'Username:':<20}{username}")
 
-        # Access module index 0 on the tester
-        _mid1 = int(port_str1.split("/")[0])
-        _pid1 = int(port_str1.split("/")[1])
-        _mid2 = int(port_str2.split("/")[0])
-        _pid2 = int(port_str2.split("/")[1])
-        module_obj1 = tester.modules.obtain(_mid1)
-        module_obj2 = tester.modules.obtain(_mid2)
 
-        if isinstance(module_obj1, modules.E100ChimeraModule):
-            return None # commands which used in this example are not supported by Chimera Module
-        if isinstance(module_obj2, modules.E100ChimeraModule):
-            return None # commands which used in this example are not supported by Chimera Module
+        #################################################
+        #           Module Configuration                #
+        #################################################
+        
+        module_obj = mgmt.obtain_modules_by_ids(tester=tester, module_ids=["0"])[0]
+        if not isinstance(module_obj, modules.GenericL23Module):
+            print("This quick start example only supports L23 modules.")
+            return
+        
+        # Configure module to QSFP-DD 800G with 8x100G ports
+        await mgmt.set_module_config(module=module_obj, media=enums.MediaConfigurationType.QSFPDD800, port_count=8, port_speed=100_000, force=True)
 
-        # Get the port on module as TX port
-        tx_port = module_obj1.ports.obtain(_pid1)
+        #################################################
 
-        # Get the port on module as RX port
-        rx_port = module_obj2.ports.obtain(_pid2)
+        # Access ports by their port strings
+        tx_port, rx_port = mgmt.obtain_ports_by_ids(tester=tester, port_ids=[port_str1, port_str2])
+        
+        if not isinstance(tx_port, ports.GenericL23Port) or not isinstance(rx_port, ports.GenericL23Port):
+            print("This quick start example only supports L23 ports.")
+            return
 
         # Forcibly reserve the TX and RX ports and reset them.
         await mgmt.reserve_ports(ports=[tx_port, rx_port], reset=True)
@@ -150,7 +154,7 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
         # Start traffic on the TX port
         await tx_port.traffic.state.set_start()
 
-        # Test duration 10 seconds
+        # Test duration 5 seconds
         await asyncio.sleep(5)
 
         # Stop traffic on the TX port
