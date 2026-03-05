@@ -1,6 +1,5 @@
-from xenaasyncwrapper import XenaAsyncWrapper
 import time
-from xoa_driver.hlfuncs import mgmt
+from xoa_driver.hlfuncs import mgmt, async_wrapper
 from xoa_driver.misc import Hex
 from xoa_driver import utils
 from xoa_driver import enums
@@ -18,7 +17,7 @@ class XOARobot:
 
     @keyword("Connect Chassis")
     def connect_chassis(self, host: str, username: str = "xoa-robot", password: str = "xena", port: int = 22606, enable_logging: bool = False) -> None:
-        self.xaw = XenaAsyncWrapper()
+        self.xaw = async_wrapper.XenaAsyncWrapper()
         # check if it starts to work
         while not self.xaw.is_thread_started():
             time.sleep(0.01)

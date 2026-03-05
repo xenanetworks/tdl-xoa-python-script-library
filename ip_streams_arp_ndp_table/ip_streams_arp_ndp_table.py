@@ -18,7 +18,7 @@ from xoa_driver import (
     exceptions
 )
 from xoa_driver.hlfuncs import mgmt, headers
-from xoa_driver.misc import ArpChunk, NdpChunk, Hex
+from xoa_driver.misc import ArpEntry, NdpEntry, Hex
 import ipaddress
 from binascii import hexlify
 import logging
@@ -49,7 +49,7 @@ L4_PROTO = "tcp" # or "udp"
 #---------------------------
 # prepare_arp_table
 #---------------------------
-def prepare_arp_table(ip_pairs: int, mac_base: str, ip_base: str, prefix: int) -> list[ArpChunk]:
+def prepare_arp_table(ip_pairs: int, mac_base: str, ip_base: str, prefix: int) -> list[ArpEntry]:
     arp_list=[]
     mac_list = []
     for i in range(ip_pairs):
@@ -57,7 +57,7 @@ def prepare_arp_table(ip_pairs: int, mac_base: str, ip_base: str, prefix: int) -
         mac_string = ''.join(mac[j]+mac[j+1] for j in range(0, len(mac), 2))
         mac_list.append(mac_string)
     for i in range(ip_pairs):
-        temp = ArpChunk(
+        temp = ArpEntry(
             ipv4_address=ipaddress.IPv4Address(ip_base) + i,
             prefix=prefix,
             patched_mac=enums.OnOff.OFF,
@@ -69,7 +69,7 @@ def prepare_arp_table(ip_pairs: int, mac_base: str, ip_base: str, prefix: int) -
 #---------------------------
 # prepare_ndp_table
 #---------------------------
-def prepare_ndp_table(ip_pairs: int, mac_base: str, ip_base: str, prefix: int) -> list[NdpChunk]:
+def prepare_ndp_table(ip_pairs: int, mac_base: str, ip_base: str, prefix: int) -> list[NdpEntry]:
     ndp_list=[]
     mac_list = []
     for i in range(ip_pairs):
@@ -77,7 +77,7 @@ def prepare_ndp_table(ip_pairs: int, mac_base: str, ip_base: str, prefix: int) -
         mac_string = ''.join(mac[j]+mac[j+1] for j in range(0, len(mac), 2))
         mac_list.append(mac_string)
     for i in range(ip_pairs):
-        temp = NdpChunk(
+        temp = NdpEntry(
             ipv6_address=ipaddress.IPv6Address(ip_base) + i,
             prefix=prefix,
             patched_mac=enums.OnOff.OFF,
@@ -87,9 +87,9 @@ def prepare_ndp_table(ip_pairs: int, mac_base: str, ip_base: str, prefix: int) -
     return ndp_list
 
 #---------------------------
-# tcp_udp_ipv4_ipv6_config_func
+# ip_streams_arp_ndp_table
 #---------------------------
-async def tcp_udp_ipv4_ipv6_config_func(chassis: str, username: str, port_str1: str, port_str2: str, stream_pair: int, mac_base1: str, mac_base2: str, ipv4_base1: str, ipv4_base2: str, ipv6_base1: str, ipv6_base2: str, pps: int, frame_size: int, limit: int, l3: str, l4: str):
+async def ip_streams_arp_ndp_table(chassis: str, username: str, port_str1: str, port_str2: str, stream_pair: int, mac_base1: str, mac_base2: str, ipv4_base1: str, ipv4_base2: str, ipv6_base1: str, ipv6_base2: str, pps: int, frame_size: int, limit: int, l3: str, l4: str):
     # configure basic logger
     logging.basicConfig(
         format="%(asctime)s  %(message)s",
@@ -159,11 +159,11 @@ async def tcp_udp_ipv4_ipv6_config_func(chassis: str, username: str, port_str1: 
     )
     # set ARP table for Port A
     _arp_list_a = prepare_arp_table(ip_pairs=stream_pair, mac_base=mac_base1, ip_base=ipv4_base1, prefix=24)
-    await port_obj_a.arp_rx_table.set(chunks=_arp_list_a)
+    await port_obj_a.arp_rx_table.set(_arp_list_a)
 
     # set NDP table for Port A
     _ndp_list_a = prepare_ndp_table(ip_pairs=stream_pair, mac_base=mac_base1, ip_base=ipv6_base1, prefix=24)
-    await port_obj_a.ndp_rx_table.set(chunks=_ndp_list_a)
+    await port_obj_a.ndp_rx_table.set(_ndp_list_a)
     
     # Create streams on the port and configure the streams
     logging.info(f"Configure streams A to B")
@@ -282,11 +282,11 @@ async def tcp_udp_ipv4_ipv6_config_func(chassis: str, username: str, port_str1: 
     )
     # set ARP table for Port B
     _arp_list_b = prepare_arp_table(ip_pairs=stream_pair, mac_base=mac_base2, ip_base=ipv4_base2, prefix=24)
-    await port_obj_b.arp_rx_table.set(chunks=_arp_list_b)
+    await port_obj_b.arp_rx_table.set(_arp_list_b)
 
     # set NDP table for Port B
     _ndp_list_b = prepare_ndp_table(ip_pairs=stream_pair, mac_base=mac_base1, ip_base=ipv6_base2, prefix=24)
-    await port_obj_b.ndp_rx_table.set(chunks=_ndp_list_b)
+    await port_obj_b.ndp_rx_table.set(_ndp_list_b)
     
     # Create streams on the port and configure the streams
     logging.info(f"Configure streams B to A")
@@ -394,7 +394,7 @@ async def tcp_udp_ipv4_ipv6_config_func(chassis: str, username: str, port_str1: 
 async def main():
     stop_event =asyncio.Event()
     try:
-        await tcp_udp_ipv4_ipv6_config_func(
+        await ip_streams_arp_ndp_table(
             chassis=CHASSIS_IP,
             username=USERNAME,
             port_str1=PORT_A,

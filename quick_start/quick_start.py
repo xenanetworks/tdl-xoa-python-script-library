@@ -59,7 +59,7 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
         #           Module Configuration                #
         #################################################
         
-        module_obj = mgmt.obtain_modules_by_ids(tester=tester, module_ids=["0"])[0]
+        module_obj = mgmt.obtain_modules_by_ids(tester=tester, module_ids=["0"])
         if not isinstance(module_obj, modules.GenericL23Module):
             print("This quick start example only supports L23 modules.")
             return
@@ -70,7 +70,7 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
         #################################################
 
         # Access ports by their port strings
-        tx_port, rx_port = mgmt.obtain_ports_by_ids(tester=tester, port_ids=[port_str1, port_str2])
+        tx_port, rx_port = await mgmt.obtain_ports_by_ids(tester=tester, port_ids=[port_str1, port_str2])
         
         if not isinstance(tx_port, ports.GenericL23Port) or not isinstance(rx_port, ports.GenericL23Port):
             print("This quick start example only supports L23 ports.")
@@ -88,10 +88,10 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
         await utils.apply(
             tx_port.comment.set(comment="this is tx port"),
             tx_port.interframe_gap.set(min_byte_count=20),
-            tx_port.loop_back.set(mode=enums.LoopbackMode.NONE),
+            tx_port.loopback.set(mode=enums.LoopbackMode.NONE),
             tx_port.tx_config.packet_limit.set(packet_count_limit=1_000_000),
             tx_port.tx_config.enable.set(on_off=enums.OnOff.ON),
-            tx_port.net_config.mac_address.set(mac_address=Hex("BBBBBBBBBBBB")),
+            tx_port.net_config.mac.address.set(mac_address=Hex("BBBBBBBBBBBB")),
             tx_port.net_config.ipv4.address.set(
                 ipv4_address=ipaddress.IPv4Address("10.10.10.10"),
                 subnet_mask=ipaddress.IPv4Address("255.255.255.0"),

@@ -52,7 +52,7 @@ async def dhcp_stream(chassis: str, username: str, port_str: str,):
         await utils.apply(
             port_obj.comment.set(comment="my tx port"),
             port_obj.interframe_gap.set(min_byte_count=20),
-            port_obj.loop_back.set(mode=enums.LoopbackMode.NONE),
+            port_obj.loopback.set(mode=enums.LoopbackMode.NONE),
             port_obj.max_header_length.set(max_header_length=512)
         )
 

@@ -14,7 +14,7 @@ from xoa_driver import ports
 from xoa_driver import enums
 from xoa_driver import utils
 from xoa_driver.hlfuncs import mgmt
-from xoa_driver.misc import Hex, ArpChunk
+from xoa_driver.misc import Hex, ArpEntry
 from ipaddress import IPv4Address, IPv6Address
 from binascii import hexlify
 from xoa_driver.misc import Hex
@@ -59,7 +59,7 @@ async def simple_arp_table(chassis: str, username: str, port_str: str,):
         await port.net_config.ipv4.ping_reply.set_on()
         # Configure ARP table entry list
         arp_table_entry_list=[]
-        arp_table_entry = ArpChunk(
+        arp_table_entry = ArpEntry(
                 ipv4_address=IPv4Address("1.1.1.1"),
                 prefix=24,
                 patched_mac=enums.OnOff.OFF,
@@ -67,7 +67,7 @@ async def simple_arp_table(chassis: str, username: str, port_str: str,):
                 )
         arp_table_entry_list.append(arp_table_entry)
         # set ARP table for Port
-        await port.arp_rx_table.set(chunks=arp_table_entry_list)
+        await port.arp_rx_table.set(entries=arp_table_entry_list)
 
         # release port
         await mgmt.release_ports(ports=[port])

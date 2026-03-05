@@ -79,10 +79,10 @@ async def fec_stats(chassis: str, username: str, port_str: str):
         await asyncio.sleep(5)
 
         # set FEC mode on
-        await port_obj.layer1.pcs_fec.fec_mode.set(mode=enums.FECMode.ON)
+        await port_obj.layer1.pcs.fec_mode.set(mode=enums.FECMode.ON)
 
-        await port_obj.layer1.pcs_fec.clear.set()
-        _fec_status = await port_obj.layer1.pcs_fec.fec_symbol_status.fec_status.get()
+        await port_obj.layer1.pcs.clear.set()
+        _fec_status = await port_obj.layer1.pcs.fec_symbol_status.fec_status.get()
         n = _fec_status.data_count - 2
         field = ["time"]
         for i in range(n):
@@ -103,8 +103,8 @@ async def fec_stats(chassis: str, username: str, port_str: str):
                 dat = []
                 dat.append(time.time())
                 _total_status, _fec_status = await utils.apply(
-                    port_obj.layer1.pcs_fec.fec_symbol_status.total_status.get(),
-                    port_obj.layer1.pcs_fec.fec_symbol_status.fec_status.get()
+                    port_obj.layer1.pcs.fec_symbol_status.total_status.get(),
+                    port_obj.layer1.pcs.fec_symbol_status.fec_status.get()
                 )
                 logging.info(f"{_fec_status.data_count}")
                 logging.info(f"{_fec_status.stats}")

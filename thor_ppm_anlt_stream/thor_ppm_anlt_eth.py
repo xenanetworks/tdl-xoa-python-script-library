@@ -327,11 +327,11 @@ async def thor_ppm_anlt_stream(chassis: str, username: str, duration: int, cool_
 
                 # fec mode = rs-fec
                 fec_mode = p_item["port fec mode"]
-                await port.layer1.pcs_fec.fec_mode.set(mode=fec_mode)
+                await port.layer1.pcs.fec_mode.set(mode=fec_mode)
                 logging.info(f"Set Port {mid}/{pid} to {fec_mode.name}")
 
                 # loopback mode
-                await port.loop_back.set_none()
+                await port.loopback.set_none()
 
                 # ANLT configuration
                 logging.info(f"==================================")
@@ -342,28 +342,29 @@ async def thor_ppm_anlt_stream(chassis: str, username: str, duration: int, cool_
                 logging.info(f"{mid}/{pid}: Autoneg: {should_an}, Link Training: {should_lt}")
                 
                 if should_an == True and should_lt == True:
-                    await port.layer1.anlt.link_training.settings.set(
+                    await port.layer1.anlt.lt.settings.set(
                         mode=enums.LinkTrainingMode.START_AFTER_AUTONEG,
                         pam4_frame_size=enums.PAM4FrameSize.P16K_FRAME,
                         nrz_pam4_init_cond=enums.LinkTrainingInitCondition.NO_INIT,
                         nrz_preset=enums.NRZPreset.NRZ_NO_PRESET,
                         timeout_mode=enums.TimeoutMode.DEFAULT
                     )
-                    await port.layer1.anlt.autoneg.settings.set(
+                    await port.layer1.anlt.an.settings.set(
                         mode=enums.AutoNegMode.ANEG_ON, 
-                        tec_ability=enums.AutoNegTecAbility.DEFAULT_TECH_MODE, 
-                        fec_capable=enums.AutoNegFECOption.DEFAULT_FEC, 
-                        fec_requested=enums.AutoNegFECOption.DEFAULT_FEC, 
-                        pause_mode=enums.PauseMode.NO_PAUSE)
+                        tec_ability=Hex("0x0000000000000000"), 
+                        fec_capable=Hex("0x00"), 
+                        fec_requested=Hex("0x00"),
+                        pause_mode=Hex("0x00")
+                    )
                     
                 elif should_an == False and should_lt == True:
-                    await port.layer1.anlt.autoneg.settings.set(
+                    await port.layer1.anlt.an.settings.set(
                         mode=enums.AutoNegMode.ANEG_OFF, 
-                        tec_ability=enums.AutoNegTecAbility.DEFAULT_TECH_MODE, 
-                        fec_capable=enums.AutoNegFECOption.DEFAULT_FEC, 
-                        fec_requested=enums.AutoNegFECOption.DEFAULT_FEC, 
-                        pause_mode=enums.PauseMode.NO_PAUSE)
-                    await port.layer1.anlt.link_training.settings.set(
+                        tec_ability=Hex("0x0000000000000000"), 
+                        fec_capable=Hex("0x00"), 
+                        fec_requested=Hex("0x00"), 
+                        pause_mode=Hex("0x00"))
+                    await port.layer1.anlt.lt.settings.set(
                         mode=enums.LinkTrainingMode.STANDALONE,
                         pam4_frame_size=enums.PAM4FrameSize.P16K_FRAME,
                         nrz_pam4_init_cond=enums.LinkTrainingInitCondition.NO_INIT,
@@ -371,13 +372,13 @@ async def thor_ppm_anlt_stream(chassis: str, username: str, duration: int, cool_
                         timeout_mode=enums.TimeoutMode.DEFAULT
                     )
                 elif should_an == False and should_lt == False:
-                    await port.layer1.anlt.autoneg.settings.set(
+                    await port.layer1.anlt.an.settings.set(
                         mode=enums.AutoNegMode.ANEG_OFF, 
-                        tec_ability=enums.AutoNegTecAbility.DEFAULT_TECH_MODE, 
-                        fec_capable=enums.AutoNegFECOption.DEFAULT_FEC, 
-                        fec_requested=enums.AutoNegFECOption.DEFAULT_FEC, 
-                        pause_mode=enums.PauseMode.NO_PAUSE)
-                    await port.layer1.anlt.link_training.settings.set(
+                        tec_ability=Hex("0x0000000000000000"), 
+                        fec_capable=Hex("0x00"), 
+                        fec_requested=Hex("0x00"), 
+                        pause_mode=Hex("0x00"))
+                    await port.layer1.anlt.lt.settings.set(
                         mode=enums.LinkTrainingMode.START_AFTER_AUTONEG,
                         pam4_frame_size=enums.PAM4FrameSize.P16K_FRAME,
                         nrz_pam4_init_cond=enums.LinkTrainingInitCondition.NO_INIT,

@@ -13,7 +13,7 @@ global_port_id      = 3
         
 def dhcp_config() -> DHCPServerConfiguration:
     configuration = DHCPServerConfiguration()
-    configuration.debug = print
+    configuration.debug = lambda msg: print(msg) # type: ignore
     configuration.network = '192.168.0.0'
     configuration.broadcast_address = '192.168.255.255'
     configuration.subnet_mask = '255.255.0.0'

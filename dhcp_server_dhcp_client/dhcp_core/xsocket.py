@@ -22,7 +22,7 @@ class XSocket:
         
     async def start(self)-> Error:
         # reserve the port
-        await mgmt.reserve_port(self.port)
+        await mgmt.reserve_ports([self.port])
         await self.port.capturer.state.set(enums.StartOrStop.STOP) # type: ignore
         
         # set a filter

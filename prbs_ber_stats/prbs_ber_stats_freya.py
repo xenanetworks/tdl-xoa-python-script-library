@@ -109,7 +109,7 @@ async def prbs_ber_stats(chassis: str, username: str, port_str1: str, port_str2:
         await asyncio.sleep(2.0)
 
         # clear counters on the Rx port
-        await port_obj2.layer1.pcs_fec.clear.set()
+        await port_obj2.layer1.pcs.clear.set()
 
         # Sample PRBS status counter on the other port every second for 20 secs.
         _count = 0

@@ -89,7 +89,7 @@ async def l1_bit_rate(chassis: str, username: str, tx_port_str: str, rx_port_str
         await utils.apply(
             tx_port.comment.set(comment="my tx port"),
             tx_port.interframe_gap.set(min_byte_count=20),
-            tx_port.loop_back.set(mode=enums.LoopbackMode.NONE),
+            tx_port.loopback.set(mode=enums.LoopbackMode.NONE),
         )
 
         # Create a stream on the tx port
@@ -111,7 +111,7 @@ async def l1_bit_rate(chassis: str, username: str, tx_port_str: str, rx_port_str
         await utils.apply(
             rx_port.comment.set(comment="my rx port"),
             rx_port.interframe_gap.set(min_byte_count=20),
-            tx_port.loop_back.set(mode=enums.LoopbackMode.NONE),
+            rx_port.loopback.set(mode=enums.LoopbackMode.NONE),
         )
 
         # Batch clear statistics

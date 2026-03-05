@@ -83,7 +83,7 @@ async def pfc(chassis: str, username: str, port_str: str, prio: int, quanta: int
         
         await asyncio.sleep(1)
 
-        resp = await port_obj.net_config.mac_address.get()
+        resp = await port_obj.net_config.mac.address.get()
         port_macaddress = resp.mac_address
 
         # get the port speed

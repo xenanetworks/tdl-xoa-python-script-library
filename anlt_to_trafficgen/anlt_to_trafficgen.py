@@ -77,13 +77,13 @@ async def anlt_to_trafficgen(
         # Configure AN_LT
         logging.info(f"Configuring AN/LT on port {port_obj.kind.module_id}/{port_obj.kind.port_id}")
         # Enable autorestart when link down or LT failed
-        await port_obj.layer1.anlt.autorestart.set(values=[enums.FreyaAutorestartMode.WHEN_LINK_DOWN_LT_FAILED])
+        await port_obj.layer1.anlt.set_autorestart(restart_link_down=True, restart_lt_failure=True)
         logging.info(f"  Enable autorestart when link down or LT failed")
         # Disallow AN if in loopback
-        await port_obj.layer1.anlt.allow_an_loopback.set(values=[enums.OnOff.OFF])
+        await port_obj.layer1.anlt.an.set_allow_loopback(allow=True)
         logging.info(f"  Disallow AN if in loopback")
         # Disable Empty NP for Autoneg
-        await port_obj.layer1.anlt.send_empty_np.set(values=[enums.OnOff.OFF])
+        await port_obj.layer1.anlt.an.set_empty_np(enable=True)
         logging.info(f"  Disable Empty NP for Autoneg")
         # Enable LT timeout & out-of-sync preset to IEEE
         await port_obj.layer1.anlt.lt_config.set(oos_preset=enums.FreyaOutOfSyncPreset.IEEE, timeout_mode=enums.TimeoutMode.DEFAULT)
@@ -98,7 +98,11 @@ async def anlt_to_trafficgen(
         resp = await port_obj.layer1.anlt.an.abilities.get()
         _supported_pause = resp.pause_modes_supported
         # Configure AUTONEG advertised technology abilities
-        await port_obj.layer1.anlt.an.config.set(advertised_tech_abilities=_supported_ta, advertised_fec_abilities=_supported_fec, advertised_pause_mode=_supported_pause)
+        await port_obj.layer1.anlt.an.advertise.set(
+            tech_abilities=_supported_ta,
+            fec_abilities=_supported_fec,
+            pause_mode=_supported_pause
+        )
         logging.info(f"  Configure AUTONEG advertised technology abilities, FEC capabilities and PAUSE modes")
 
         # Start AN_LT on all serdes
@@ -110,7 +114,7 @@ async def anlt_to_trafficgen(
         _interval = 0.1
         _max_timeout = 20
         while True:
-            resp = await port_obj.layer1.anlt.an.status.get()
+            resp = await port_obj.layer1.anlt.an.results.get()
             if resp.autoneg_state == enums.AutoNegStatus.AN_GOOD:
                 logging.info(f"AN_GOOD detected after {_timeout*_interval} seconds")
                 break
@@ -128,7 +132,7 @@ async def anlt_to_trafficgen(
         _max_timeout = 50
         _tokens = []
         for i in range(_serdes_cnt):
-            _tokens.append(port_obj.layer1.serdes[i].lt.status.get())
+            _tokens.append(port_obj.layer1.serdes[i].lt.results.get())
         while True:
             resps = await utils.apply(*_tokens)
             _lt_status = [resp.status for resp in resps]

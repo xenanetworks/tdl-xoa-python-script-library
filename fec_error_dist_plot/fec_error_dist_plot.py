@@ -80,7 +80,7 @@ async def pre_fec_error_dist_plot(
         logging.info(f"#####################################################################")
 
         # Access module on the tester
-        module_objs = mgmt.obtain_modules_by_ids(tester=tester, module_ids=[module_str])
+        module_objs = await mgmt.obtain_modules_by_ids(tester=tester, module_ids=[module_str])
         module_obj = module_objs[0]
         
         if not isinstance(module_obj, (modules.Z100LokiModule, modules.Z400ThorModule, modules.Z800FreyaModule)):
@@ -89,7 +89,7 @@ async def pre_fec_error_dist_plot(
             return None
         
         # reserve all ports on a module
-        port_objs = mgmt.obtain_ports_by_ids(tester=tester, port_ids=[f"{module_str}/*"])
+        port_objs = await mgmt.obtain_ports_by_ids(tester=tester, port_ids=[f"{module_str}/*"])
         port_cnt = len(port_objs)
 
         # Forcibly reserve the port
