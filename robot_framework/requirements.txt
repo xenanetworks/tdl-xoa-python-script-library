@@ -1,2 +1,2 @@
 robotframework
-tdl-xoa-driver>=1.3.0
+tdl-xoa-driver>=1.7.6

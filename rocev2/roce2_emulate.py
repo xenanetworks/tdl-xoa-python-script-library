@@ -96,8 +96,8 @@ class XenaRoCEv2Emulator:
             port_obj = module_obj.ports.obtain(_pid)
 
             # reserve ports
-            await mgmt.release_module(module_obj)
-            await mgmt.reserve_port(port_obj, reset=True)
+            await mgmt.release_modules(modules=[module_obj], should_release_ports=True)
+            await mgmt.reserve_ports(ports=[port_obj], reset=True)
             
 
             await asyncio.sleep(delay_after_reset)
@@ -110,8 +110,8 @@ class XenaRoCEv2Emulator:
                 port_obj.latency_config.mode.set(mode=enums.LatencyMode.LAST2LAST),
                 port_obj.tx_config.burst_period.set(burst_period=0),
                 port_obj.max_header_length.set(max_header_length=128),
-                port_obj.autotrain.set(interval=0),
-                port_obj.loop_back.set_none(), # If you want loopback the port TX to its own RX, change it to set_txoff2rx()
+                port_obj.net_config.mac.autotrain.set(interval=0),
+                port_obj.loopback.set_none(), # If you want loopback the port TX to its own RX, change it to set_txoff2rx()
                 port_obj.checksum.set(offset=0),
                 port_obj.tx_config.delay.set(delay_val=0),
                 port_obj.tpld_mode.set_normal(),
@@ -201,7 +201,7 @@ class XenaRoCEv2Emulator:
             await port_obj.transceiver.access_rw(page_address=2000, register_address=0xf0036).set(value=Hex("00000001"))
 
             # free the port
-            await mgmt.release_port(port_obj)
+            await mgmt.release_ports(ports=[port_obj])
             logging.info(f"Configuration complete")
 
     @staticmethod
@@ -250,8 +250,8 @@ class XenaRoCEv2Emulator:
             port_obj = module_obj.ports.obtain(_pid)
 
             # reserve ports
-            await mgmt.release_module(module_obj)
-            await mgmt.reserve_port(port_obj, reset=True)
+            await mgmt.release_modules(modules=[module_obj], should_release_ports=True)
+            await mgmt.reserve_ports(ports=[port_obj], reset=True)
             
 
             await asyncio.sleep(delay_after_reset)
@@ -264,8 +264,8 @@ class XenaRoCEv2Emulator:
                 port_obj.latency_config.mode.set(mode=enums.LatencyMode.LAST2LAST),
                 port_obj.tx_config.burst_period.set(burst_period=0),
                 port_obj.max_header_length.set(max_header_length=128),
-                port_obj.autotrain.set(interval=0),
-                port_obj.loop_back.set_none(), # If you want loopback the port TX to its own RX, change it to set_txoff2rx()
+                port_obj.net_config.mac.autotrain.set(interval=0),
+                port_obj.loopback.set_none(), # If you want loopback the port TX to its own RX, change it to set_txoff2rx()
                 port_obj.checksum.set(offset=0),
                 port_obj.tx_config.delay.set(delay_val=0),
                 port_obj.tpld_mode.set_normal(),
@@ -341,7 +341,7 @@ class XenaRoCEv2Emulator:
             await modifier.range.set(min_val=1, step=1, max_val=frames_per_flow)
 
             # free the port
-            await mgmt.release_port(port_obj)
+            await mgmt.release_ports(ports=[port_obj])
             logging.info(f"Configuration complete")
 
 

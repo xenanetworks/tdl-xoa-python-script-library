@@ -1,6 +1,5 @@
-from xenaasyncwrapper import XenaAsyncWrapper
 import time
-from xoa_driver.hlfuncs import mgmt, cli
+from xoa_driver.hlfuncs import mgmt, async_wrapper
 from xoa_driver.misc import Hex
 from xoa_driver import utils
 from xoa_driver import enums
@@ -18,7 +17,7 @@ class XOARobot:
 
     @keyword("Connect Chassis")
     def connect_chassis(self, host: str, username: str = "xoa-robot", password: str = "xena", port: int = 22606, enable_logging: bool = False) -> None:
-        self.xaw = XenaAsyncWrapper()
+        self.xaw = async_wrapper.XenaAsyncWrapper()
         # check if it starts to work
         while not self.xaw.is_thread_started():
             time.sleep(0.01)
@@ -27,7 +26,7 @@ class XOARobot:
     @keyword("Reserve Chassis")
     def reserve_chassis(self):
         for m in self.tester.modules:
-            self.xaw(mgmt.release_module(module=m, should_release_ports=True))
+            self.xaw(mgmt.release_modules(modules=[m], should_release_ports=True))
         self.xaw(mgmt.reserve_tester(tester=self.tester))
 
     @keyword("Disconnect Chassis")
@@ -40,14 +39,14 @@ class XOARobot:
         _mid = int(port_id.split("/")[0])
         module = self.tester.modules.obtain(_mid)
         for p in module.ports:
-            self.xaw(mgmt.release_port(port=p))
-        self.xaw(mgmt.reserve_module(module=module))
+            self.xaw(mgmt.release_ports(ports=[p]))
+        self.xaw(mgmt.reserve_modules(modules=[module]))
     
     @keyword("Release Module")
     def release_module(self, port_id: str):
         _mid = int(port_id.split("/")[0])
         module = self.tester.modules.obtain(_mid)
-        self.xaw(mgmt.release_module(module=module))
+        self.xaw(mgmt.release_modules(modules=[module]))
 
     @keyword("Reserve Port")
     def reserve_port(self, port_id: str):
@@ -55,18 +54,18 @@ class XOARobot:
         _pid = int(port_id.split("/")[1])
         module = self.tester.modules.obtain(_mid)
         self.xaw(mgmt.release_tester(tester=self.tester))
-        self.xaw(mgmt.release_module(module=module))
+        self.xaw(mgmt.release_modules(modules=[module]))
         port = module.ports.obtain(_pid)
-        self.xaw(mgmt.reserve_port(port=port))
+        self.xaw(mgmt.reserve_ports(ports=[port]))
 
     @keyword("Reset Port")
     def reset_port(self, port_id: str):
         _mid = int(port_id.split("/")[0])
         _pid = int(port_id.split("/")[1])
         module = self.tester.modules.obtain(_mid)
-        self.xaw(mgmt.release_module(module=module, should_release_ports=True))
+        self.xaw(mgmt.release_modules(modules=[module], should_release_ports=True))
         port = module.ports.obtain(_pid)
-        self.xaw(mgmt.reset_port(port=port))
+        self.xaw(mgmt.reset_ports(ports=[port]))
 
     @keyword("Release Port")
     def release_port(self, port_id: str):
@@ -74,7 +73,7 @@ class XOARobot:
         _pid = int(port_id.split("/")[1])
         module = self.tester.modules.obtain(_mid)
         port = module.ports.obtain(_pid)
-        self.xaw(mgmt.release_port(port=port))
+        self.xaw(mgmt.release_ports(ports=[port]))
 
     @keyword("Get Port Description")
     def get_port_description(self, port_id: str) -> str:

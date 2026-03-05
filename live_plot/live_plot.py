@@ -70,8 +70,8 @@ async def live_plot(chassis: str, username: str, port_str: str, filter_idx: int,
         port_obj = module_obj.ports.obtain(_pid)
 
         # Forcibly reserve the port and reset it.
-        await mgmt.release_module(module=module_obj, should_release_ports=False)
-        await mgmt.reserve_port(port_obj, reset=True)
+        await mgmt.release_modules(modules=[module_obj], should_release_ports=False)
+        await mgmt.reserve_ports(ports=[port_obj], reset=True)
 
         # Sync the filters from chassis to script
         await asyncio.sleep(1)
@@ -99,7 +99,7 @@ async def live_plot(chassis: str, username: str, port_str: str, filter_idx: int,
             # Read the filtered traffic stats - packet count since cleared
             resp = await port_obj.statistics.rx.obtain_filter_statistics(filter=filter_idx).get()
             y = resp.packet_count_since_cleared
-            data.append((x, y))
+            data.append((x, y)) # type: ignore
             ax.relim()
             ax.autoscale_view()
             line.set_data(*zip(*data))

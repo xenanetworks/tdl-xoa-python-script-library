@@ -43,7 +43,7 @@ async def dhcp_stream(chassis: str, username: str, port_str: str,):
         # Get the port object on module
         port_obj = module_obj.ports.obtain(_pid1)
 
-        await mgmt.reserve_port(port_obj, reset=True)
+        await mgmt.reserve_ports(ports=[port_obj], reset=True)
         
 
         await asyncio.sleep(2)
@@ -52,7 +52,7 @@ async def dhcp_stream(chassis: str, username: str, port_str: str,):
         await utils.apply(
             port_obj.comment.set(comment="my tx port"),
             port_obj.interframe_gap.set(min_byte_count=20),
-            port_obj.loop_back.set(mode=enums.LoopbackMode.NONE),
+            port_obj.loopback.set(mode=enums.LoopbackMode.NONE),
             port_obj.max_header_length.set(max_header_length=512)
         )
 

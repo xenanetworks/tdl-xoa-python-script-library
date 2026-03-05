@@ -1,6 +1,6 @@
 ################################################################
 #
-#                   QUICK START
+#                   QUICK START (Traffic Generation)
 #
 # What this script example does:
 # 1. Connect to a tester
@@ -27,6 +27,7 @@ from xoa_driver.hlfuncs import mgmt, headers
 from xoa_driver.misc import Hex
 import ipaddress
 import logging
+from typing import Union
 
 #---------------------------
 # GLOBAL PARAMS
@@ -53,33 +54,31 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
         logging.info(f"{'Connect to chassis:':<20}{chassis}")
         logging.info(f"{'Username:':<20}{username}")
 
-        # Access module index 0 on the tester
-        _mid1 = int(port_str1.split("/")[0])
-        _pid1 = int(port_str1.split("/")[1])
-        _mid2 = int(port_str2.split("/")[0])
-        _pid2 = int(port_str2.split("/")[1])
-        module_obj1 = tester.modules.obtain(_mid1)
-        module_obj2 = tester.modules.obtain(_mid2)
 
-        if isinstance(module_obj1, modules.E100ChimeraModule):
-            return None # commands which used in this example are not supported by Chimera Module
-        if isinstance(module_obj2, modules.E100ChimeraModule):
-            return None # commands which used in this example are not supported by Chimera Module
-
-        # Get the port on module as TX port
-        tx_port = module_obj1.ports.obtain(_pid1)
-
-        # Get the port on module as RX port
-        rx_port = module_obj2.ports.obtain(_pid2)
-
-        # Forcibly reserve the TX port and reset it.
-        await mgmt.reserve_port(tx_port, reset=True)
+        #################################################
+        #           Module Configuration                #
+        #################################################
         
-
-        # Forcibly reserve the TX port and reset it.
-        await mgmt.reserve_port(rx_port, reset=True)
+        module_obj = mgmt.obtain_modules_by_ids(tester=tester, module_ids=["0"])
+        if not isinstance(module_obj, modules.GenericL23Module):
+            print("This quick start example only supports L23 modules.")
+            return
         
+        # Configure module to QSFP-DD 800G with 8x100G ports
+        await mgmt.set_module_config(module=module_obj, media=enums.MediaConfigurationType.QSFPDD800, port_count=8, port_speed=100_000, force=True)
 
+        #################################################
+
+        # Access ports by their port strings
+        tx_port, rx_port = await mgmt.obtain_ports_by_ids(tester=tester, port_ids=[port_str1, port_str2])
+        
+        if not isinstance(tx_port, ports.GenericL23Port) or not isinstance(rx_port, ports.GenericL23Port):
+            print("This quick start example only supports L23 ports.")
+            return
+
+        # Forcibly reserve the TX and RX ports and reset them.
+        await mgmt.reserve_ports(ports=[tx_port, rx_port], reset=True)
+        
         await asyncio.sleep(5)
 
         #################################################
@@ -89,10 +88,10 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
         await utils.apply(
             tx_port.comment.set(comment="this is tx port"),
             tx_port.interframe_gap.set(min_byte_count=20),
-            tx_port.loop_back.set(mode=enums.LoopbackMode.NONE),
+            tx_port.loopback.set(mode=enums.LoopbackMode.NONE),
             tx_port.tx_config.packet_limit.set(packet_count_limit=1_000_000),
             tx_port.tx_config.enable.set(on_off=enums.OnOff.ON),
-            tx_port.net_config.mac_address.set(mac_address=Hex("BBBBBBBBBBBB")),
+            tx_port.net_config.mac.address.set(mac_address=Hex("BBBBBBBBBBBB")),
             tx_port.net_config.ipv4.address.set(
                 ipv4_address=ipaddress.IPv4Address("10.10.10.10"),
                 subnet_mask=ipaddress.IPv4Address("255.255.255.0"),
@@ -155,7 +154,7 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
         # Start traffic on the TX port
         await tx_port.traffic.state.set_start()
 
-        # Test duration 10 seconds
+        # Test duration 5 seconds
         await asyncio.sleep(5)
 
         # Stop traffic on the TX port
@@ -221,19 +220,19 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
         logging.info(f"TPLD {tpld_id} RX min jitter: {rx_jitter.min_val}")
         logging.info(f"TPLD {tpld_id} RX max jitter: {rx_jitter.max_val}")
         logging.info(f"TPLD {tpld_id} RX avg jitter: {rx_jitter.avg_val}")
-        logging.info(f"TPLD {tpld_id} RX Lost Packets: {rx_error.non_incre_seq_event_count}")
-        logging.info(f"TPLD {tpld_id} RX Misordered: {rx_error.swapped_seq_misorder_event_count}")
-        logging.info(f"TPLD {tpld_id} RX Payload Errors: {rx_error.non_incre_payload_packet_count}")
+        logging.info(f"TPLD {tpld_id} RX Lost Packets: {rx_error.packet_loss_by_seq}")
+        logging.info(f"TPLD {tpld_id} RX Misordered: {rx_error.misorder_by_seq}")
+        logging.info(f"TPLD {tpld_id} RX Payload Errors: {rx_error.payload_err_packets}")
 
 
         # Stream errors of TPLD 0
         rx_stats_obj = rx_port.statistics.rx.access_tpld(0)
         errors = await rx_stats_obj.errors.get()
-        lost_packet = errors.non_incre_seq_event_count
+        lost_packet = errors.packet_loss_by_seq
         logging.info(lost_packet) # This is called Lost Packets on the UI
-        misordered_pkts = errors.swapped_seq_misorder_event_count
+        misordered_pkts = errors.misorder_by_seq
         logging.info(misordered_pkts) # This is called Misordered on the UI
-        payload_errors = errors.non_incre_payload_packet_count
+        payload_errors = errors.payload_err_packets
         logging.info(payload_errors) # This is called Payload Errors on the UI
 
 

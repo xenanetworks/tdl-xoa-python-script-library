@@ -248,7 +248,7 @@ class DHCPServer(object):
         return mac_address
 
     async def run(self):
-        ret = await self.port.net_config.mac_address.get()
+        ret = await self.port.net_config.mac.address.get()
         self.port_mac_address = DHCPServer.hex_to_mac_address(ret.mac_address)
         await self.__xsocket.start()
         
