@@ -69,7 +69,7 @@ async def build_tcp_stream(chassis: str, username: str, port_str: str, should_bu
         logging.info(f"#---------------------------")
         logging.info(f"# Port reservation")
         logging.info(f"#---------------------------")
-        await mgmt.reserve_port(port_obj, reset=True)
+        await mgmt.reserve_ports(ports=[port_obj], reset=True)
     
         #---------------------------
         # Start port configuration

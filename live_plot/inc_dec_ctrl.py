@@ -115,10 +115,8 @@ async def inc_dec_ctrl(
         tx_port_obj_2 = tx_module_obj_2.ports.obtain(_pid_tx_2)
 
         # Forcibly reserve the port
-        await mgmt.release_module(module=tx_module_obj_1, should_release_ports=False)
-        await mgmt.reserve_port(tx_port_obj_1)
-        await mgmt.release_module(module=tx_module_obj_2, should_release_ports=False)
-        await mgmt.reserve_port(tx_port_obj_2)
+        await mgmt.release_modules(modules=[tx_module_obj_1, tx_module_obj_2], should_release_ports=False)
+        await mgmt.reserve_ports(ports=[tx_port_obj_1, tx_port_obj_2])
 
         await tx_port_obj_1.traffic.state.set_stop()
         await tx_port_obj_2.traffic.state.set_stop()

@@ -60,7 +60,7 @@ async def chassis_uptime(chassis: str, username: str, csv_filename: str):
                 dat = []
                 _time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 dat.append(_time_str)
-                resp = await mgmt.get_chassis_sys_uptime_sec(tester)
+                resp = await mgmt.get_chassis_sys_uptime(tester)
                 dat.append(resp)
                 writer.writerow(dat)
                 logging.info(f"sys uptime = {resp}")

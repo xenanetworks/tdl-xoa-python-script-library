@@ -13,7 +13,7 @@ global_port_id      = 3
         
 def dhcp_config() -> DHCPServerConfiguration:
     configuration = DHCPServerConfiguration()
-    configuration.debug = print
+    configuration.debug = lambda msg: print(msg) # type: ignore
     configuration.network = '192.168.0.0'
     configuration.broadcast_address = '192.168.255.255'
     configuration.subnet_mask = '255.255.0.0'
@@ -37,7 +37,7 @@ async def run_dhcp_server_service():
         port_obj = module_obj.ports.obtain(global_port_id)
 
         # reserve the port
-        await mgmt.reserve_port(port_obj)
+        await mgmt.reserve_ports(ports=[port_obj], reset=True)
 
         if isinstance(port_obj, ports.E100ChimeraPort):
             raise TypeError(f"Expected a GenericL23Port, got {type(port_obj)}")

@@ -61,7 +61,7 @@ async def freya_tx_tune(
         # Get the port
         port_obj = module_obj.ports.obtain(_pid)
 
-        await mgmt.reserve_port(port_obj, reset=True)
+        await mgmt.reserve_ports(ports=[port_obj], reset=True)
         
 
         # Read serdes lane count from port
@@ -74,42 +74,41 @@ async def freya_tx_tune(
 
         # set using NATIVE
         logging.info(f"Write (native): pre3=0, pre2=0, pre=3, main=42, post=0")
-        await port_obj.l1.serdes[serdes_id].medium.tx.native.set(pre3=0, pre2=0, pre=3, main=42, post=3)
+        await port_obj.layer1.serdes[serdes_id].medium.tx.native.set(tap_values=[0, 0, 3, 42, 3])
 
         # get using NATIVE, LEVEL, and IEEE
-        resp = await port_obj.l1.serdes[serdes_id].medium.tx.native.get()
-        logging.info(f"Read (native):  pre3 = {resp.pre3}, pre2 = {resp.pre2}, pre = {resp.pre}, main = {resp.main}, post = {resp.post}")
-        resp = await port_obj.l1.serdes[serdes_id].medium.tx.level.get()
-        logging.info(f"Read (level):  pre3 = {resp.pre3/10}dB, pre2 = {resp.pre2/10}dB, pre = {resp.pre/10}dB, main = {resp.main}mV, post = {resp.post/10}dB")
-        resp = await port_obj.l1.serdes[serdes_id].medium.tx.ieee.get()
-        logging.info(f"Read (IEEE):  pre3 = {resp.pre3/1000}, pre2 = {resp.pre2/1000}, pre = {resp.pre/1000}, main = {resp.main/1000}, post = {resp.post/1000}")
+        resp = await port_obj.layer1.serdes[serdes_id].medium.tx.native.get()
+        logging.info(f"Read (native):  {resp.tap_values}")
+        resp = await port_obj.layer1.serdes[serdes_id].medium.tx.level.get()
+        logging.info(f"Read (level):  {resp.tap_values}")
+        resp = await port_obj.layer1.serdes[serdes_id].medium.tx.ieee.get()
+        logging.info(f"Read (IEEE):  {resp.tap_values}")
 
         # set using LEVEL
         logging.info(f"Write (level): pre3=0.0 dB, pre2=0.0 dB, pre=1.2 dB, main=483 mV, post=0.0 dB")
-        await port_obj.l1.serdes[serdes_id].medium.tx.level.set(pre3=0, pre2=0, pre=12, main=483, post=0)
+        await port_obj.layer1.serdes[serdes_id].medium.tx.level.set(tap_values=[0, 0, 12, 483, 0])
 
         # get using NATIVE, LEVEL, and IEEE
-        resp = await port_obj.l1.serdes[serdes_id].medium.tx.native.get()
-        logging.info(f"Read (native):  pre3 = {resp.pre3}, pre2 = {resp.pre2}, pre = {resp.pre}, main = {resp.main}, post = {resp.post}")
-        resp = await port_obj.l1.serdes[serdes_id].medium.tx.level.get()
-        logging.info(f"Read (level):  pre3 = {resp.pre3/10}dB, pre2 = {resp.pre2/10}dB, pre = {resp.pre/10}dB, main = {resp.main}mV, post = {resp.post/10}dB")
-        resp = await port_obj.l1.serdes[serdes_id].medium.tx.ieee.get()
-        logging.info(f"Read (IEEE):  pre3 = {resp.pre3/1000}, pre2 = {resp.pre2/1000}, pre = {resp.pre/1000}, main = {resp.main/1000}, post = {resp.post/1000}")
+        resp = await port_obj.layer1.serdes[serdes_id].medium.tx.native.get()
+        logging.info(f"Read (native):  {resp.tap_values}")
+        resp = await port_obj.layer1.serdes[serdes_id].medium.tx.level.get()
+        logging.info(f"Read (level):  {resp.tap_values}")
+        resp = await port_obj.layer1.serdes[serdes_id].medium.tx.ieee.get()
+        logging.info(f"Read (IEEE):  {resp.tap_values}")
 
         # set using IEEE
         logging.info(f"Write (level): pre3=0.0, pre2=0.0, pre=-0.034, main=0.483, post=0")
-        await port_obj.l1.serdes[serdes_id].medium.tx.ieee.set(pre3=0, pre2=0, pre=-34, main=483, post=0)
+        await port_obj.layer1.serdes[serdes_id].medium.tx.ieee.set(tap_values=[0, 0, -34, 483, 0])
 
         # get using NATIVE, LEVEL, and IEEE
-        resp = await port_obj.l1.serdes[serdes_id].medium.tx.native.get()
-        logging.info(f"Read (native):  pre3 = {resp.pre3}, pre2 = {resp.pre2}, pre = {resp.pre}, main = {resp.main}, post = {resp.post}")
-        resp = await port_obj.l1.serdes[serdes_id].medium.tx.level.get()
-        logging.info(f"Read (level):  pre3 = {resp.pre3/10}dB, pre2 = {resp.pre2/10}dB, pre = {resp.pre/10}dB, main = {resp.main}mV, post = {resp.post/10}dB")
-        resp = await port_obj.l1.serdes[serdes_id].medium.tx.ieee.get()
-        logging.info(f"Read (IEEE):  pre3 = {resp.pre3/1000}, pre2 = {resp.pre2/1000}, pre = {resp.pre/1000}, main = {resp.main/1000}, post = {resp.post/1000}")
-
+        resp = await port_obj.layer1.serdes[serdes_id].medium.tx.native.get()
+        logging.info(f"Read (native):  {resp.tap_values}")
+        resp = await port_obj.layer1.serdes[serdes_id].medium.tx.level.get()
+        logging.info(f"Read (level):  {resp.tap_values}")
+        resp = await port_obj.layer1.serdes[serdes_id].medium.tx.ieee.get()
+        logging.info(f"Read (IEEE):  {resp.tap_values}")
         # release the port
-        await mgmt.release_port(port_obj)
+        await mgmt.release_ports(ports=[port_obj])
 
 
 async def main():
