@@ -164,11 +164,11 @@ async def pause(chassis: str, username: str, port_str: str, quanta: int, target_
         port_obj = module_obj.ports.obtain(pid)
 
         # Forcibly reserve the port
-        await mgmt.reserve_port(port_obj, reset=True)
+        await mgmt.reserve_ports([port_obj], reset=True)
         
         await asyncio.sleep(1)
 
-        resp = await port_obj.net_config.mac_address.get()
+        resp = await port_obj.net_config.mac.address.get()
         port_macaddress = resp.mac_address
 
         # get the port speed
@@ -191,7 +191,7 @@ async def pause(chassis: str, username: str, port_str: str, quanta: int, target_
         await stream_obj.enable.set_on()
 
         # Release the port
-        await mgmt.release_port(port_obj)
+        await mgmt.release_ports([port_obj])
 
 #---------------------------
 # helpers
