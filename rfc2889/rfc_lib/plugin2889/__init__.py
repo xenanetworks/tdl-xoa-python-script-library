@@ -1,3 +1,4 @@
+import asyncio
 import hashlib
 import traceback
 from pathlib import Path
@@ -20,6 +21,15 @@ from plugin2889.plugin.test_address_learning_rate import AddressLearningRateTest
 from plugin2889.plugin.test_errored_frames_filtering import ErroredFramesFilteringTest
 from plugin2889.plugin.test_broadcast_forwarding import BroadcastForwardingTest
 
+# Per-test timeout in seconds.  Most tests finish in a few minutes;
+# MaxForwardingRateTest can take ~60 min.  120 min is a generous upper bound.
+# Specific short timeouts for tests known to hang.
+PER_TEST_TIMEOUT: dict[TestType, float] = {
+    TestType.ADDRESS_CACHING_CAPACITY: 300,   # 5 min – known to hang
+    TestType.ADDRESS_LEARNING_RATE: 300,       # 5 min – known to hang
+    TestType.ERRORED_FRAMES_FILTERING: 300,    # 5 min – known to hang
+}
+DEFAULT_TEST_TIMEOUT = 7200  # 2 hours
 
 TEST_TYPE_CLASS = {
     TestType.RATE_TEST: RateTest,
@@ -50,8 +60,18 @@ class TestSuite2889(PluginAbstract["TestSuiteConfiguration2889"]):
         )
         for test_suit_config in self.cfg.enabled_test_suit_config_list:
             test_suit_class = TEST_TYPE_CLASS[test_suit_config.test_type]
-            logger.debug(f"init {test_suit_class}")
-            await test_suit_class(plugin_params, test_suit_config).start()
+            timeout = PER_TEST_TIMEOUT.get(test_suit_config.test_type, DEFAULT_TEST_TIMEOUT)
+            logger.debug(f"init {test_suit_class} (timeout={timeout}s)")
+            try:
+                await asyncio.wait_for(
+                    test_suit_class(plugin_params, test_suit_config).start(),
+                    timeout=timeout,
+                )
+            except asyncio.TimeoutError:
+                logger.error(f"Test {test_suit_config.test_type} TIMED OUT after {timeout}s — skipping")
+            except Exception:
+                logger.error(f"Test {test_suit_config.test_type} failed:\n{traceback.format_exc()}")
+                # Continue with remaining tests instead of aborting the suite
 
     async def __post_test(self) -> None:
         logger.info("test finish")

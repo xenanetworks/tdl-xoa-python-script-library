@@ -1,4 +1,5 @@
 import asyncio
+import inspect
 import sys
 import time
 from math import ceil
@@ -299,7 +300,10 @@ class TestBase(TestSuitAbstract[TCONFIG]):
                 raise exceptions.StopTestByLossSignal()
             result = await self.staticstics_collect(is_live=True)
             self.xoa_out.send_progress(duration_progress)
-            self.xoa_out.send_statistics(self.reprocess_result(result, is_live=True))
+            reprocessed = self.reprocess_result(result, is_live=True)
+            if inspect.isawaitable(reprocessed):
+                reprocessed = await reprocessed
+            self.xoa_out.send_statistics(reprocessed)
             yield TrafficInfo(progress=duration_progress, result=result)
 
     @property
@@ -312,6 +316,8 @@ class TestBase(TestSuitAbstract[TCONFIG]):
     async def send_final_staticstics(self) -> "ResultData":
         await sleep_log(const.DELAY_WAIT_TRAFFIC_STOP)
         result = self.reprocess_result(await self.staticstics_collect(is_live=False))
+        if inspect.isawaitable(result):
+            result = await result
         self.xoa_out.send_statistics(result)
         logger.debug(result)
         return result

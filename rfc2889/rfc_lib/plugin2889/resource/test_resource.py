@@ -77,7 +77,7 @@ class TestResource:
         return self.__prepare().__await__()
 
     async def set_mac_address(self):
-        mac = await self.port.net_config.mac_address.get()
+        mac = await self.port.net_config.mac.address.get()
         current_port_mac_address = MacAddress(mac.mac_address)
         if self.__get_mac_address_function:
             self.mac_address = self.__get_mac_address_function(self, current_port_mac_address)

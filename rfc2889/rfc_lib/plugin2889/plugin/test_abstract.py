@@ -40,7 +40,11 @@ class PluginParameter(BaseModel):
     testers: Dict[str, Any]
     port_identities: List[PortIdentity]
     xoa_out: PXOAOut
-    full_test_config: TestSuiteConfiguration2889
+    # Note: Using Any instead of TestSuiteConfiguration2889 because xoa_core's
+    # plugin loader uses importlib to load plugin modules, creating a different
+    # class identity than the regular import used here. Pydantic v2 performs
+    # strict type identity checks and rejects the instance as the wrong type.
+    full_test_config: Any
     data_sharing: TestSuiteDataSharing
     state_conditions: PStateConditions
 
