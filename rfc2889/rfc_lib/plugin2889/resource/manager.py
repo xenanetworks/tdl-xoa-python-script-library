@@ -64,7 +64,18 @@ class ResourcesManager:
             if isinstance(module, modules.ModuleChimera):
                 raise exceptions.WrongModuleTypeError(module)
 
-            port = module.ports.obtain(port_identity.port_index)
+            # Retry obtaining the port — the driver may not have synced yet
+            port = None
+            for attempt in range(30):
+                try:
+                    port = module.ports.obtain(port_identity.port_index)
+                    break
+                except Exception:
+                    if attempt < 29:
+                        logger.debug(f"Port {port_identity.module_index}/{port_identity.port_index} not ready, retry {attempt+1}/30")
+                        await asyncio.sleep(1)
+                    else:
+                        raise
             coroutines.append(TestResource(
                 tester=tester,
                 port=port,

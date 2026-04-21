@@ -109,7 +109,7 @@ class PortStatistics:
             rx_packet += int(receive.packet_count_since_cleared)
             rx_bit_count_last_sec += receive.bit_count_last_sec
             rx_packet_count_last_sec += receive.packet_count_last_sec
-            non_incre_seq_event_count += int(error.non_incre_seq_event_count)
+            non_incre_seq_event_count += int(error.packet_loss_by_seq)
 
             port_latency.minimum = latency.min_val
             port_latency.maximum = latency.max_val
