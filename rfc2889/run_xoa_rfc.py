@@ -24,7 +24,7 @@ from xoa_core import controller, types
 import asyncio
 import json
 import csv
-import subprocess
+# (subprocess removed — watchdog now uses TCP connect)
 from pathlib import Path
 import logging
 from pydantic import SecretStr
@@ -35,31 +35,27 @@ class NetworkLostError(Exception):
     pass
 
 
-async def network_watchdog(host: str, interval: float = 15.0, fail_count: int = 3, logger=None):
-    """Background task that pings the chassis every `interval` seconds.
+async def network_watchdog(host: str, interval: float = 30.0, fail_count: int = 4, logger=None, port: int = 22606):
+    """Background task that checks chassis reachability every `interval` seconds.
     
-    If `fail_count` consecutive pings fail, raises NetworkLostError
-    which cancels the current task group.
+    Uses a TCP connect to the XOA chassis port (default 22606) instead of
+    ICMP ping, which may be filtered.  If `fail_count` consecutive checks
+    fail, raises NetworkLostError to cancel the current task group.
     """
     consecutive_failures = 0
     while True:
         await asyncio.sleep(interval)
         try:
-            result = await asyncio.to_thread(
-                subprocess.run,
-                ["ping", "-c", "1", "-W", "3", host],
-                capture_output=True,
+            _, writer = await asyncio.wait_for(
+                asyncio.open_connection(host, port), timeout=5.0
             )
-            if result.returncode == 0:
-                consecutive_failures = 0
-            else:
-                consecutive_failures += 1
-                if logger:
-                    logger.warning(f"Network check failed ({consecutive_failures}/{fail_count}): {host} unreachable")
+            writer.close()
+            await writer.wait_closed()
+            consecutive_failures = 0
         except Exception as e:
             consecutive_failures += 1
             if logger:
-                logger.warning(f"Network check error ({consecutive_failures}/{fail_count}): {e}")
+                logger.warning(f"Network check failed ({consecutive_failures}/{fail_count}): {host}:{port} — {e}")
 
         if consecutive_failures >= fail_count:
             msg = f"Chassis {host} unreachable for {consecutive_failures} consecutive checks — aborting test"
@@ -98,7 +94,7 @@ QUICK_TEST = False
 # Set to a list of test suite names to run ONLY those tests (others disabled).
 # e.g. ["address_caching_capacity"]  or  ["rate_test", "forward_pressure"]
 # Set to None or [] to run all enabled tests from the config file.
-ONLY_TESTS = ["address_caching_capacity"]
+ONLY_TESTS = []
 
 
 #---------------------------
@@ -337,8 +333,8 @@ async def run_xoa_rfc(chassis: str, plugin_path: Path, gui_config: Path, xoa_con
     logger.info(f"Add tester {tester_id} to controller")
 
     # Wait for the controller to fully sync module/port info from the chassis
-    await asyncio.sleep(5)
-    logger.info("Controller sync delay complete")
+    await asyncio.sleep(15)
+    logger.info("Controller sync delay complete (15s)")
 
     if run_from_gui_config == True:
         # Convert GUI config into XOA config and run.
@@ -413,7 +409,7 @@ async def run_xoa_rfc(chassis: str, plugin_path: Path, gui_config: Path, xoa_con
 
             try:
                 async with asyncio.TaskGroup() as tg:
-                    tg.create_task(network_watchdog(chassis, interval=15, fail_count=3, logger=logger))
+                    tg.create_task(network_watchdog(chassis, logger=logger))
                     tg.create_task(_consume_results())
             except* NetworkLostError as eg:
                 logger.error(f"TEST ABORTED: {eg.exceptions[0]}")
@@ -464,7 +460,7 @@ async def run_xoa_rfc(chassis: str, plugin_path: Path, gui_config: Path, xoa_con
 
             try:
                 async with asyncio.TaskGroup() as tg:
-                    tg.create_task(network_watchdog(chassis, interval=15, fail_count=3, logger=logger))
+                    tg.create_task(network_watchdog(chassis, logger=logger))
                     tg.create_task(_consume_results2())
             except* NetworkLostError as eg:
                 logger.error(f"TEST ABORTED: {eg.exceptions[0]}")
