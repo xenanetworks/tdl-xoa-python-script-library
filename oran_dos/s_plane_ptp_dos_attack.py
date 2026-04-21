@@ -13,7 +13,7 @@ from xoa_driver import modules
 from xoa_driver import ports
 from xoa_driver import enums
 from xoa_driver import utils
-from xoa_driver.hlfuncs import mgmt, cli, headers
+from xoa_driver.hlfuncs import mgmt, config_io, headers
 from xoa_driver.misc import Hex
 import ipaddress
 import logging
@@ -71,14 +71,14 @@ async def s_plane_ptp_dos(chassis_ip: str, port_str: str, username: str, xpc_mod
 
         # Forcibly reserve the TX port and reset it.
         logging.info(f"Reserve port {port.kind.module_id}/{port.kind.port_id}")
-        await mgmt.reserve_port(port, reset=True)
+        await mgmt.reserve_ports(ports=[port], reset=True)
         
         await asyncio.sleep(2)
 
         if xpc_mode:
             # Configure port from .xpc file
             logging.info(f"Load {xpc_filename}")
-            await cli.port_config_from_file(port, xpc_filename)
+            await config_io.load_port_config(tester=tester, port=port, path=xpc_filename)
         else:
             logging.info(f"Configure port and stream")
             # Configure port using native python
@@ -137,7 +137,7 @@ async def s_plane_ptp_dos(chassis_ip: str, port_str: str, username: str, xpc_mod
         # stop traffic
         logging.info(f"Stop traffic")
         await port.traffic.state.set_stop()
-        await mgmt.release_port(port)
+        await mgmt.release_ports(ports=[port])
 
         logging.info(f"Done")
 

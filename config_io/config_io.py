@@ -51,21 +51,18 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
         port_obj2 = module_obj2.ports.obtain(_pid2)
 
         # Forcibly reserve and reset
-        await mgmt.release_module(module_obj1, should_release_ports=True)
-        await mgmt.release_module(module_obj2, should_release_ports=True)
-        await mgmt.reserve_port(port_obj1, reset=False)
-        await mgmt.reserve_port(port_obj2, reset=False)
+        await mgmt.release_modules(modules=[module_obj1, module_obj2], should_release_ports=True)
+        await mgmt.reserve_ports(ports=[port_obj1, port_obj2], reset=False)
         
         await asyncio.sleep(5)
 
         # -- Load Test Case Config Example --
         logging.info(f"Load test case config from {testcase_path}")
         path = os.path.join(os.path.dirname(__file__), f"{testcase_path}")
-        await config_io.load_test_case_config(tester=tester, path=path)
+        await config_io.load_testbed_config(tester=tester, path=path)
 
         await asyncio.sleep(2)
-        await mgmt.reserve_port(port_obj1, reset=False)
-        await mgmt.reserve_port(port_obj2, reset=False)
+        await mgmt.reserve_ports(ports=[port_obj1, port_obj2], reset=False)
         await asyncio.sleep(2)
         await port_obj1.traffic.state.set_start()
         await asyncio.sleep(10)

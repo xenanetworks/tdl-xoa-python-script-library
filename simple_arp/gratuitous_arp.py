@@ -47,7 +47,7 @@ async def gratuitous_arp(chassis: str, username: str, port_str: str, fps: int):
         port = module.ports.obtain(_pid)
 
         # Forcibly reserve the TX port and reset it.
-        await mgmt.reserve_port(port, reset=True)
+        await mgmt.reserve_ports(ports=[port], reset=True)
         
 
         await asyncio.sleep(5)
@@ -104,7 +104,7 @@ async def gratuitous_arp(chassis: str, username: str, port_str: str, fps: int):
         await port.traffic.state.set_stop()
 
         # release port
-        await mgmt.release_port(port=port)
+        await mgmt.release_ports(ports=[port])
 
 async def main():
     stop_event =asyncio.Event()

@@ -40,7 +40,6 @@ Each folder contains at least three files:
 ### Port Configuration and CLI
 
 * [config_io](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/config_io): How to save and load port and test case configuration using XOA Python API. (requires ``tdl-xoa-driver>=1.5.0``)
-* [xpc_cli_integration](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/xpc_cli_integration): XenaManager's port configuration (.xpc) and CLI integration with XOA Python API. Demonstrates How to load ``.xpc`` file or send CLI commands via XOA Python API. (requires ``tdl-xoa-driver>=1.3.0, <1.5.0``)
 
 ---
 
@@ -89,8 +88,8 @@ Each folder contains at least three files:
 
 ---
 
-### PFC Configuration
-* [pfc](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/pfc): Create a PFC stream on the port to suppress a specific traffic class of the TX port traffic to a target fraction of the port speed.
+### PAUSE & PFC
+* [pause_and_pfc](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/pause_and_pfc): Create a PAUSE/PFC stream on the port to suppress a specific traffic class of the TX port traffic to a target fraction of the port speed.
 
 ---
 

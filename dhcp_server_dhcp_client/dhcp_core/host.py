@@ -60,7 +60,7 @@ class Host(object):
         return [self.mac, self.ip, self.hostname, str(int(self.last_used))]
 
     def to_pattern(self):
-        return self.get_pattern(ip = self.ip, mac = self.mac)
+        return self.get_pattern(ip = self.ip, mac = self.mac) # type: ignore
 
     def __hash__(self):
         return hash((self.mac, self.ip, self.hostname, self.last_used))

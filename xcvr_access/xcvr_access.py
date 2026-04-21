@@ -62,7 +62,7 @@ async def xcvr_access(chassis: str, username: str, port_str: str):
         port_obj = module_obj.ports.obtain(_pid)
 
         # use high-level func to reserve the port
-        await mgmt.reserve_port(port_obj, reset=True)
+        await mgmt.reserve_ports(ports=[port_obj], reset=True)
 
         # Reset the port
         await port_obj.reset.set()
@@ -70,7 +70,7 @@ async def xcvr_access(chassis: str, username: str, port_str: str):
         await asyncio.sleep(10)
 
         # Read transceiver's temperature
-        temperature = await port_obj.transceiver.access_temperature.get()
+        temperature = await port_obj.transceiver.temperature.get()
         logging.info(f"Transceiver temperature: {temperature.integral_part + temperature.fractional_part/256} degrees Celsius.")
         
         # Read transceiver's register value (single read)

@@ -73,7 +73,7 @@ async def ip_fragmentation(chassis: str, username: str, port_str: str) -> None:
         logging.info(f"#---------------------------")
         logging.info(f"# Port reservation")
         logging.info(f"#---------------------------")
-        await mgmt.reserve_port(port_obj, reset=True)
+        await mgmt.reserve_ports(ports=[port_obj], reset=True)
         
 
         #---------------------------
@@ -94,8 +94,8 @@ async def ip_fragmentation(chassis: str, username: str, port_str: str) -> None:
             port_obj.latency_config.mode.set(mode=enums.LatencyMode.LAST2LAST),
             port_obj.tx_config.burst_period.set(burst_period=0),
             port_obj.max_header_length.set(max_header_length=128),
-            port_obj.autotrain.set(interval=0),
-            port_obj.loop_back.set_none(),                                # If you want loopback the port TX to its own RX, change it to set_txoff2rx()
+            port_obj.net_config.mac.autotrain.set(interval=0),
+            port_obj.loopback.set_none(),  # If you want loopback the port TX to its own RX, change it to set_txoff2rx()
             port_obj.checksum.set(offset=0),
             port_obj.tx_config.delay.set(delay_val=0),
             port_obj.tpld_mode.set_normal(),

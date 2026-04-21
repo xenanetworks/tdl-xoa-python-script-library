@@ -15,8 +15,8 @@ import asyncio
 from xoa_driver import testers
 from xoa_driver import modules
 from xoa_driver import ports
-from xoa_driver.enums import *
-from xoa_driver.hlfuncs import mgmt
+from xoa_driver import enums
+from xoa_driver.hlfuncs import mgmt, headers
 from xoa_driver.misc import Hex
 import logging
 
@@ -116,64 +116,55 @@ async def traffic_control(
     logging.info(f"===================================")
     logging.info(f"{'Connect to chassis:':<20}{chassis}")
     logging.info(f"{'Username:':<20}{username}")
-    tester_obj = await testers.L23Tester(host=chassis, username=username, password="xena", port=22606, enable_logging=False)
+    tester_obj = await testers.L23Tester(host=chassis, username=username)
 
     # access the port objects
-    _mid1 = int(port1_str.split("/")[0])
-    _pid1 = int(port1_str.split("/")[1])
-    _mid2 = int(port2_str.split("/")[0])
-    _pid2 = int(port2_str.split("/")[1])
-    module_obj_1 = tester_obj.modules.obtain(_mid1)
-    module_obj_2 = tester_obj.modules.obtain(_mid2)
+    module_obj_1, module_obj_2 = await mgmt.obtain_modules_by_ids(tester_obj, [port1_str, port2_str])    
+    port_obj_1, port_obj_2 = await mgmt.obtain_ports_by_ids(tester_obj, [port1_str, port2_str])
 
-    # commands which used in this example are not supported by Chimera Module
-    if isinstance(module_obj_1, modules.ModuleChimera):
+    # commands which used in this example are not applicable to Chimera Module
+    if isinstance(port_obj_1, ports.E100ChimeraPort) or isinstance(port_obj_2, ports.E100ChimeraPort):
+        logging.error("This script example is not applicable to Chimera Module.")
         return None
-    if isinstance(module_obj_2, modules.ModuleChimera):
-        return None
-    
-    port_obj_1 = module_obj_1.ports.obtain(_pid1)
-    port_obj_2 = module_obj_2.ports.obtain(_pid2)
 
-    logging.info(f"Reserve and reset port {_mid1}/{_pid1}")
-    logging.info(f"Reserve and reset port {_mid2}/{_pid2}")
-
-    await mgmt.release_module(module=module_obj_1, should_release_ports=False)
-    await mgmt.reserve_port(port=port_obj_1, force=True, reset=True)
-    await mgmt.release_module(module=module_obj_2, should_release_ports=False)
-    await mgmt.reserve_port(port=port_obj_2, force=True, reset=True)
+    await mgmt.release_modules(modules=[module_obj_1, module_obj_2], should_release_ports=False)
+    await mgmt.reserve_ports(ports=[port_obj_1, port_obj_2], force=True, reset=True)
 
     await asyncio.sleep(5)
 
     # Create one stream on the port
-    logging.info(f"Creating a stream on port {_mid1}/{_pid1}")
+    logging.info(f"Creating a stream on port {port1_str}")
     my_stream1 = await port_obj_1.streams.create()
     # Create one stream on the port
-    logging.info(f"Creating a stream on port {_mid2}/{_pid2}")
+    logging.info(f"Creating a stream on port {port2_str}")
     my_stream2 = await port_obj_2.streams.create()
 
     logging.info(f"Configuring streams..")
 
-    DESTINATION_MAC =   "AAAAAAAAAAAA"
-    SOURCE_MAC =        "BBBBBBBBBBBB"
-    ETHERNET_TYPE =     "8100"
-    VLAN = "0000FFFF"
+    eth = headers.Ethernet()
+    eth.dst_mac = "AA:AA:AA:AA:AA:AA"
+    eth.src_mac = "BB:BB:BB:BB:BB:BB"
+    eth.ethertype = headers.EtherType.VLAN
+    vlan = headers.VLAN()
+    vlan.id = 100
+    header_data1 = f'{str(eth)}{str(vlan)}'
 
-    DESTINATION_MAC2 =   "BBBBBBBBBBBB"
-    SOURCE_MAC2 =        "AAAAAAAAAAAA"
-    ETHERNET_TYPE2 =     "8100"
-    VLAN2 = "0010FFFF"
-    header_data1 = f'{DESTINATION_MAC}{SOURCE_MAC}{ETHERNET_TYPE}{VLAN}'
-    header_data2 = f'{DESTINATION_MAC2}{SOURCE_MAC2}{ETHERNET_TYPE2}{VLAN2}'
+    eth = headers.Ethernet()
+    eth.dst_mac = "BB:BB:BB:BB:BB:BB"
+    eth.src_mac = "AA:AA:AA:AA:AA:AA"
+    eth.ethertype = headers.EtherType.VLAN
+    vlan = headers.VLAN()
+    vlan.id = 100
+    header_data2 = f'{str(eth)}{str(vlan)}'
 
     await asyncio.gather(
         # Create the TPLD index of stream
         my_stream1.tpld_id.set(0),
         # Configure the packet size
-        my_stream1.packet.length.set(length_type=LengthType.FIXED, min_val=1000, max_val=1000),
+        my_stream1.packet.length.set(length_type=enums.LengthType.FIXED, min_val=1000, max_val=1000),
         my_stream1.packet.header.protocol.set(segments=[
-                ProtocolOption.ETHERNET,
-                ProtocolOption.VLAN
+                enums.ProtocolOption.ETHERNET,
+                enums.ProtocolOption.VLAN
                 ]),
         # Enable streams
         my_stream1.enable.set_on(),
@@ -186,10 +177,10 @@ async def traffic_control(
 
         my_stream2.tpld_id.set(1),
         # Configure the packet size
-        my_stream2.packet.length.set(length_type=LengthType.INCREMENTING, min_val=100, max_val=1000),
+        my_stream2.packet.length.set(length_type=enums.LengthType.INCREMENTING, min_val=100, max_val=1000),
         my_stream2.packet.header.protocol.set(segments=[
-                ProtocolOption.ETHERNET,
-                ProtocolOption.VLAN
+                enums.ProtocolOption.ETHERNET,
+                enums.ProtocolOption.VLAN
                 ]),
         # Enable streams
         my_stream2.enable.set_on(),
@@ -200,6 +191,7 @@ async def traffic_control(
         # my_stream2.packet.limit.set(packet_count=10000),
         my_stream2.packet.header.data.set(hex_data=Hex(header_data2)),
     )
+    await asyncio.sleep(1)
 
     # clear port statistics
     logging.info(f"Clearing statistics")
@@ -237,8 +229,7 @@ async def traffic_control(
 
     # free ports
     logging.info(f"Free ports")
-    await mgmt.release_port(port_obj_1)
-    await mgmt.release_port(port_obj_2)
+    await mgmt.release_ports(ports=[port_obj_1, port_obj_2])
 
     # done
     logging.info(f"Test done")

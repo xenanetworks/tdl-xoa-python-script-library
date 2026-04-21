@@ -53,9 +53,7 @@ async def port_filter(chassis: str, username: str, port_str1: str, port_str2: st
         tx_port = tx_module.ports.obtain(_pid1)
         rx_port = rx_module.ports.obtain(_pid2)
 
-        await mgmt.reserve_port(tx_port, reset=True)
-        
-        await mgmt.reserve_port(rx_port, reset=True)
+        await mgmt.reserve_ports(ports=[tx_port, rx_port], reset=True)
         
 
         await asyncio.sleep(5)
@@ -64,7 +62,7 @@ async def port_filter(chassis: str, username: str, port_str1: str, port_str2: st
         await utils.apply(
             tx_port.comment.set(comment="my tx port"),
             tx_port.interframe_gap.set(min_byte_count=20),
-            tx_port.loop_back.set(mode=enums.LoopbackMode.NONE),
+            tx_port.loopback.set(mode=enums.LoopbackMode.NONE),
         )
 
         # Create a stream on the tx port
@@ -104,7 +102,7 @@ async def port_filter(chassis: str, username: str, port_str1: str, port_str2: st
         await utils.apply(
             rx_port.comment.set(comment="my rx port"),
             rx_port.interframe_gap.set(min_byte_count=20),
-            tx_port.loop_back.set(mode=enums.LoopbackMode.NONE),
+            rx_port.loopback.set(mode=enums.LoopbackMode.NONE),
         )
 
         # Configure match term on the RX port

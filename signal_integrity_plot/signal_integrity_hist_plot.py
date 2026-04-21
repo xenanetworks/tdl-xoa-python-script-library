@@ -87,8 +87,8 @@ async def siv_plot(
             return None
         
         port_obj = module_obj.ports.obtain(_pid)
-        await mgmt.release_module(module=module_obj, should_release_ports=False)
-        await mgmt.reserve_port(port_obj, reset=True)
+        await mgmt.release_modules(modules=[module_obj], should_release_ports=False)
+        await mgmt.reserve_ports(ports=[port_obj], reset=True)
 
         resp = await port_obj.capabilities.get()
         max_serdes = resp.serdes_count
@@ -117,7 +117,7 @@ async def siv_plot(
         # add subplots
         siv_subplots = []
         for i in range(serdes_cnt_to_show):
-            siv_subplots.append(fig.add_subplot(gs[i%gs.nrows, int(i/gs.nrows)]))
+            siv_subplots.append(fig.add_subplot(gs[i%gs.nrows, int(i/gs.nrows)])) # type: ignore
         
         # data dequeue for each serdes lane. queue depth = density*2000
         INT_CNT_PER_DATA = 2000
@@ -132,12 +132,12 @@ async def siv_plot(
         # group control commands for each serdes lane together to later send it as a command group.
         control_cmd_group = []
         for i in range(serdes_cnt_to_show):
-            control_cmd_group.append(port_obj.l1.serdes[lanes[i]].medium.siv.control.set(opcode=enums.Layer1Opcode.START_SCAN))
+            control_cmd_group.append(port_obj.layer1.serdes[lanes[i]].siv.control.set(opcode=enums.Layer1Opcode.START_SCAN))
         
         # get commands for each serdes lane together to later send it as a command group.
         get_cmd_group = []
         for i in range(serdes_cnt_to_show):
-            get_cmd_group.append(port_obj.l1.serdes[lanes[i]].medium.siv.data.get())
+            get_cmd_group.append(port_obj.layer1.serdes[lanes[i]].siv.data.get())
 
         resp_group = ()
         plot_count = math.ceil(plotting_duration/plotting_interval)
@@ -199,7 +199,7 @@ async def siv_plot(
                         # add average level 1 <m3>
                         y = siv_int_levels[5]
                         siv_subplots[i].axhline(y, color='black', linestyle='dashed', linewidth=0.1)
-                        siv_subplots[i].text(siv_subplots[i].get_xlim()[1] + 0.1, y, f'level1={y}', fontsize="small")
+                        siv_subplots[i].text(siv_subplots[i].get_xlim()[1] + 0.1, y, f'levelayer1={y}', fontsize="small")
                         # add average level 0 <m1>
                         y = siv_int_levels[3]
                         siv_subplots[i].axhline(y, color='black', linestyle='dashed', linewidth=0.1)
@@ -210,7 +210,7 @@ async def siv_plot(
                     plt.pause(plotting_interval)
                     break
         
-        await mgmt.release_port(port_obj)
+        await mgmt.release_ports(ports=[port_obj])
         logging.info(f"Bye!")
 
 async def main():

@@ -46,20 +46,20 @@ class XenaSocketDriver(SimpleSocket):
 		self.set_keepalives()
 		self.access_semaphore = threading.Semaphore(1)
 
-	def send_command(self, cmd: str):
+	def send(self, cmd: str):
 		self.access_semaphore.acquire()
-		super().send_command(cmd)
+		super().send(cmd)
 		self.access_semaphore.release()
 
-	def ask(self, cmd: str) -> str:
+	def send_with_resp(self, cmd: str) -> str:
 		self.access_semaphore.acquire()
-		reply = super().ask(cmd).strip('\n')
+		reply = super().send_with_resp(cmd).strip('\n')
 		self.access_semaphore.release()
 		return reply
 
-	def ask_multi(self, cmd: str, num: int):
+	def send_list_with_resp(self, cmds: list[str]) -> list[str]:
 		self.access_semaphore.acquire()
-		reply = super().ask_multi(cmd, num)
+		reply = super().send_list_with_resp(cmds)
 		self.access_semaphore.release()
 		return reply
 
@@ -88,23 +88,49 @@ class XOACLIManager:
 	PORT_TRAFFIC_ON            	= lambda self, port: f"{ port } P_TRAFFIC ON"
 	PORT_TRAFFIC_OFF            = lambda self, port: f"{ port } P_TRAFFIC OFF"
 
-	def __init__(self, ip):
-		self.ip    = ip
-		self.debug = 0
-		self.halt  = 0 
-		self.log   = 0
-		self.cmds  = []
-		self.logf  = os.environ.get(LOGFILE)
-		if self.logf != None:
-			self.log = 1
+	def __init__(self, chassis_address: str, enable_debug = False, enable_log = False, enable_halt = False, enable_response_terminator = True):
+		"""Initialize the XOACLIManager.
 
-		self.driver= XenaSocketDriver(ip)
+		:param chassis_address: The IP address of the Xena device.
+		:type chassis_address: str
+		:param enable_debug: Enable debug logging, defaults to False
+		:type enable_debug: bool, optional
+		:param enable_log: Enable logging to file, defaults to False
+		:type enable_log: bool, optional
+		:param enable_halt: Enable halt on error, defaults to False
+		:type enable_halt: bool, optional
+		:param enable_response_terminator: Enable response terminator, defaults to True
+		:type enable_response_terminator: bool, optional
+		"""
+		self.chassis_address = chassis_address
+		self.enable_debug = enable_debug
+		self.enable_halt = False
+		self.enable_log = enable_log
+		self._log_cmds  = []
+		self._log_filename  = os.environ.get(LOGFILE)
+		if self._log_filename != None:
+			self.enable_log = True
+		self.enable_halt = enable_halt
+		self.enable_response_terminator = enable_response_terminator
+
+		# Initialize socket driver
+		self.driver= XenaSocketDriver(chassis_address)
+
+		# Enable response terminator marker. 
+		if self.enable_response_terminator:
+			self.driver.send("SYNC ON")
+			logging.info("Response terminator enabled")
+			self.debug_message("Response terminator enabled")
+		else:
+			self.driver.send("SYNC OFF")
+			logging.info("Response terminator disabled")
+			self.debug_message("Response terminator disabled")
 
 	def __del__(self):
-		if self.log:
-			if self.logf:
-				with open(self.logf, 'w') as log_file:
-					for cmd in self.cmds:
+		if self.enable_log:
+			if self._log_filename:
+				with open(self._log_filename, 'w') as log_file:
+					for cmd in self._log_cmds:
 						log_file.write(f"{ cmd }\n")
 		return
 
@@ -116,39 +142,53 @@ class XOACLIManager:
 
 	## Enable debug - prints commands and errors
 	def debug_on(self) -> None:
-		self.debug = 1
+		"""Enable debug logging.
+		"""
+		self.enable_debug = True
 		logging.basicConfig(format='%(asctime)s.%(msecs)03d %(message)s', datefmt='%m/%d/%Y %I:%M:%S')
 		return
 
 	## Disable debug (default) - no printed output
 	def debug_off(self) -> None:
-		self.debug = 0
+		"""Disable debug logging.
+		"""
+		self.enable_debug = 0
 		return
 
 	def debug_message(self, msg: str) -> None:
-		if self.debug == 1:
+		"""Log a debug message.
+
+		:param msg: The message to log.
+		:type msg: str
+		"""
+		if self.enable_debug == 1:
 			logging.info(f"{time.time()} {msg}")
 			print(f"{time.time()} {msg}")
 
-	def log_command(self, cmd:str) -> None:
-		if self.log == 1:
-			self.cmds.append(cmd)
+	def log_command(self, cmd: str) -> None:
+		"""Log a command.
+
+		:param cmd: The command to log.
+		:type cmd: str
+		"""
+		if self.enable_log == 1:
+			self._log_cmds.append(cmd)
 	
 	## Enable halt on error - calls sys.exit(1) upon error
 	def halt_on(self) -> None:
-		self.halt = 1
+		self.enable_halt = True
 		return
 
 	## Disable halt on error (default)
 	def halt_off(self) -> None:
-		self.halt = 0
+		self.enable_halt = False
 		return
 
 	## Print diagnostics msg and halt
-	def errexit(self, msg:str):
-		if self.halt == 1:
+	def errexit(self, msg: str):
+		if self.enable_halt == 1:
 			logging.error(f"\nError: { msg }, exiting...\n")
-			sys.exit(1)
+			raise SystemExit(msg)
 		else:
 			raise Exception(f"\nError: { msg }, exiting...\n")
 
@@ -160,20 +200,20 @@ class XOACLIManager:
 
 	## Send command and return response
 	def send(self, cmd:str) -> str:
-		res = self.driver.ask(cmd)
+		res = self.driver.send_with_resp(cmd)
 		self.debug_message(f"send()         : { cmd }")
 		self.debug_message(f"send() received: { res }")
 		self.log_command(cmd)
 		return res
 	
 	## Send one command and expect to receive a specified response
-	def send_expect(self, cmd:str, resp:str) -> bool:
+	def send_expect(self, cmd: str, resp: str) -> bool:
 		"""Send command and expect response (typically <OK>)"""
 
 		self.debug_message(f"send_expect({ resp }): { cmd }")
 		self.log_command(cmd)
 		try:
-			res = self.driver.ask(cmd)
+			res = self.driver.send_with_resp(cmd)
 			if res.rstrip('\n') == resp:
 				return True
 			else:
@@ -205,7 +245,7 @@ class XOACLIManager:
 		self.debug_message(f"send_and_match() : { cmd }")
 		self.log_command(cmd)
 
-		res = self.driver.ask(cmd)
+		res = self.driver.send_with_resp(cmd)
 		if m_str in res:
 			return True
 		else:
@@ -220,31 +260,28 @@ class XOACLIManager:
 			return False
 
 	## Send multiple commands in batch and return all responses
-	def send_multi_commands(self, cmdlist: list, batch = True) -> list:
+	def send_multi_commands(self, cmdlist: list[str], batch = True) -> list[str]:
 		if not isinstance(cmdlist, list):
 			raise ValueError('\'cmdlist\' - must be a instance of list')
-		cmd = ''
+
 		num = len(cmdlist)
 		self.debug_message(f"{num} commands to send to xenaserver")
 
 		if batch == True:
+			cmd = ""
 			for command in cmdlist:
 				cmd = cmd + command + '\n'
-
 			self.debug_message(f"send()         : { cmd }")
-			res = self.driver.ask_multi(cmd, num)
-			def mapper(v): return f"{ v[0] }: { v[1] }"
-			mes = "\n".join( list( map(mapper, list( zip(cmdlist, res.split('\n')) ) ) ) )
-			self.debug_message(f"send() received: { mes }")
-
-			return res.splitlines()
+			resps = self.driver.send_list_with_resp(cmdlist)
+			self.debug_message(f"send() received: { resps }")
+			return resps
 		else:
 			results = []
 			for command in cmdlist:
 				cmd = command
 				self.debug_message(f"send()         : { cmd }")
 
-				res = self.driver.ask(cmd)
+				res = self.driver.send_with_resp(cmd)
 
 				self.debug_message(f"send() received: { res }")
 				self.log_command(cmd)

@@ -4,6 +4,8 @@ from typing import Optional, Callable, Union, List, Dict, Any
 
 from xoa_cli_py.xoa_cli_manager import XOACLIManager
 
+import os
+
 def list_all_ports(xm):
 	modules = xm.send("C_PORTCOUNTS ?").split()
 	for i in range(len(modules)-1):
@@ -84,8 +86,11 @@ def stream_indices(xm, ports: Union[List[str], str]) -> Dict[str, List[str]]:
 
 
 def main():
-	ip_address = "10.165.136.70"
-	test_ports = ["2/0"]
+	stored_config_dir = os.path.join(os.path.dirname(__file__), "stored_config")
+	port_config_file = "port_config.xpc"
+
+	ip_address = "10.165.153.243"
+	test_ports = ["0/0"]
 	loop_count = 50
 
 	# Create an xenaserver object
@@ -96,6 +101,17 @@ def main():
 
 	# Debug off/on
 	xm.debug_off()
+
+	with open(os.path.join(stored_config_dir, port_config_file), "w") as xpc_file:
+		for port in test_ports:
+			resp = xm.send(f"{port} P_FULLCONFIG ?")
+			print(resp)
+
+			# Write the output to the file
+			xpc_file.write(resp)
+
+	return
+
 
 	# Reserve test ports
 	xm.port_reserve(test_ports)
