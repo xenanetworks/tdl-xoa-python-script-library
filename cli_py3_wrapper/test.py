@@ -99,9 +99,6 @@ def main():
 	# Log on and set username
 	xm.logon_set_owner("xena", "test")
 
-	# Debug off/on
-	xm.debug_off()
-
 	with open(os.path.join(stored_config_dir, port_config_file), "w") as xpc_file:
 		for port in test_ports:
 			resp = xm.send(f"{port} P_FULLCONFIG ?")
