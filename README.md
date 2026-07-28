@@ -60,7 +60,7 @@ Each folder contains at least three files:
 ### Various Statistics
 
 * [collect_live_statistics](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/collect_live_statistics): How to query real-time statistics in different async task.
-* [fec_error_dist_plot](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/fec_error_dist_plot): Query FEC error counters and generate FEC error distribution plot.
+* [fec_codeword_err_dist_plotting](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/fec_codeword_err_dist_plotting): Monitor and plot the FEC Codeword Error Distribution (log10) in real time for all ports on a module.
 * [fec_stats_csv](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/fec_stats_csv): Query FEC error counters and save the data in csv file.
 * [l1_bit_rate](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/l1_bit_rate): How to convert traffic L2 bit rate into L1 bit rate.
 * [prbs_ber_stats](https://github.com/xenanetworks/tdl-xoa-python-script-library/tree/main/prbs_ber_stats): How to start PRBS and read PRBS BER statistics.
