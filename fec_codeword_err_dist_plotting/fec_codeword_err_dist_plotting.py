@@ -1,14 +1,13 @@
 ################################################################
 #
-#                   PRE-FEC ERROR DIST PLOT
+#                   FEC CODEWORD ERROR DISTRIBUTION PLOT
+#
+# Prerequisites:
+# 1. Use GUI to configure the module media and port speed (the script doesn't configure it)
 #
 # What this script example does:
-# 1. Connect to a tester
-# 2. Reserve a all ports on a module
-# 3. Set the port FEC mode on
-# 4. Clear FEC stats
-# 5. Query FEC Blocks (symbol error) and FEC stats
-# 6. Plot the Pre-FEC error distribution for all ports
+# 1. Monitor and plot the FEC Codeword Error Distribution (log10) in real time for all ports on a module.
+# 2. The plot is refreshed every N seconds for a total of M seconds.
 #
 ################################################################
 
@@ -23,6 +22,7 @@ from xoa_driver.hlfuncs import mgmt
 from xoa_driver.misc import Hex
 import logging
 import math
+from decimal import Decimal, ROUND_HALF_UP
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -31,12 +31,13 @@ from collections import deque
 #---------------------------
 # GLOBAL PARAMS
 #---------------------------
-CHASSIS_IP = "10.165.136.66"
+CHASSIS_IP = "10.165.153.50"
+TCP_PORT = 22606
 USERNAME = "xoa"
-MODULE = "4"
-FIGURE_TITLE = "Pre-FEC Error Distribution Plot (log10)"
-PLOTTING_INTERVAL = 1 # plots refreshed every n second
-PLOTTING_DURATION = 120 # number of seconds for plotting
+MODULE = "10"
+FIGURE_TITLE = "FEC Codeword Error Distribution (log10)"
+PLOTTING_INTERVAL = 1 # Plot is refreshed every N seconds
+PLOTTING_DURATION = 120 # Plotting duration in M seconds
 
 # Enable the FEC mode you want
 FEC_MODE = enums.FECMode.ON # either RS FEC KR or KP. Determined by the port automatically
@@ -44,10 +45,11 @@ FEC_MODE = enums.FECMode.ON # either RS FEC KR or KP. Determined by the port aut
 # FEC_MODE = enums.FECMode.RS_FEC_INT
         
 #---------------------------
-# pre_fec_error_dist_plot
+# fec_codeword_err_dist_plotting
 #---------------------------
-async def pre_fec_error_dist_plot(
+async def fec_codeword_err_dist_plotting(
         chassis: str,
+        tcp_port: int,
         username: str,
         module_str: str,
         figure_title: str,
@@ -69,11 +71,11 @@ async def pre_fec_error_dist_plot(
 
     # Establish connection to a Valkyrie tester using Python context manager
     # The connection will be automatically terminated when it is out of the block
-    async with testers.L23Tester(host=chassis, username=username, password="xena", port=22606, enable_logging=False) as tester:
+    async with testers.L23Tester(host=chassis, username=username, password="xena", port=tcp_port, enable_logging=False) as tester:
         logging.info(f"#####################################################################")
-        logging.info(f"Chassis:                 {chassis}")
+        logging.info(f"Chassis:                 {chassis}:{tcp_port}")
         logging.info(f"Username:                {username}")
-        logging.info(f"Port:                    {module_str}")
+        logging.info(f"Module:                  {module_str}")
         logging.info(f"Figure Title:            {figure_title}")
         logging.info(f" Plot Refresh Interval:   {plotting_interval} s")
         logging.info(f" Plot Duration:           {plotting_duration} s")
@@ -122,12 +124,12 @@ async def pre_fec_error_dist_plot(
         # set FEC mode on
         logging.info(f"Set FEC Mode = {fec_mode.name}")
         for p in port_objs:
-            await p.layer1.pcs_fec.fec_mode.set(mode=fec_mode) # type: ignore
+            await p.layer1.pcs.fec_mode.set(mode=fec_mode) # type: ignore
 
         # clear FEC counter
         logging.info(f"Clear FEC counter")
         for p in port_objs:
-            await p.layer1.pcs_fec.clear.set() # type: ignore
+            await p.layer1.pcs.clear.set() # type: ignore
 
         # query FEC Totals and Pre-FEC Error Distribution
         plot_count = math.ceil(plotting_duration/plotting_interval)
@@ -139,8 +141,8 @@ async def pre_fec_error_dist_plot(
                 port_obj = port_objs[i]
                 logging.info(f"Port {port_obj.kind.module_id}/{port_obj.kind.port_id}")
                 _total_status, _fec_status = await utils.apply(
-                    port_obj.layer1.pcs_fec.fec_symbol_status.total_status.get(), # type: ignore
-                    port_obj.layer1.pcs_fec.fec_symbol_status.fec_status.get() # type: ignore
+                    port_obj.layer1.pcs.fec_symbol_status.total_status.get(), # type: ignore
+                    port_obj.layer1.pcs.fec_symbol_status.fec_status.get() # type: ignore
                 )
                 n = _fec_status.data_count - 2
                 for j in range(n):
@@ -156,9 +158,11 @@ async def pre_fec_error_dist_plot(
                 pre_fec_error_dist_data[i] = [x + y for x, y in zip(pre_fec_error_dist_data[i], _fec_status.stats[0:n+1])]
                 pre_fec_ber_str = ""
                 if _total_status.total_pre_fec_ber == 0:
-                    pre_fec_ber_str = f"Pre-FEC BER = 0"
+                    _pre_fec_ber = 0
+                    pre_fec_ber_str = f"Pre-FEC BER = {_pre_fec_ber}"
                 else:
-                    pre_fec_ber_str = f"Pre-FEC BER = {abs(1/_total_status.total_pre_fec_ber)}"
+                    _pre_fec_ber = abs(1/_total_status.total_pre_fec_ber)
+                    pre_fec_ber_str = f"Pre-FEC BER = {_pre_fec_ber}"
 
                 pre_fec_subplots[i].cla()
                 pre_fec_subplots[i].relim()
@@ -170,7 +174,7 @@ async def pre_fec_error_dist_plot(
                         pre_fec_error_dist_data_log10.append(np.log10(x))
                     else:
                         pre_fec_error_dist_data_log10.append(0)
-                # print(pre_fec_error_dist_data_log10)
+                print(pre_fec_error_dist_data_log10)
                 tmp = pre_fec_subplots[i].bar(x=x_axis, height=pre_fec_error_dist_data_log10, color=color_array,)
                 pre_fec_subplots[i].bar_label(container=tmp, fmt='%.1f')
                 x0, xmax = pre_fec_subplots[i].get_xbound()
@@ -181,7 +185,7 @@ async def pre_fec_error_dist_plot(
             plt.show()
             logging.info(f"Clear FEC counter")
             for p in port_objs:
-                await p.layer1.pcs_fec.clear.set() # type: ignore
+                await p.layer1.pcs.clear.set() # type: ignore
             plt.pause(plotting_interval)
             
 
@@ -189,8 +193,9 @@ async def pre_fec_error_dist_plot(
 async def main():
     stop_event = asyncio.Event()
     try:
-        await pre_fec_error_dist_plot(
+        await fec_codeword_err_dist_plotting(
             chassis=CHASSIS_IP,
+            tcp_port=TCP_PORT,
             username=USERNAME,
             module_str=MODULE,
             figure_title=FIGURE_TITLE,
