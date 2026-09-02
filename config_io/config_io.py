@@ -8,11 +8,11 @@ import os
 #---------------------------
 # GLOBAL PARAMS
 #---------------------------
-CHASSIS_IP = "10.165.153.243"
+CHASSIS_IP = "10.165.153.104"
 USERNAME = "XOADev"
-PORT1 = "2/0"
-PORT2 = "2/1"
-TESTCASE_PATH = "TestMe.xtc2"
+PORT1 = "7/0"
+PORT2 = "9/0"
+TESTCASE_PATH = "test.xpc"
 
 async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2: str, testcase_path: str):
     # configure basic logger
@@ -57,9 +57,14 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
         await asyncio.sleep(5)
 
         # -- Load Test Case Config Example --
-        logging.info(f"Load test case config from {testcase_path}")
+        # logging.info(f"Load test case config from {testcase_path}")
+        # path = os.path.join(os.path.dirname(__file__), f"{testcase_path}")
+        # await config_io.load_testbed_config(tester=tester, path=path)
+        
+        # -- Load Port Config Example --
+        logging.info(f"Load port config from {testcase_path}")
         path = os.path.join(os.path.dirname(__file__), f"{testcase_path}")
-        await config_io.load_testbed_config(tester=tester, path=path)
+        await config_io.load_port_config(tester=tester, port=port_obj1, path=path)
 
         await asyncio.sleep(2)
         await mgmt.reserve_ports(ports=[port_obj1, port_obj2], reset=False)
