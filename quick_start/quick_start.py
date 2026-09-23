@@ -32,7 +32,7 @@ from typing import Union
 #---------------------------
 # GLOBAL PARAMS
 #---------------------------
-CHASSIS_IP = "demo.xenanetworks.com"
+CHASSIS_IP = "87.61.110.114" # Live Demo B720 (1G-10G)
 USERNAME = "quick_start"
 PORT1 = "0/0"
 PORT2 = "0/1"
@@ -54,18 +54,19 @@ async def my_awesome_func(chassis: str, username: str, port_str1: str, port_str2
         logging.info(f"{'Connect to chassis:':<20}{chassis}")
         logging.info(f"{'Username:':<20}{username}")
 
-
         #################################################
         #           Module Configuration                #
         #################################################
         
-        module_obj = mgmt.obtain_modules_by_ids(tester=tester, module_ids=["0"])
+        module_objs = await mgmt.obtain_modules_by_ids(tester=tester, module_ids=["0"])
+        module_obj = module_objs[0]
+        
         if not isinstance(module_obj, modules.GenericL23Module):
             print("This quick start example only supports L23 modules.")
             return
         
         # Configure module to QSFP-DD 800G with 8x100G ports
-        await mgmt.set_module_config(module=module_obj, media=enums.MediaConfigurationType.QSFPDD800, port_count=8, port_speed=100_000, force=True)
+        # await mgmt.set_module_config(module=module_obj, media=enums.MediaConfigurationType.QSFPDD800, port_count=8, port_speed=100_000, force=True)
 
         #################################################
 
